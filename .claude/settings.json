@@ -1,0 +1,129 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npm run:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm ls:*)",
+      "Bash(npm -g list:*)",
+      "Bash(npx:*)",
+      "Bash(node:*)",
+      "Bash(git -C:*)",
+      "Bash(git clone:*)",
+      "Bash(git push:*)",
+      "Bash(git add:*)",
+      "Bash(git fetch:*)",
+      "Bash(git commit:*)",
+      "Bash(git status:*)",
+      "Bash(git rm:*)",
+      "Bash(git config:*)",
+      "Bash(git branch:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(gh:*)",
+      "Bash(ssh:*)",
+      "Bash(ssh-keygen:*)",
+      "Bash(curl:*)",
+      "Bash(ls:*)",
+      "Bash(dir:*)",
+      "Bash(find:*)",
+      "Bash(ln:*)",
+      "Bash(chmod:*)",
+      "Bash(systemctl:*)",
+      "Bash(journalctl:*)",
+      "Bash(loginctl:*)",
+      "Bash(tailscale status:*)",
+      "Bash(openclaw:*)",
+      "Bash(tmux:*)",
+      "Bash(ttyd:*)",
+      "Bash(nvidia-smi:*)",
+      "Bash(ss:*)",
+      "Bash(netstat:*)",
+      "Bash(apt list:*)",
+      "Bash(apt-cache show:*)",
+      "Bash(dpkg -l:*)",
+      "Bash(sudo apt install:*)",
+      "Bash(python3:*)",
+      "Bash(timeout:*)",
+      "Bash(powershell.exe -Command:*)",
+      "WebFetch(domain:localhost)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/block-protected-files.js\"",
+            "statusMessage": "Checking file protections..."
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/block-dangerous-commands.js\"",
+            "statusMessage": "Checking command safety..."
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/typecheck-on-edit.js\"",
+            "timeout": 30,
+            "statusMessage": "Type-checking..."
+          },
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/lint-on-edit.js\"",
+            "timeout": 15,
+            "statusMessage": "Linting..."
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "permission_prompt",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "printf '\\a'",
+            "async": true
+          }
+        ]
+      },
+      {
+        "matcher": "idle_prompt",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "printf '\\a'",
+            "async": true
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "startup|resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/session-context.js\"",
+            "statusMessage": "Loading project context..."
+          }
+        ]
+      }
+    ]
+  }
+}

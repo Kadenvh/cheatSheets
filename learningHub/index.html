@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- SECTION: Meta & Head -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Interactive ML & LLM Learning Hub</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!-- SECTION: Background Decorations -->
+    <div class="floating-shape floating-shape--one" aria-hidden="true"></div>
+    <div class="floating-shape floating-shape--two" aria-hidden="true"></div>
+
+    <!-- SECTION: App Shell -->
+    <div class="app">
+      <!-- SECTION: Header -->
+      <header class="header">
+        <div class="header__brand">
+          <div class="header__logo gradient-border">
+            <span class="header__logo-mark">λ</span>
+          </div>
+          <div>
+            <h1 class="header__title">ML & LLM Learning Hub</h1>
+            <p class="header__subtitle">Interactive visual intuition for modern machine learning.</p>
+          </div>
+        </div>
+
+        <nav class="nav" aria-label="Primary navigation">
+          <button class="nav__item nav__item--active" data-target="overview">Overview</button>
+          <button class="nav__item" data-target="ml-concepts">ML Concepts</button>
+          <button class="nav__item" data-target="llm-internals">LLM Internals</button>
+          <button class="nav__item" data-target="learning-path">Learning Path</button>
+        </nav>
+      </header>
+
+      <!-- SECTION: Main Content -->
+      <main class="main" id="main-content">
+        <!-- PANEL: Overview -->
+        <section class="panel panel--active" id="panel-overview" aria-labelledby="overview-heading">
+          <div class="panel__grid">
+            <div>
+              <h2 class="panel__title" id="overview-heading">Welcome, future LLM builder.</h2>
+              <p class="panel__lead">
+                Use this hub to build strong ML foundations and intuitive understanding of how large language models
+                work under the hood.
+              </p>
+
+              <div class="pill-strip" aria-label="What's inside this hub">
+                <span class="pill">Interactive ML visualizations</span>
+                <span class="pill">LLM internals demos</span>
+                <span class="pill">Guided learning path</span>
+              </div>
+
+              <div class="overview-actions">
+                <button class="btn btn--primary" data-target="ml-concepts">Start with ML intuition</button>
+                <button class="btn btn--ghost" data-target="learning-path">Browse learning path</button>
+              </div>
+            </div>
+
+            <aside class="overview-card shadow-soft" aria-label="Progress snapshot">
+              <h3 class="overview-card__title">Today's snapshot</h3>
+              <p class="overview-card__metric" id="snapshot-completion">0% complete</p>
+              <p class="overview-card__caption">of your curated ML & LLM path.</p>
+
+              <div class="progress-ring" role="img" aria-label="Learning progress visualization">
+                <div class="progress-ring__inner" id="snapshot-ring">0%</div>
+              </div>
+
+              <ul class="overview-card__list" id="snapshot-breakdown">
+                <!-- Filled by JS with path stats -->
+              </ul>
+            </aside>
+          </div>
+        </section>
+
+        <!-- PANEL: ML Concepts -->
+        <section class="panel" id="panel-ml-concepts" aria-labelledby="ml-concepts-heading">
+          <header class="panel__header">
+            <div>
+              <h2 class="panel__title" id="ml-concepts-heading">Machine Learning Intuition</h2>
+              <p class="panel__subtitle">Play with small simulations to build a geometric feel for core ideas.</p>
+            </div>
+            <div class="panel__tags">
+              <span class="tag">Regression</span>
+              <span class="tag">Decision boundaries</span>
+              <span class="tag">Optimization</span>
+            </div>
+          </header>
+
+          <div class="demos-grid">
+            <!-- DEMO: Linear Regression -->
+            <article class="demo-card shadow-soft" aria-labelledby="regression-title">
+              <header class="demo-card__header">
+                <div>
+                  <h3 class="demo-card__title" id="regression-title">Linear Regression Playground</h3>
+                  <p class="demo-card__subtitle">Fit a line through noisy data and watch the loss change.</p>
+                </div>
+                <span class="badge">Concept: Supervised learning</span>
+              </header>
+
+              <div class="demo-card__body">
+                <div class="demo-chart-container">
+                  <canvas id="regressionChart" aria-label="Interactive linear regression visualization"></canvas>
+                </div>
+
+                <div class="demo-controls" aria-label="Regression controls">
+                  <label class="control">
+                    <span class="control__label">Slope (w)</span>
+                    <input type="range" id="slopeSlider" min="-4" max="4" value="1" step="0.1" />
+                    <span class="control__value" id="slopeValue">1.0</span>
+                  </label>
+
+                  <label class="control">
+                    <span class="control__label">Intercept (b)</span>
+                    <input type="range" id="interceptSlider" min="-5" max="5" value="0" step="0.5" />
+                    <span class="control__value" id="interceptValue">0.0</span>
+                  </label>
+
+                  <div class="metric metric--accent">
+                    <span class="metric__label">Mean Squared Error</span>
+                    <span class="metric__value" id="regressionLoss">0.00</span>
+                  </div>
+                </div>
+
+                <p class="demo-card__explanation">
+                  Try to move the sliders until the orange line goes through the cloud of points. The
+                  <strong>loss</strong> shows how bad your current parameters are—the goal of gradient descent is to
+                  automatically move <code>w</code> and <code>b</code> to minimize this value.
+                </p>
+              </div>
+            </article>
+
+            <!-- DEMO: Decision Boundary -->
+            <article class="demo-card shadow-soft" aria-labelledby="boundary-title">
+              <header class="demo-card__header">
+                <div>
+                  <h3 class="demo-card__title" id="boundary-title">Decision Boundary Explorer</h3>
+                  <p class="demo-card__subtitle">See how a linear classifier splits 2D space.</p>
+                </div>
+                <span class="badge">Concept: Classification</span>
+              </header>
+
+              <div class="demo-card__body">
+                <div class="demo-chart-container demo-chart-container--square">
+                  <canvas id="boundaryChart" aria-label="Decision boundary visualization"></canvas>
+                </div>
+
+                <div class="demo-controls" aria-label="Decision boundary controls">
+                  <label class="control control--inline">
+                    <span class="control__label">Boundary angle</span>
+                    <input type="range" id="boundaryAngle" min="0" max="180" value="45" />
+                    <span class="control__value" id="boundaryAngleValue">45°</span>
+                  </label>
+
+                  <label class="control control--inline">
+                    <span class="control__label">Bias (offset)</span>
+                    <input type="range" id="boundaryBias" min="-5" max="5" step="0.5" value="0" />
+                    <span class="control__value" id="boundaryBiasValue">0.0</span>
+                  </label>
+
+                  <div class="metric">
+                    <span class="metric__label">Classification accuracy</span>
+                    <span class="metric__value" id="boundaryAccuracy">0%</span>
+                  </div>
+                </div>
+
+                <p class="demo-card__explanation">
+                  Each point is a tiny training example. The line is your model. Rotate and shift it to separate the two
+                  classes. As you improve the split, the accuracy metric climbs—this is the geometric view of what a
+                  linear classifier is doing.
+                </p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- PANEL: LLM Internals -->
+        <section class="panel" id="panel-llm-internals" aria-labelledby="llm-internals-heading">
+          <header class="panel__header">
+            <div>
+              <h2 class="panel__title" id="llm-internals-heading">LLM Internals Playground</h2>
+              <p class="panel__subtitle">Peek inside tokenization, attention, and positional encoding.</p>
+            </div>
+            <div class="panel__tags">
+              <span class="tag">Tokenization</span>
+              <span class="tag">Attention</span>
+              <span class="tag">Transformers</span>
+            </div>
+          </header>
+
+          <div class="llm-grid">
+            <!-- DEMO: Tokenization -->
+            <article class="demo-card shadow-soft" aria-labelledby="tokenization-title">
+              <header class="demo-card__header">
+                <div>
+                  <h3 class="demo-card__title" id="tokenization-title">Tokenization Sandbox</h3>
+                  <p class="demo-card__subtitle">See how text is chopped into subword tokens.</p>
+                </div>
+                <span class="badge">Step 1: Turn text into numbers</span>
+              </header>
+
+              <div class="demo-card__body">
+                <label class="control control--block" for="tokenInput">
+                  <span class="control__label">Input text</span>
+                  <textarea
+                    id="tokenInput"
+                    rows="3"
+                    class="control__textarea"
+                    placeholder="Type a short sentence, e.g. 'Transformers changed NLP.'"
+                  ></textarea>
+                </label>
+
+                <div class="tokenization-output" aria-live="polite" id="tokenOutput"></div>
+
+                <p class="demo-card__explanation">
+                  Real LLMs use a trained tokenizer (often based on byte-pair encoding). Here we simulate something
+                  similar by breaking text into common subword pieces like <code>trans</code>, <code>form</code>, and
+                  <code>er</code>. Each colored chip stands for a token ID the model can understand.
+                </p>
+              </div>
+            </article>
+
+            <!-- DEMO: Attention -->
+            <article class="demo-card shadow-soft" aria-labelledby="attention-title">
+              <header class="demo-card__header">
+                <div>
+                  <h3 class="demo-card__title" id="attention-title">Attention Heatmap</h3>
+                  <p class="demo-card__subtitle">Click a word to see which other words it "looks at".</p>
+                </div>
+                <span class="badge">Step 2: Contextual weighting</span>
+              </header>
+
+              <div class="demo-card__body">
+                <p class="attention__sentence" id="attentionSentence">
+                  The small neural network quietly learns powerful patterns.
+                </p>
+
+                <div class="attention-grid" id="attentionGrid" aria-label="Attention scores between words"></div>
+
+                <p class="demo-card__explanation">
+                  In a transformer, every token computes "how much to care" about every other token. We show a toy
+                  attention matrix: darker cells mean stronger attention. Try clicking different words and see how the
+                  pattern shifts.
+                </p>
+              </div>
+            </article>
+
+            <!-- DEMO: Positional Encoding -->
+            <article class="demo-card shadow-soft" aria-labelledby="position-title">
+              <header class="demo-card__header">
+                <div>
+                  <h3 class="demo-card__title" id="position-title">Positional Encoding Waves</h3>
+                  <p class="demo-card__subtitle">Visualize sine/cosine patterns over token positions.</p>
+                </div>
+                <span class="badge">Step 3: Order without recurrence</span>
+              </header>
+
+              <div class="demo-card__body">
+                <label class="control control--inline" for="positionCount">
+                  <span class="control__label">Sequence length</span>
+                  <input type="range" id="positionCount" min="4" max="20" value="10" />
+                  <span class="control__value" id="positionCountValue">10</span>
+                </label>
+
+                <div class="positions-grid" id="positionsGrid" aria-label="Positional encoding patterns"></div>
+
+                <p class="demo-card__explanation">
+                  Transformers add a deterministic pattern to each position so the model can distinguish "first", "middle",
+                  and "last" tokens. We show a toy version: each column is a position; each row is a sine wave with a
+                  different frequency.
+                </p>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <!-- PANEL: Learning Path -->
+        <section class="panel" id="panel-learning-path" aria-labelledby="learning-path-heading">
+          <header class="panel__header">
+            <div>
+              <h2 class="panel__title" id="learning-path-heading">Guided Learning Path</h2>
+              <p class="panel__subtitle">Track your journey from ML fundamentals to LLM internals.</p>
+            </div>
+            <div class="panel__tags">
+              <span class="tag">Roadmap</span>
+              <span class="tag">Progress tracking</span>
+            </div>
+          </header>
+
+          <section class="path-section" aria-labelledby="ml-foundations-heading">
+            <div class="path-section__header">
+              <h3 class="path-section__title" id="ml-foundations-heading">1. ML Foundations</h3>
+              <span class="path-section__meta" id="ml-foundations-meta">0/0 complete</span>
+            </div>
+
+            <ul class="path-list" id="ml-foundations-list">
+              <!-- Filled by JS -->
+            </ul>
+          </section>
+
+          <section class="path-section" aria-labelledby="deep-learning-heading">
+            <div class="path-section__header">
+              <h3 class="path-section__title" id="deep-learning-heading">2. Deep Learning & Transformers</h3>
+              <span class="path-section__meta" id="deep-learning-meta">0/0 complete</span>
+            </div>
+
+            <ul class="path-list" id="deep-learning-list">
+              <!-- Filled by JS -->
+            </ul>
+          </section>
+
+          <section class="path-section" aria-labelledby="llm-practice-heading">
+            <div class="path-section__header">
+              <h3 class="path-section__title" id="llm-practice-heading">3. LLM Practice & Applications</h3>
+              <span class="path-section__meta" id="llm-practice-meta">0/0 complete</span>
+            </div>
+
+            <ul class="path-list" id="llm-practice-list">
+              <!-- Filled by JS -->
+            </ul>
+          </section>
+        </section>
+      </main>
+
+      <!-- SECTION: Footer -->
+      <footer class="footer">
+        <p class="footer__text">
+          Designed as a hands-on companion for learning how modern ML & LLMs work — tweak, observe, and build intuition.
+        </p>
+      </footer>
+    </div>
+
+    <!-- SECTION: Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>

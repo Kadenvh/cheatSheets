@@ -1,0 +1,13 @@
+# Local Claude Code settings
+.claude/settings.local.json
+
+# OpenClaw workspace state
+.openclaw/workspace-state.json
+knowledge-agents/*/.openclaw/
+
+# Obsidian workspace (user-specific, not config)
+openClaw_Vault/.obsidian/workspace.json
+
+# Empty legacy directories
+docs_archived/
+vault/
