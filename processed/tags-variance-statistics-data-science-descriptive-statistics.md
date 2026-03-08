@@ -1,44 +1,12 @@
-tags: [variance, statistics, data-science, descriptive-statistics, learning] created: 2026-02-11 session: Fundamental Math for Data Science - Variance status: processed
-Variance
-⚡ Quick Reference
-High-density table for immediate syntax recall.
+---
+domain: cheatSheets
+category: DataScience
+tags: variance, statistics, data-science, descriptive-statistics, learning
+title: Variance
+created: 2026-02-11
+---
 
-np.var(data) : Calculate σ² // Returns variance of dataset
-
-σ² : Symbol // Sigma squared
-
-Σ(X - μ)² / N : Formula // Average of squared differences
-
-Small Variance : Clustered data // Points near the mean
-
-🧠 Functional Logic
-Concept: [[Variance]] // A numerical measure of spread that squares differences from the mean to ensure all values are positive.
-
-Dependency: Requires the [[Mean]] (μ) for calculation.
-
-💻 Implementation
-Python
-import numpy as np
-
-grades = [88, 82, 85, 84, 90]
-
-# Method 1: NumPy (Recommended)
-variance = np.var(grades)
-
-# Method 2: Manual Logic
-mean = np.mean(grades)
-squared_diffs = [(x - mean)**2 for x in grades]
-manual_variance = sum(squared_diffs) / len(grades)
-🕸️ Graph Connections
-Parents: [[Descriptive-Statistics]]
-
-Children: [[Standard-Deviation]]
-
-Lateral: [[Mean]], [[Data-Spread]], [[Normal-Distribution]]
-
-🛠️ Sandbox / To Explore
-How does variance behave with outliers?
-
-When would you use sample variance (N-1) vs population variance (N)?
-
-How do you compare variances across datasets with different units?
+Domain: cheatSheets
+Concept: Variance
+Detail: Numerical measure of spread that squares differences from mean to ensure positive values. Calculate: `np.var(data)`. Formula: `Σ(X - μ)² / N`. Symbol: σ². Small variance = clustered data near mean. Manual: compute mean, square differences, average them. Sample variance uses N-1 denominator. Related: standard deviation, mean, normal distribution.
+Context: DataScience | variance, statistics, data-science, descriptive-statistics, learning
