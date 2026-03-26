@@ -1,0 +1,14 @@
+{
+  "input": "---\ndomain: cheatSheets\ncategory: Python\ntags: python, pandas, data-science, learning\ntitle: Python Data Exploration - Methods & Lists\ncreated: 2025-02-16\n---\n\nDomain: cheatSheets\nConcept: Python Methods & Lists\nDetail: String methods: `.lower()` converts to lowercase. List methods: `.sort()` sorts ascending in-place, `.append(item)` adds to end. Parameter `reverse=True` for descending sort. Methods use parentheses (actions), attributes don't (stored info). List manipulation: `my_list.sort(reverse=True)`. String: `category.lower()`.\nContext: Python | python, pandas, data-science, learning",
+  "mode": "cheatsheet",
+  "ts": "2026-03-11T21:11:17.931Z",
+  "curatorOutput": "{\"status\":\"embedded\",\"title\":\"Python Data Exploration - Methods & Lists\",\"type\":\"cheatsheet\",\"sections\":6,\"related_unexplored\":[],\"action\":\"created\"}",
+  "curatorParsed": {
+    "status": "embedded",
+    "title": "Python Data Exploration - Methods & Lists",
+    "type": "cheatsheet",
+    "sections": 6,
+    "related_unexplored": [],
+    "action": "created"
+  }
+}

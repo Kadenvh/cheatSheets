@@ -1,7 +1,6 @@
 ---
 name: migration
 description: "Plan and execute data, schema, API, or infrastructure migrations with rollback safety"
-disable-model-invocation: true
 allowed-tools:
   - Read
   - Edit
@@ -17,8 +16,9 @@ Plan and execute migrations with zero data loss and clear rollback paths.
 
 ## Instructions
 
-1. Read the full migration template at `.prompts/migration.md` (relative to the project's `documentation/` folder).
-2. Follow its protocol:
+Follow the protocol below. For the full detailed version, read `.prompts/migration.md`.
+
+### Protocol
    - Determine migration type (schema, data, API, infrastructure, dependency, config)
    - Define State A → State B with explicit delta
    - Assess impact and choose strategy
@@ -33,9 +33,9 @@ Plan and execute migrations with zero data loss and clear rollback paths.
 - **Backup before everything.** Even if you're "sure" the migration is safe.
 - **Validate with data, not hope.** Run validation queries before and after, compare results.
 
-## Inline Fallback (if prompt file not found)
+## Full Protocol
 
-If `.prompts/migration.md` cannot be located:
+Detailed steps:
 
 1. **Define states.** Document current state (A) and target state (B) explicitly. List what's added, changed, and removed.
 2. **Impact.** Who/what is affected? What breaks if it goes wrong? Can it be done without downtime?

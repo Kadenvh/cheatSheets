@@ -1,7 +1,6 @@
 ---
 name: architecture
 description: "Design systems, write Architecture Decision Records (ADRs), or review existing architecture"
-disable-model-invocation: true
 allowed-tools:
   - Read
   - Edit
@@ -17,8 +16,8 @@ Design new systems, extend existing ones, record decisions, or review architectu
 
 ## Instructions
 
-1. Read the full architecture template at `.prompts/architecture.md` (relative to the project's `documentation/` folder).
-2. Follow its protocol for the appropriate mode:
+Follow the protocol below. For the full detailed version, read `.prompts/architecture.md`.
+### Protocol:
    - **Greenfield Design** → Requirements → components → interfaces → data flow → tech choices → design doc
    - **Extension Design** → Understand current architecture → design addition to fit existing patterns
    - **ADR** → Context → options → decision → rationale → consequences
@@ -31,9 +30,9 @@ Design new systems, extend existing ones, record decisions, or review architectu
 - **Document the "why."** Future readers need context, not just the answer.
 - **Design for the team you have.** Elegant architecture no one can maintain is worse than simple architecture everyone understands.
 
-## Inline Fallback (if prompt file not found)
+## Full Protocol
 
-If `.prompts/architecture.md` cannot be located:
+Detailed steps:
 
 1. **Determine mode.** New system → Greenfield. Adding to existing → Extension. Specific decision → ADR. Evaluating quality → Review.
 2. **Greenfield:** Clarify requirements. Prioritize quality attributes (scalability, maintainability, performance, security, reliability, cost). Break into components with single responsibilities. Define interfaces. Map data flow for top 3-5 operations. Choose technology (default to boring, document alternatives).

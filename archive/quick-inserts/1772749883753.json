@@ -1,0 +1,27 @@
+{
+  "input": "docker run",
+  "mode": "quick",
+  "ts": "2026-03-05T22:31:23.753Z",
+  "curatorOutput": "{\"ok\":true,\"title\":\"docker run\",\"type\":\"reference\",\"sections\":6,\"related_unexplored\":[\"docker exec\",\"docker build\",\"docker compose\",\"docker logs\",\"docker network\"],\"action\":\"created\",\"warnings\":[{\"gate\":\"domainBalance\",\"message\":\"Domain \\\"cheatSheets\\\" has 12 entries (threshold: 10)\"}]}",
+  "curatorParsed": {
+    "ok": true,
+    "title": "docker run",
+    "type": "reference",
+    "sections": 6,
+    "related_unexplored": [
+      "docker exec",
+      "docker build",
+      "docker compose",
+      "docker logs",
+      "docker network"
+    ],
+    "action": "created",
+    "warnings": [
+      {
+        "gate": "domainBalance",
+        "message": "Domain \"cheatSheets\" has 12 entries (threshold: 10)"
+      }
+    ]
+  },
+  "recuratedAt": "2026-03-13T16:31:05.989Z"
+}

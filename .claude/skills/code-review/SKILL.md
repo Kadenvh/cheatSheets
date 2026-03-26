@@ -1,7 +1,6 @@
 ---
 name: code-review
 description: "Conduct a structured code review with prioritized, actionable feedback"
-disable-model-invocation: true
 allowed-tools:
   - Read
   - Glob
@@ -15,8 +14,9 @@ Conduct a structured code review with prioritized, categorized feedback.
 
 ## Instructions
 
-1. Read the full code review template at `.prompts/code-review.md` (relative to the project's `documentation/` folder).
-2. Follow its protocol:
+Follow the protocol below. For the full detailed version, read `.prompts/code-review.md`.
+
+### Protocol
    - Determine scope (PR diff / full file / architecture)
    - Read project rules (CLAUDE.md) and full context before judging
    - Run the 6-dimension checklist (correctness, security, design, readability, performance, testing)
@@ -30,9 +30,9 @@ Conduct a structured code review with prioritized, categorized feedback.
 - **Be specific.** File, line, issue, suggested fix. "This is confusing" is not actionable.
 - **Review the code, not the person.**
 
-## Inline Fallback (if prompt file not found)
+## Full Protocol
 
-If `.prompts/code-review.md` cannot be located:
+Detailed steps:
 
 1. **Read CLAUDE.md** for project conventions and anti-patterns.
 2. **Read the full diff/file** — understand intent before judging.

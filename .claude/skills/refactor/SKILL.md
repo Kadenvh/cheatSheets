@@ -1,7 +1,6 @@
 ---
 name: refactor
 description: "Structured code improvement with behavior preservation — extract, rename, restructure, simplify, or migrate patterns"
-disable-model-invocation: true
 allowed-tools:
   - Read
   - Edit
@@ -17,8 +16,9 @@ Improve code quality while preserving all existing behavior. Zero regressions is
 
 ## Instructions
 
-1. Read the full refactor template at `.prompts/refactor.md` (relative to the project's `documentation/` folder).
-2. Follow its protocol:
+Follow the protocol below. For the full detailed version, read `.prompts/refactor.md`.
+
+### Protocol
    - Define scope and type (extract, rename, restructure, simplify, pattern migration)
    - Verify safety net (tests exist and pass — if not, write characterization tests first)
    - Execute in small steps (one change, test, commit, repeat)
@@ -31,9 +31,9 @@ Improve code quality while preserving all existing behavior. Zero regressions is
 - **Small steps > big leaps.** Each commit leaves the code working.
 - **Measure the improvement.** Before/after delta or it didn't happen.
 
-## Inline Fallback (if prompt file not found)
+## Full Protocol
 
-If `.prompts/refactor.md` cannot be located:
+Detailed steps:
 
 1. **Define scope.** What are you changing? Why? What's explicitly out of scope?
 2. **Safety net.** Run existing tests. If none exist, write characterization tests that capture current behavior before changing anything.

@@ -1,7 +1,6 @@
 ---
 name: validate-docs
 description: "Audit cross-file consistency and optionally auto-fix safe issues (use --fix to apply corrections)"
-disable-model-invocation: true
 allowed-tools:
   - Read
   - Edit
@@ -13,7 +12,7 @@ allowed-tools:
 
 # Documentation Validation
 
-Perform a consistency audit of the project's three-document architecture, with optional auto-fix.
+Perform a consistency audit of the project's documentation. Adapts to mode: brain.db-first (CLAUDE.md + brain.db) or file-mode (three-document architecture).
 
 ## Mode Selection
 
@@ -22,7 +21,7 @@ Perform a consistency audit of the project's three-document architecture, with o
 
 ## Instructions
 
-Read all three core documentation files completely, then run these 5 checks:
+Detect mode first: if `.ava/brain.db` exists, use brain.db mode (CLAUDE.md is the only hand-authored doc). Otherwise, use file mode (CLAUDE.md + PROJECT_ROADMAP.md + IMPLEMENTATION_PLAN.md). Then run these checks:
 
 ### 1. Version & Date Consistency
 - Version numbers match across CLAUDE.md, PROJECT_ROADMAP.md, IMPLEMENTATION_PLAN.md
@@ -51,6 +50,13 @@ Flag content that appears in multiple files beyond brief cross-references.
 - No completed tasks still marked `[ ]` pending
 - No stale dates (>30 days without update on an active project)
 - **Auto-fixable:** Mark completed tasks as `[x]` if evidence confirms completion. Remove references to files/features that no longer exist. Update stale dates.
+
+### 6. brain.db ↔ Docs Consistency (if `.ava/brain.db` exists)
+- Run `node .ava/dal.mjs status` — verify schema, integrity
+- If brain.db has 0 identity rows and 0 sessions: **FAIL** — "DAL deployed but never populated. Run /cleanup to hydrate."
+- If brain.db has identity rows: spot-check key entries against CLAUDE.md (version, tech stack). Flag contradictions.
+- If brain.db has decisions: verify active decisions haven't been superseded by doc changes.
+- **NOT auto-fixable:** brain.db updates require /cleanup's reconciliation protocol.
 
 ## Auto-Fix Safety Rules
 
@@ -85,6 +91,7 @@ After auto-fixing, re-run all 5 checks to confirm fixes didn't introduce new iss
 3. [PASS/FAIL] No Duplication — {details}
 4. [PASS/FAIL] Completeness — {details}
 5. [PASS/FAIL] No Orphans — {details}
+6. [PASS/FAIL] brain.db Consistency — {details, or SKIP if no .ava/brain.db}
 
 ### Auto-Fixed (if fix mode)
 - {what was changed, in which file, why}

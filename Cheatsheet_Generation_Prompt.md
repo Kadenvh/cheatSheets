@@ -1,9 +1,9 @@
 ---
 tags: [prompt, learning, configuration]
 created: 2025-12-01
-updated: 2026-03-05
+updated: 2026-03-16
 status: active
-version: 4.0
+version: 5.0
 ---
 
 # Cheatsheet Generation Prompt
@@ -49,6 +49,12 @@ created: {{YYYY-MM-DD}}
 session: {{Session Topic}}
 status: new
 type: cheatsheet
+difficulty: {{1-10}}
+prerequisites: [concept-slug-1, concept-slug-2]
+exercise_hints:
+  recall: "key syntax or facts to test immediate recall"
+  understanding: "comparison or reasoning to test conceptual grasp"
+  application: "hands-on task to test practical use"
 ---
 
 # {{Concept Name}}
@@ -89,6 +95,66 @@ type: cheatsheet
 | `session` | Yes | Learning session topic for grouping related sheets |
 | `status` | Yes | State machine: `new` | `learning` | `practiced` | `needs-review` | `verified` | `shelved` |
 | `type` | Yes | Always `cheatsheet` for generated sheets |
+| `difficulty` | Recommended | Integer 1-10. Default: `5`. Concept complexity rating (see v5.0 Fields below) |
+| `prerequisites` | Recommended | List of concept slugs. Default: `[]`. Seeds the prerequisite DAG on import |
+| `exercise_hints` | Recommended | Object with keys `recall`, `understanding`, `application`. Default: omitted. Guides Spark exercise generation |
+
+## v5.0 Fields
+
+Three new fields added in v5.0 to enable the learning pipeline. All are **recommended with sensible defaults, not required** — existing v4.0 cheatsheets remain valid without modification. The validator emits quality warnings for suspicious combinations but never hard-rejects a cheatsheet.
+
+### `difficulty` (default: `5`)
+
+Integer 1-10 rating of concept complexity. Guides the curator when seeding `concepts.difficulty` in brain.db.
+
+| Value | Meaning | Example Concepts |
+|-------|---------|-----------------|
+| 1-2 | Fundamentals, no prerequisites | basic CLI commands, variable types |
+| 3-4 | Core concepts, 1-2 prerequisites | file permissions, list comprehensions |
+| 5-6 | Intermediate, requires foundation | Docker networking, async/await |
+| 7-8 | Advanced, multiple prerequisites | Kubernetes operators, metaclasses |
+| 9-10 | Expert, deep specialization | kernel tuning, compiler optimization |
+
+### `prerequisites` (default: `[]`)
+
+List of concept slugs (lowercase, hyphenated) that this concept depends on. These seed the prerequisite DAG directly — the curator creates `prerequisites` table entries with `source: 'cheatsheet'` and `strength: 1.0`.
+
+Slug format: `docker-basics`, `python-list-comprehensions`, `linux-file-permissions`. No spaces, no special characters beyond hyphens.
+
+### `exercise_hints` (default: omitted)
+
+Short prompt hints that guide the Spark agent when generating exercises. Each key targets a different cognitive skill level. Provide direction, not full exercise text — Spark uses these as guidance, not templates.
+
+| Key | Purpose |
+|-----|---------|
+| `recall` | Immediate factual recall (syntax, flags, values) |
+| `understanding` | Conceptual reasoning (comparisons, trade-offs, "when to use") |
+| `application` | Hands-on practical tasks (build, configure, debug) |
+
+The `analysis` exercise type (spot-the-error, predict-output) is always inferred from content — too concept-specific for generic hints. Partial hints are fine; Spark infers the rest from cheatsheet content.
+
+### Complete Example (all v5.0 fields populated)
+
+```yaml
+---
+title: Linux File Permissions
+topic: Linux System Administration
+category: linux
+tags: [permissions, chmod, chown, chgrp, acl, umask]
+date: 2026-03-16
+difficulty: 4
+prerequisites:
+  - linux-filesystem-basics
+  - bash-scripting-basics
+exercise_hints:
+  recall: "numeric notation for rwxr-xr-- and common permission sets (755, 644, 600)"
+  understanding: "when chmod numeric vs symbolic is preferred, and why setuid/setgid are dangerous"
+  application: "configure a shared project directory where group members can create and edit files but not delete each other's work (sticky bit)"
+---
+
+## Quick Reference
+...rest of cheatsheet body...
+```
 
 ## Why This Format
 
@@ -97,3 +163,4 @@ type: cheatsheet
 - **Frontmatter** includes `category` and `domain` so the curator can route without guessing.
 - **`status: new`** signals unprocessed files; curator validates and embeds into ChromaDB.
 - **Embedding Friendly** — structured metadata and status tags make it easier for the embedding model to retrieve specific snippets.
+- **v5.0 Fields** — `difficulty`, `prerequisites`, and `exercise_hints` enable the learning pipeline to automatically seed the prerequisite DAG, set concept complexity, and generate targeted exercises — without breaking existing cheatsheets that lack these fields.

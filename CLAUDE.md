@@ -1,93 +1,139 @@
 # Knowledge System
 
-**Version:** 4.0 | **Status:** Phase 1 Curator Gateway | **Updated:** 2026-03-05
+**Version:** 7.0 | **Status:** Obsidian-First (Phase 0-2 Complete) | **Updated:** 2026-03-21
 
 ## Parent Documentation
 
-This is a spoke component of Project Ava. Strategic docs live at the hub level:
+Spoke component of Project Ava. Hub docs at `Ava_Main/CLAUDE.md`.
 
 | Document | Location |
 |----------|----------|
-| Architecture & Vision | `Ava_Main/documentation/PROJECT_ROADMAP.md` § Knowledge System |
-| Open Items & Session Log | `Ava_Main/documentation/IMPLEMENTATION_PLAN.md` § CheatSheets |
+| Learning System Plan | `LEARNING_SYSTEM_PLAN.md` (this directory) |
 | Project-Wide Rules | `Ava_Main/CLAUDE.md` |
-| Rebuild Master Plan | `Ava_Main/repos/cheatSheets/CHEATSHEETS_PLAN.md` |
+| Hub Roadmap | `Ava_Main/documentation/PROJECT_ROADMAP.md` § Knowledge System |
 
-This file contains **component-specific rules only**. Do not duplicate hub-level content here.
+---
+
+## Architecture
+
+Three layers, clear boundaries:
+
+| Layer | Tool | Owns |
+|-------|------|------|
+| **Content** | Obsidian vault (`vault/`) | Note text, organization, wiki-link graph, exercise hints |
+| **Scheduling** | brain.db (`.ava/brain.db`) | Concepts, mastery levels, FSRS state, reviews, streaks, prerequisites |
+| **Search** | ChromaDB (`:8001`) | Embeddings, vector search, chunked content |
+
+### Data Flow
+
+```
+Obsidian note → POST /api/learning/vault-sync → ChromaDB + brain.db → ReviewPanel UI
+```
+
+### Concept Identity
+
+Filename slug = concept ID: `typescript-generics.md` → concept `typescript-generics`.
+
+### Prerequisites
+
+Wiki-links in notes (`[[Linux CLI]]`) are parsed as prerequisite edges during vault-sync. No manual seeding needed.
 
 ---
 
 ## Quick Reference
 
-**Agent-curated knowledge system.** All knowledge enters through the curator agent (Archivist), which enriches, validates, categorizes, deduplicates, and embeds entries into ChromaDB.
-
-**Two insert paths:**
-- **Quick Insert** — command/concept/snippet → curator enriches into full reference → embeds
-- **Paste Cheatsheet** — full markdown → curator validates format → embeds
-
-**Vector Knowledge Service:** FastAPI on port 8001 using `all-MiniLM-L6-v2`
-**Curator endpoint:** `POST /api/knowledge/curator-insert` (120s timeout)
-**Direct embed fallback:** `POST /api/knowledge/quick-insert` (bypasses curator)
-
-**Agents:**
-- `knowledge-curator` (Archivist) — gateway for all inserts
-- `knowledge-qa` (Oracle) — RAG retrieval with citations
+**Author content:** Open `vault/` in Obsidian → create note in `Concepts/` using Cheatsheet template
+**Sync to system:** `POST /api/learning/vault-sync` (Health tab button)
+**Review:** CheatSheets > Learn tab > ReviewPanel
+**Search:** CheatSheets > Q&A tab (semantic search via ChromaDB)
+**Agents:** 7 OpenClaw agents in `knowledge-agents/` (curator, qa, verifier, compass, spark, tutor, architect)
 
 ---
 
 ## Critical Rules
 
 ### DO NOT
-- Use INDEX.md, GRAPH.md, or obsidian-cli — fully retired
-- Use the `openClaw_Vault/` directory — retired legacy archive
-- Embed directly without going through the curator (except fallback)
-- Use Windows paths — headless Ubuntu server
+- Route inserts through curator agent as mandatory gateway (curator is optional enrichment)
+- Use two ChromaDB collections (one `knowledge` collection with `type` metadata)
+- Create concepts manually — vault-sync derives them from notes
+- Seed prerequisites manually — wiki-links generate the DAG
+- Put learning content outside `vault/Concepts/`
 
 ### ALWAYS
-- Route all inserts through `POST /api/knowledge/curator-insert`
-- Verify curator returns `status: "embedded"` in response
-- Move ingested files from `new/` to `processed/`
-- Use Linux paths: `/home/ava/Ava_Main/repos/cheatSheets/`
+- One note = one concept (filename slug = concept ID)
+- Use wiki-links (`[[Concept Name]]`) for prerequisite relationships
+- Use the Cheatsheet template in `vault/Templates/` for new notes
+- Sync vault after editing (`POST /api/learning/vault-sync`)
 
 ---
 
 ## File Structure
 
 ```
-/home/ava/Ava_Main/repos/cheatSheets/
-├── CLAUDE.md                         ← This file
-├── Cheatsheet_Generation_Prompt.md   ← Template for generating cheatsheets
-├── new/                              ← Incoming cheat sheets (unprocessed)
-├── processed/                        ← Archived originals (post-processing)
-├── quick-inserts/                    ← Raw JSON of quick insert inputs
-├── openClaw_Vault/                   ← Legacy archive (retired, do not use)
-├── knowledge-agents/                 ← OpenClaw agent workspaces
-│   ├── curator/                      ← Archivist (enrichment + embedding)
-│   └── qa/                           ← Oracle (RAG retrieval)
+/home/ava/Ava_Main/0 - cheatSheets/
+├── CLAUDE.md                          ← This file
+├── LEARNING_SYSTEM_PLAN.md            ← Comprehensive plan (supersedes all prior plans)
+├── Cheatsheet_Generation_Prompt.md    ← Reference template spec
+├── README.md                          ← Project intro
+├── vault/                             ← Obsidian vault (content layer)
+│   ├── Concepts/                      ← One .md per concept (44 notes)
+│   ├── Templates/                     ← Obsidian note templates
+│   │   └── Cheatsheet.md
+│   └── .obsidian/                     ← Obsidian config
+├── .ava/                              ← brain.db (scheduling layer)
+│   ├── brain.db
+│   ├── dal.mjs
+│   ├── lib/
+│   └── migrations/
+├── knowledge-agents/                  ← OpenClaw agent workspaces
+│   ├── curator/                       ← Archivist (optional enrichment)
+│   ├── qa/                            ← Oracle (RAG retrieval)
+│   ├── verifier/                      ← Sentinel (audit)
+│   ├── learning/                      ← Compass (coverage + gaps)
+│   ├── demo/                          ← Spark (exercise generation)
+│   ├── tutor/                         ← Socratic teaching
+│   └── architect/                     ← Curriculum planning
+├── archive/                           ← Superseded plans + legacy dirs
+└── [agent identity files]             ← SOUL.md, IDENTITY.md, etc.
 ```
+
+---
+
+## Agents (Revised Roles)
+
+| Agent | Name | Role |
+|-------|------|------|
+| `knowledge-curator` | Archivist | **Optional** enrichment — flesh out stub notes via MCP on request |
+| `knowledge-qa` | Oracle | RAG retrieval with citations (searches ChromaDB) |
+| `knowledge-verifier` | Sentinel | ChromaDB audit + data quality |
+| `knowledge-learning` | Compass | Coverage analysis, gap detection, learning path suggestions |
+| `knowledge-demo` | Spark | Exercise/lesson generation for ReviewPanel |
+| `learning-tutor` | Tutor | Socratic teaching in session tabs |
+| `learning-architect` | Architect | Curriculum planning for sessions |
 
 ---
 
 ## Metadata Schema
 
-All ChromaDB entries carry these metadata fields:
+### Obsidian Note Frontmatter
 
-| Field | Values | Description |
+| Field | Required | Description |
+|-------|----------|-------------|
+| `category` | Yes | Python / DataScience / Tools / Linux / General |
+| `tags` | Yes | Lowercase, hyphenated topic tags |
+| `title` | Yes | Human-readable concept title |
+| `created` | Yes | ISO date (YYYY-MM-DD) |
+| `type` | Yes | `cheatsheet` (or `reference` future) |
+| `difficulty` | Recommended | 1-10 scale (default: 5) |
+| `exercise_hints` | Recommended | Object with recall/understanding/application keys |
+
+### ChromaDB Document Metadata
+
+| Field | Source | Description |
 |-------|--------|-------------|
-| `type` | `reference` / `cheatsheet` | Entry type |
-| `status` | `new` / `learning` / `practiced` / `needs-review` / `verified` / `shelved` | State machine |
-| `category` | Python / DataScience / Automation / Tools / Linux / General | Content category |
-| `domain` | Free text | Topic grouping |
-| `related_unexplored` | Comma-separated | Related topics not yet in knowledge base |
-| `status_updated_at` | ISO date | Last status change |
-| `session` | Free text | Learning session grouping (cheatsheets only) |
-
----
-
-## Data Flow
-
-**Quick Insert:** User input → `POST /api/knowledge/curator-insert` → raw JSON saved to `quick-inserts/` → curator agent enriches (Synopsis/Subcommands/Flags/Examples/Related) → `POST http://127.0.0.1:8001/ingest` with full metadata → response with title, sections, related_unexplored
-
-**Cheatsheet Paste:** User pastes markdown → `POST /api/knowledge/curator-insert` (mode: cheatsheet) → curator validates format against template → saves to `new/` → `POST http://127.0.0.1:8001/ingest-file` → moves to `processed/`
-
-**Upsert:** Curator queries ChromaDB first → if exists, deletes old entry → creates merged entry → responds with `action: "merged"`
+| `title` | Frontmatter | Note title |
+| `section` | H2 header | Chunk section name |
+| `category` | Frontmatter | Content category |
+| `type` | Frontmatter | `cheatsheet` or `reference` |
+| `source_file` | Filename | Vault filename |
+| `difficulty` | Frontmatter | 1-10 complexity |

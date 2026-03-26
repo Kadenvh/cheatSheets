@@ -30,25 +30,34 @@ const BLOCKED = [
   /authorized_keys$/,               // SSH trust
   /\.npmrc$/,                       // npm auth tokens
   /\.htpasswd$/,                    // HTTP auth credentials
-  // OpenClaw orchestrator files — belong to the orchestrating agent, not Claude Code
+];
+
+// OpenClaw orchestrator files — belong to the orchestrating agent, not Claude Code
+// Only applied outside .claude/ paths (Claude Code's own auto-memory lives there)
+const OPENCLAW_BLOCKED = [
   /agents\.md$/i,                   // OpenClaw agent config
   /heartbeat\.md$/i,                // OpenClaw heartbeat config
   /identity\.md$/i,                 // OpenClaw agent identity
-  /memory\.md$/i,                   // OpenClaw agent memory
   /soul\.md$/i,                     // OpenClaw agent soul/personality
   /tools\.md$/i,                    // OpenClaw tool notes
   /user\.md$/i,                     // OpenClaw user profile
   /\/memory\//,                     // OpenClaw memory/ directory (daily logs)
 ];
 
-if (BLOCKED.some((p) => p.test(filePath))) {
+const isClaudePath = filePath.includes("/.claude/") || filePath.startsWith(".claude/");
+const blocked = BLOCKED.some((p) => p.test(filePath)) ||
+  (!isClaudePath && OPENCLAW_BLOCKED.some((p) => p.test(filePath)));
+
+if (blocked) {
   process.stdout.write(
     JSON.stringify({
       hookSpecificOutput: {
         hookEventName: "PreToolUse",
         permissionDecision: "deny",
         permissionDecisionReason:
-          "Protected file — cannot be edited by Claude: " + filePath,
+          "PROTECTED FILE — direct edit blocked: " +
+          filePath +
+          " | OVERRIDE: explain your justification to the user; they can edit this file directly or approve the action.",
       },
     })
   );

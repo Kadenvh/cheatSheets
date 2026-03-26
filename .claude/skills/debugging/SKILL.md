@@ -1,7 +1,6 @@
 ---
 name: debugging
 description: "Systematically investigate, isolate, and fix bugs with documented root cause analysis"
-disable-model-invocation: true
 allowed-tools:
   - Read
   - Edit
@@ -17,8 +16,8 @@ Systematically reproduce, isolate, identify root cause, fix, and verify a bug.
 
 ## Instructions
 
-1. Read the full debugging template at `.prompts/debugging.md` (relative to the project's `documentation/` folder).
-2. Follow its 7-step protocol:
+Follow the protocol below. For the full detailed version, read `.prompts/debugging.md`.
+### Protocol:
    - Understand the problem (gather context, assess severity S1–S4)
    - Reproduce the bug (exact steps, minimal case)
    - Isolate the cause (binary search, logging, stack traces)
@@ -34,9 +33,9 @@ Systematically reproduce, isolate, identify root cause, fix, and verify a bug.
 - **No shotgun debugging.** Don't change random things until it works.
 - **Add a regression test.** Non-negotiable for S1/S2 bugs.
 
-## Inline Fallback (if prompt file not found)
+## Full Protocol
 
-If `.prompts/debugging.md` cannot be located:
+Detailed steps:
 
 1. **Gather context.** What's the symptom? When did it start? How often? Assess severity: S1 (system down) → S2 (major feature broken) → S3 (degraded, workaround exists) → S4 (minor/cosmetic).
 2. **Reproduce.** Get exact steps. Try locally. Minimize to smallest reproduction case. Document the steps.

@@ -6,14 +6,22 @@ logHook("stop-closeout-check");
 const projectDir =
   process.env.CLAUDE_PROJECT_DIR || path.resolve(__dirname, "../..");
 
-// Documentation files to check
-const DOC_FILES = [
-  "CLAUDE.md",
-  path.join("documentation", "PROJECT_ROADMAP.md"),
-  path.join("documentation", "IMPLEMENTATION_PLAN.md"),
-];
+// In brain.db mode, only CLAUDE.md matters (it's the only authored file).
+// In file mode, check all three docs.
+const brainDbPath = path.join(projectDir, ".ava", "brain.db");
+const hasBrainDb = fs.existsSync(brainDbPath);
 
-const STALE_THRESHOLD_MS = parseInt(process.env.CLOSEOUT_STALE_MINUTES || "30", 10) * 60 * 1000;
+const DOC_FILES = hasBrainDb
+  ? ["CLAUDE.md"]
+  : [
+      "CLAUDE.md",
+      path.join("documentation", "PROJECT_ROADMAP.md"),
+      path.join("documentation", "IMPLEMENTATION_PLAN.md"),
+      "PROJECT_ROADMAP.md",
+      "IMPLEMENTATION_PLAN.md",
+    ];
+
+const STALE_THRESHOLD_MS = parseInt(process.env.CLOSEOUT_STALE_MINUTES || "120", 10) * 60 * 1000;
 const now = Date.now();
 let mostRecentMod = 0;
 let anyDocExists = false;
@@ -56,12 +64,21 @@ if (timeSinceLastEdit > STALE_THRESHOLD_MS) {
   }
 
   if (hasChanges) {
+    // Per-session cooldown — only warn once per calendar day to avoid spamming
+    const os = require("os");
+    const today = new Date().toISOString().slice(0, 10);
+    const cooldownFile = path.join(os.tmpdir(), `scribe-closeout-warned-${today}`);
+    if (fs.existsSync(cooldownFile)) {
+      process.exit(0); // Already warned today, stay quiet
+    }
+    fs.writeFileSync(cooldownFile, "", { flag: "w" });
+
     const minutes = Math.round(timeSinceLastEdit / 60000);
     process.stderr.write(
       `Documentation files haven't been updated in ${minutes} minutes and there are uncommitted changes. ` +
       `Run /session-closeout to persist state for the next session.`
     );
-    process.exit(2); // Block stop, feed message to Claude
+    process.exit(0); // Non-blocking — warn to terminal, don't interrupt Claude
   }
 }
 

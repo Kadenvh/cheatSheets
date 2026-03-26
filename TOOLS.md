@@ -1,40 +1,54 @@
-# TOOLS.md - Local Notes
+# spoke-dev — Tools
 
-Skills define _how_ tools work. This file is for _your_ specifics — the stuff that's unique to your setup.
+## brain.db — My Brain
 
-## What Goes Here
+Location: `{spoke folder}/.ava/brain.db` | Schema v10 | DAL runtime at `.ava/dal.mjs`
 
-Things like:
+```bash
+# Status & context
+node .ava/dal.mjs status                          # Health check
+node .ava/dal.mjs context                         # Full state injection (run at session start)
+node .ava/dal.mjs verify                          # 8-layer integrity check
 
-- Camera names and locations
-- SSH hosts and aliases
-- Preferred voices for TTS
-- Speaker/room names
-- Device nicknames
-- Anything environment-specific
+# Session lifecycle
+node .ava/dal.mjs session start "description"     # Start tracked session
+node .ava/dal.mjs session close                   # Close with summary
 
-## Examples
+# Task queue
+node .ava/dal.mjs note list                       # Open notes
+node .ava/dal.mjs note add "text" --category improvement|issue|bug|idea|handoff|feedback
+node .ava/dal.mjs note complete <id>
 
-```markdown
-### Cameras
+# Knowledge
+node .ava/dal.mjs identity list                   # Core project facts
+node .ava/dal.mjs identity set "key" --value "v"
+node .ava/dal.mjs arch set "key" --value "v" --scope project|ecosystem|infrastructure|convention
+node .ava/dal.mjs arch list --scope project
+node .ava/dal.mjs decision add --title T --context C --chosen O --rationale R
 
-- living-room → Main area, 180° wide angle
-- front-door → Entrance, motion-triggered
+# Content
+node .ava/dal.mjs prompt get <key> --content      # Load skill prompt
+node .ava/dal.mjs kb search <query>               # Full-text search knowledge base
 
-### SSH
-
-- home-server → 192.168.1.100, user: admin
-
-### TTS
-
-- Preferred voice: "Nova" (warm, slightly British)
-- Default speaker: Kitchen HomePod
+# Learning loop
+node .ava/dal.mjs action record "desc" --type <type> --outcome success|failure|partial
+node .ava/dal.mjs metric record <key> --value <number>
+node .ava/dal.mjs loop summary                    # Performance overview
 ```
 
-## Why Separate?
+## Hub Context — Cross-Read Only
 
-Skills are shared. Your setup is yours. Keeping them apart means you can update skills without losing your notes, and share skills without leaking your infrastructure.
+```bash
+node {hub path}/.ava/dal.mjs context              # Ecosystem state (never write)
+```
 
----
+## Domain Tools
 
-Add whatever helps you do your job. This is your cheat sheet.
+<!-- Customize per deployment: domain DB queries, API endpoints, test commands, sync commands -->
+
+| Tool | Command | What |
+|------|---------|------|
+| Domain DB | `sqlite3 {db path}` | Domain-specific queries |
+| API health | `curl localhost:{port}/health` | Service alive check |
+| Tests | `{test command}` | Domain test suite |
+| Build | `{build command}` | Build and deploy |

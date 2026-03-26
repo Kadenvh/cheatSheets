@@ -1,0 +1,14 @@
+{
+  "input": "---\ndomain: cheatSheets\ncategory: Python\ntags: python, pandas, data-science, learning\ntitle: Data Exploration with Pandas\ncreated: 2025-02-16\n---\n\nDomain: cheatSheets\nConcept: Data Exploration with Pandas\nDetail: Quick reference for pandas data exploration. Import: `import pandas as pd`. Load: `pd.read_csv('file.csv')`. View: `.head(n=5)`. Types: `.dtypes`. Counts: `.value_counts()`. Stats: `.describe()`. DataFrame is 2D table, Series is 1D column. Access single column: `df['col']` (Series), multiple: `df[['a','b']]` (DataFrame). Normalize counts: `.value_counts(normalize=True)`.\nContext: Python | python, pandas, data-science, learning",
+  "mode": "cheatsheet",
+  "ts": "2026-03-11T21:09:46.863Z",
+  "curatorOutput": "{ \"status\": \"embedded\", \"title\": \"Data Exploration with Pandas\", \"type\": \"cheatsheet\", \"sections\": 5, \"related_unexplored\": [], \"action\": \"created\" }",
+  "curatorParsed": {
+    "status": "embedded",
+    "title": "Data Exploration with Pandas",
+    "type": "cheatsheet",
+    "sections": 5,
+    "related_unexplored": [],
+    "action": "created"
+  }
+}

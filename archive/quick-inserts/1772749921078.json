@@ -1,0 +1,25 @@
+{
+  "input": "git rebase",
+  "mode": "quick",
+  "ts": "2026-03-05T22:32:01.078Z",
+  "curatorOutput": "{\"ok\":true,\"title\":\"git rebase\",\"type\":\"reference\",\"sections\":6,\"related_unexplored\":[\"git reflog\",\"git range-diff\",\"git rerere\"],\"action\":\"created\",\"warnings\":[{\"gate\":\"domainBalance\",\"message\":\"Domain \\\"cheatSheets\\\" has 12 entries (threshold: 10)\"}]}",
+  "curatorParsed": {
+    "ok": true,
+    "title": "git rebase",
+    "type": "reference",
+    "sections": 6,
+    "related_unexplored": [
+      "git reflog",
+      "git range-diff",
+      "git rerere"
+    ],
+    "action": "created",
+    "warnings": [
+      {
+        "gate": "domainBalance",
+        "message": "Domain \"cheatSheets\" has 12 entries (threshold: 10)"
+      }
+    ]
+  },
+  "recuratedAt": "2026-03-13T16:31:58.820Z"
+}

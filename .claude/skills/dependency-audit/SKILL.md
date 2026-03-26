@@ -1,7 +1,6 @@
 ---
 name: dependency-audit
 description: "Audit dependencies for security vulnerabilities, outdated packages, and supply chain risks"
-disable-model-invocation: true
 allowed-tools:
   - Read
   - Bash
@@ -15,8 +14,9 @@ Audit project dependencies for vulnerabilities, outdated packages, and health ri
 
 ## Instructions
 
-1. Read the full dependency audit template at `.prompts/dependency-audit.md` (relative to the project's `documentation/` folder).
-2. Follow its protocol:
+Follow the protocol below. For the full detailed version, read `.prompts/dependency-audit.md`.
+
+### Protocol
    - Scan dependencies (inventory, outdated, security audit)
    - Assess security (CVEs prioritized by severity + exploitability in context)
    - Assess updates (categorize by risk, detail major version changes)
@@ -30,9 +30,9 @@ Audit project dependencies for vulnerabilities, outdated packages, and health ri
 - **Read changelogs before major updates.** `npm update` is not a strategy.
 - **Lock files are mandatory.** Commit them. Non-reproducible builds are a production risk.
 
-## Inline Fallback (if prompt file not found)
+## Full Protocol
 
-If `.prompts/dependency-audit.md` cannot be located:
+Detailed steps:
 
 1. **Scan.** Run: `npm ls --depth=0` (inventory), `npm outdated` (versions behind), `npm audit` (vulnerabilities). Adapt commands for Python/Go/Rust.
 2. **Security.** For each CVE: severity, affected package+version, fixed version, exploitability in this project's context. Prioritize: Critical → fix today, High → fix this week, Medium → plan, Low → track.

@@ -1,0 +1,26 @@
+{
+  "input": "crontab",
+  "mode": "quick",
+  "ts": "2026-03-05T22:37:08.696Z",
+  "curatorOutput": "{\"ok\":true,\"title\":\"crontab\",\"type\":\"reference\",\"sections\":7,\"related_unexplored\":[\"cron daemon\",\"anacron\",\"systemd timers\",\"at command\"],\"action\":\"created\",\"warnings\":[{\"gate\":\"domainBalance\",\"message\":\"Domain \\\"cheatSheets\\\" has 12 entries (threshold: 10)\"}]}",
+  "curatorParsed": {
+    "ok": true,
+    "title": "crontab",
+    "type": "reference",
+    "sections": 7,
+    "related_unexplored": [
+      "cron daemon",
+      "anacron",
+      "systemd timers",
+      "at command"
+    ],
+    "action": "created",
+    "warnings": [
+      {
+        "gate": "domainBalance",
+        "message": "Domain \"cheatSheets\" has 12 entries (threshold: 10)"
+      }
+    ]
+  },
+  "recuratedAt": "2026-03-13T16:34:13.092Z"
+}

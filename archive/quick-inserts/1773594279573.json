@@ -1,0 +1,18 @@
+{
+  "input": "Python Methods and Lists: Methods perform actions and require parentheses: object.method(). Attributes store information without parentheses: object.attribute. String methods: str.lower() returns lowercase copy. List methods: list.sort() sorts ascending in-place, list.sort(reverse=True) descending, list.append(item) adds to end. .sort() modifies original list and returns None. Use reverse=True to switch sort order. Key distinction: methods (actions) vs attributes (stored info).",
+  "mode": "quick",
+  "ts": "2026-03-15T17:04:39.573Z",
+  "curatorOutput": "{\"status\":\"embedded\",\"title\":\"Python methods vs attributes and list sorting\",\"type\":\"reference\",\"sections\":4,\"related_unexplored\":[\"Python dictionary methods\",\"Python tuple methods\",\"key-based sorting with sort(key=...)\"],\"action\":\"created\"}",
+  "curatorParsed": {
+    "status": "embedded",
+    "title": "Python methods vs attributes and list sorting",
+    "type": "reference",
+    "sections": 4,
+    "related_unexplored": [
+      "Python dictionary methods",
+      "Python tuple methods",
+      "key-based sorting with sort(key=...)"
+    ],
+    "action": "created"
+  }
+}

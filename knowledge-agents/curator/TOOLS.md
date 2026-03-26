@@ -8,7 +8,7 @@ All endpoints are on the local embedding service at `http://127.0.0.1:8001`.
 ```bash
 curl -s -X POST http://127.0.0.1:8001/query \
   -H 'Content-Type: application/json' \
-  -d '{"query": "systemctl", "top_k": 5, "min_score": 0.3}'
+  -d '{"query": "systemctl", "top_k": 5, "min_score": 0.8}'
 ```
 
 ### Embed a reference entry (quick insert)
@@ -37,7 +37,7 @@ curl -s -X DELETE http://127.0.0.1:8001/documents/{doc_id}
 ```bash
 curl -s -X POST http://127.0.0.1:8001/ingest-file \
   -H 'Content-Type: application/json' \
-  -d '{"file_path": "/home/ava/Ava_Main/repos/cheatSheets/new/filename.md"}'
+  -d '{"file_path": "/home/ava/Ava_Main/0 - cheatSheets/new/filename.md"}'
 ```
 
 ### Check stats / health
@@ -48,7 +48,7 @@ curl -s http://127.0.0.1:8001/stats
 
 ## File Paths
 
-- New cheatsheets: `/home/ava/Ava_Main/repos/cheatSheets/new/`
-- Processed: `/home/ava/Ava_Main/repos/cheatSheets/processed/`
-- Raw quick inserts: `/home/ava/Ava_Main/repos/cheatSheets/quick-inserts/`
-- Cheatsheet Generation Prompt: `/home/ava/Ava_Main/repos/cheatSheets/Cheatsheet_Generation_Prompt.md`
+- New cheatsheets: `/home/ava/Ava_Main/0 - cheatSheets/new/`
+- Processed: `/home/ava/Ava_Main/0 - cheatSheets/processed/`
+- Raw quick inserts: `/home/ava/Ava_Main/0 - cheatSheets/quick-inserts/`
+- Cheatsheet Generation Prompt: `/home/ava/Ava_Main/0 - cheatSheets/Cheatsheet_Generation_Prompt.md`

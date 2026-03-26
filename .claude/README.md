@@ -1,6 +1,6 @@
 # .claude Template — Personal Workflow Guide
 
-**Version:** 1.2.0 | **Updated:** 2026-02-27
+**Version:** 3.0.0 | **Updated:** 2026-03-10
 
 This folder is the Claude Code automation layer for the documentation system. It ships alongside `.prompts/` and the three core documents. When deploying to a project, **copy this folder to the project root** (same rule as CLAUDE.md).
 

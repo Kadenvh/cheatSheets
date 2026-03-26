@@ -1,7 +1,6 @@
 ---
 name: release
 description: "Prepare and execute a versioned release with changelog, deployment, and rollback plan"
-disable-model-invocation: true
 allowed-tools:
   - Read
   - Edit
@@ -17,8 +16,9 @@ Prepare, execute, and verify a project release.
 
 ## Instructions
 
-1. Read the full release template at `.prompts/release.md` (relative to the project's `documentation/` folder).
-2. Follow its protocol:
+Follow the protocol below. For the full detailed version, read `.prompts/release.md`.
+
+### Protocol
    - Determine release type (standard / hotfix / pre-release)
    - Run pre-release checklist (tests, docs, deps, environment)
    - Determine version (semver)
@@ -34,9 +34,9 @@ Prepare, execute, and verify a project release.
 - **Tag every release.** Tags are your time machine.
 - **Communicate** to affected users if the release changes behavior.
 
-## Inline Fallback (if prompt file not found)
+## Full Protocol
 
-If `.prompts/release.md` cannot be located:
+Detailed steps:
 
 1. **Pre-check.** Verify: all tests pass, no lint/type errors, `npm audit` clean, docs current, environment ready.
 2. **Version.** Bug fixes only → patch. New features → minor. Breaking changes → major.

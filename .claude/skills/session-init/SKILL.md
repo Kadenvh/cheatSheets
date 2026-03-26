@@ -1,7 +1,6 @@
 ---
 name: session-init
 description: "Start a development session — read docs, verify state, orient before work"
-disable-model-invocation: true
 allowed-tools:
   - Read
   - Glob
@@ -15,11 +14,14 @@ You are starting a new session on this project. Follow the full initialization p
 
 ## Instructions
 
-1. Read the session init template at `.prompts/init.md` (relative to the project's `documentation/` folder). If the project root has a `documentation/` folder, look there. If not, check for `.prompts/` at the project root.
-2. Follow its 8-section protocol exactly:
+Follow the protocol below. For the full detailed version, read `.prompts/init.md`.
+
+### Protocol
    - Find the documentation system
    - Orient to the codebase
    - Verify state (version consistency, staleness, blockers)
+   - Check Obsidian vault context (recent session notes, active plans, latest handoff)
+   - Review past performance (learning loop data — what worked, what failed)
    - Understand the prompt system
    - Establish the engagement protocol
    - Surface insights (inconsistencies, improvements, questions, criticism — proactively)
@@ -28,10 +30,11 @@ You are starting a new session on this project. Follow the full initialization p
 
 ## Quick Reference
 
-Read docs in this order:
-1. **CLAUDE.md** (project root) — critical rules, anti-patterns, quick start
-2. **PROJECT_ROADMAP.md** (documentation/) — architecture decisions, version history
-3. **IMPLEMENTATION_PLAN.md** (documentation/) — current tasks, handoff notes, blockers
+Read context in this order:
+1. **CLAUDE.md** (project root) — critical rules, always auto-loaded
+2. **brain.db context** — already injected by session-context hook if brain.db exists
+3. **Obsidian vault** — recent session notes, active plans, latest YAML handoff (if vault exists)
+4. **File mode only:** read `documentation/PROJECT_ROADMAP.md` and `IMPLEMENTATION_PLAN.md` if no brain.db
 
 Report ready state: current version, active blockers, insights/concerns noticed, questions, and recommended priorities.
 
@@ -41,9 +44,9 @@ Before implementing ANY change, present a prioritized plan and await explicit
 confirmation. List proposed changes, files affected, and sequencing. Do not begin
 implementation until the user approves.
 
-## Inline Fallback (if prompt file not found)
+## Full Protocol
 
-If `.prompts/init.md` cannot be located, execute this minimal protocol:
+Detailed steps (always follow these):
 
 1. **Find docs.** Look for `CLAUDE.md` at project root. Look for `PROJECT_ROADMAP.md` and `IMPLEMENTATION_PLAN.md` in `documentation/` or project root.
 2. **Read in order.** CLAUDE.md first (critical rules), then ROADMAP (architecture context), then IMPLEMENTATION_PLAN (current tasks).

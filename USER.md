@@ -1,17 +1,25 @@
-# USER.md - About Your Human
+# spoke-dev — User
 
-_Learn about the person you're helping. Update this as you go._
+## Kaden
 
-- **Name:**
-- **What to call them:**
-- **Pronouns:** _(optional)_
-- **Timezone:**
-- **Notes:**
+**Role:** System architect, domain expert, human-in-the-loop.
 
-## Context
+- Provides domain context the agent can't derive from code
+- Reviews architecture changes that cross domain boundaries
+- Rates print quality / provides subjective evaluations (domain-specific)
+- Approves new dependencies, schema changes, external integrations
+- Provides feedback via sidebar buttons (helpful/neutral/harmful)
 
-_(What do they care about? What projects are they working on? What annoys them? What makes them laugh? Build this over time.)_
+## Working Style
 
----
+- Prefers concise updates at milestones, not play-by-play
+- Trusts autonomous work on the note queue — don't ask permission for routine tasks
+- Wants to be consulted on architectural decisions, not implementation details
+- Values data-driven reasoning over gut instinct
+- Will push back if the approach is wrong — that's collaboration, not criticism
 
-The more you know, the better you can help. But remember — you're learning about a person, not building a dossier. Respect the difference.
+## Availability
+
+- Async by default — the agent works its queue, Kaden reviews when available
+- Sidebar chat for real-time when needed
+- Feedback buttons close the learning loop without requiring conversation

@@ -1,7 +1,6 @@
 ---
 name: session-closeout
 description: "End a development session — persist state, update all documentation, ensure next session continuity"
-disable-model-invocation: true
 allowed-tools:
   - Read
   - Edit
@@ -17,13 +16,15 @@ Perform end-of-session documentation updates. This is the most critical document
 
 ## Instructions
 
-1. Read the full closeout template at `.prompts/closeout.md` (relative to the project's `documentation/` folder).
-2. Follow its complete Part A through Part E process:
+Follow the protocol below. For the full detailed version, read `.prompts/closeout.md`.
+2. Follow its complete process:
    - **Part A:** Capture session state (inventory changes, determine version increment)
-   - **Part B:** Update documentation (IMPLEMENTATION_PLAN → ROADMAP → CLAUDE.md → READMEs)
-   - **Part C:** Verify prompts are present in `.prompts/`
-   - **Part D:** Clean up project notes (remove resolved, update remaining, add new)
-   - **Part E:** Cross-file consistency check + quality check
+   - **Part A-2:** Record session knowledge to brain.db (identity, architecture, decisions, notes)
+   - **Part A-3:** Record learning loop data (actions, metrics, self-assessment)
+   - **Part A-4:** Vault export & handoff (YAML handoff + Obsidian session note + decision notes)
+   - **Part B:** Update CLAUDE.md (brain.db mode) or all 3 docs (file mode)
+   - **Part C:** Self-verification
+   - **Part D:** Git commit
 
 ## Autonomous Option
 
@@ -31,6 +32,14 @@ If you want hands-off closeout, ask Claude to dispatch the `closeout-worker` age
 
 ## Routing Rule Reminder
 
+**brain.db mode:**
+| Question | Belongs In |
+|---|---|
+| "What do I need to know right now?" | CLAUDE.md |
+| "Why was this decided?" | brain.db decisions |
+| "What's done/broken/next?" | brain.db notes + sessions |
+
+**File mode:**
 | Question | Belongs In |
 |---|---|
 | "What do I need to know right now?" | CLAUDE.md |
@@ -39,15 +48,25 @@ If you want hands-off closeout, ask Claude to dispatch the `closeout-worker` age
 
 Information lives in ONE place. Reference, never duplicate.
 
-## Inline Fallback (if prompt file not found)
+## Full Protocol
 
-If `.prompts/closeout.md` cannot be located, execute this minimal protocol:
+Detailed steps (always follow these):
 
 1. **Inventory changes.** List all features implemented, bugs fixed, files modified, decisions made, and issues discovered but not fixed.
 2. **Determine version increment.** Bug fixes only → patch. New features → minor. Breaking changes → major.
-3. **Update IMPLEMENTATION_PLAN.md.** Add new version section, mark completed tasks `[x]`, update handoff notes for next session with actionable context.
-4. **Update PROJECT_ROADMAP.md** (if milestone). Add version history row, document architectural decisions with rationale.
-5. **Update CLAUDE.md.** Update version header, refresh "Recent Changes," add any new anti-patterns discovered.
-6. **Create READMEs** for any new major directories (3+ files with shared purpose).
-7. **Clean up notes.** If project has notes/issues: remove resolved items, update remaining with session context, add new items for unfixed issues.
-8. **Verify consistency.** Version numbers match across all three files. Dates match. No orphaned references. No duplicated content across files.
+3. **Record to brain.db** (if exists):
+   - `node .ava/dal.mjs identity set "project.version" --value "X.Y.Z"`
+   - `node .ava/dal.mjs arch set "key" --value "..." --scope project` for system knowledge
+   - `node .ava/dal.mjs decision add ...` for architectural choices
+   - `node .ava/dal.mjs note add "..." --category handoff` for next-session context
+   - `node .ava/dal.mjs action record "..." --type <type> --outcome success|failure|partial`
+4. **Vault export & handoff** (if Obsidian vault exists):
+   - `node .ava/dal.mjs handoff generate "session summary"`
+   - Create Obsidian session note in `/home/ava/Obsidian/Ava/{Project}/sessions/`
+   - Create Obsidian decision notes in `/home/ava/Obsidian/Ava/{Project}/architecture/`
+   - Wiki-link session notes ↔ decision notes
+5. **Update CLAUDE.md.** Update version header, refresh "Recent Changes," add any new anti-patterns.
+6. **File mode additionally:** Update IMPLEMENTATION_PLAN.md (tasks, handoff) and PROJECT_ROADMAP.md (if milestone).
+7. **Create READMEs** for any new major directories.
+8. **Verify consistency.** Version numbers match. No orphaned references. No duplicated content.
+9. **Commit.** Stage specific files, commit with descriptive message.

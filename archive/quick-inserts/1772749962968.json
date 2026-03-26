@@ -1,0 +1,26 @@
+{
+  "input": "journalctl",
+  "mode": "quick",
+  "ts": "2026-03-05T22:32:42.968Z",
+  "curatorOutput": "{\"ok\":true,\"title\":\"journalctl\",\"type\":\"reference\",\"sections\":6,\"related_unexplored\":[\"systemctl\",\"dmesg\",\"journal namespaces\",\"systemd-journald\"],\"action\":\"created\",\"warnings\":[{\"gate\":\"domainBalance\",\"message\":\"Domain \\\"cheatSheets\\\" has 12 entries (threshold: 10)\"}]}",
+  "curatorParsed": {
+    "ok": true,
+    "title": "journalctl",
+    "type": "reference",
+    "sections": 6,
+    "related_unexplored": [
+      "systemctl",
+      "dmesg",
+      "journal namespaces",
+      "systemd-journald"
+    ],
+    "action": "created",
+    "warnings": [
+      {
+        "gate": "domainBalance",
+        "message": "Domain \"cheatSheets\" has 12 entries (threshold: 10)"
+      }
+    ]
+  },
+  "recuratedAt": "2026-03-13T16:32:56.590Z"
+}

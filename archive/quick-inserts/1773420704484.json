@@ -1,0 +1,19 @@
+{
+  "input": "awk text processing — pattern scanning and processing language",
+  "mode": "quick",
+  "ts": "2026-03-13T16:51:44.484Z",
+  "curatorOutput": "{\"status\":\"embedded\",\"title\":\"awk\",\"type\":\"reference\",\"sections\":7,\"related_unexplored\":[\"sed\",\"grep\",\"gawk string functions\",\"sort/uniq pipelines\"],\"action\":\"created\"}",
+  "curatorParsed": {
+    "status": "embedded",
+    "title": "awk",
+    "type": "reference",
+    "sections": 7,
+    "related_unexplored": [
+      "sed",
+      "grep",
+      "gawk string functions",
+      "sort/uniq pipelines"
+    ],
+    "action": "created"
+  }
+}

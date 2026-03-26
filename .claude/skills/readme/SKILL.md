@@ -1,7 +1,6 @@
 ---
 name: readme
-description: "Audit, create, and update directory README.md files across the project"
-disable-model-invocation: true
+description: "Audit, create, and update CLAUDE.md files (source of truth for agents) and directory README.md files across the project"
 allowed-tools:
   - Read
   - Edit
@@ -9,41 +8,105 @@ allowed-tools:
   - Glob
   - Grep
   - Bash
+  - Agent
 ---
 
-# README Maintenance
+# CLAUDE.md + README Maintenance
 
-Audit, create, and update README.md files across the project.
+Audit, create, and update CLAUDE.md files (the agent source of truth) and directory README.md files.
 
-## Instructions
+**CLAUDE.md is the priority.** It's auto-read by Claude Code on every session. Every project MUST have one. README.md is secondary (for humans browsing repos).
 
-1. Read the full readme template at `.prompts/readme.md` (relative to the project's `documentation/` folder).
-2. Follow its 4-section protocol:
-   - **Section 2:** Determine which directories need READMEs (3+ files, conventions, boundaries)
-   - **Section 3:** Use the appropriate template (directory-level or spoke-level)
-   - **Section 4:** Follow the execution protocol (audit first, then create/update)
-   - **Section 6:** Apply the rules (be factual, concise, no duplication)
+## CLAUDE.md Protocol
 
-## Quick Criteria
+### 1. Audit existing CLAUDE.md
 
-**Create a README when:** 3+ files with shared purpose, non-obvious conventions, boundary directory (components/, hooks/, features/), a new agent would need context.
+Read the current CLAUDE.md. Check for:
+- **Version** — `**Version:** X.Y.Z` in header. Must match package.json or brain.db identity.
+- **Critical Rules** — DO NOT and ALWAYS sections. Are they current? Missing any?
+- **Tech Stack** — table with components, versions, notes. Accurate?
+- **Quick Reference** — build/test/deploy commands. Do they work?
+- **File Structure** — does it reflect reality? Stale entries?
+- **API Endpoints** — count and grouping. Accurate?
+- **Known Issues** — any resolved bugs still listed?
 
-**Skip when:** Fewer than 3 files, parent README covers it, directory has its own full doc system.
+### 2. Gather current state
 
-## Always Audit First
+```bash
+# Version from package.json or brain.db
+node .ava/dal.mjs identity get project.version 2>/dev/null || grep '"version"' package.json
+# Endpoint count (if Express)
+grep -c 'router\.\(get\|post\|put\|delete\|patch\)' server/routes/*.mjs 2>/dev/null
+# Test count
+npm test -- --reporter=verbose 2>/dev/null | tail -5
+# File structure
+find . -maxdepth 3 -type f -name "*.ts" -o -name "*.tsx" -o -name "*.mjs" | head -50
+```
 
-List all directories → check which have READMEs → identify gaps → report findings → THEN create.
+### 3. Create or update CLAUDE.md
 
-## Inline Fallback (if prompt file not found)
+**Required sections (in order):**
 
-If `.prompts/readme.md` cannot be located, execute this minimal protocol:
+```markdown
+# Project Name
 
-1. **Audit.** List all directories in the project. For each, note: file count, whether a README exists, whether the directory has a clear shared purpose.
-2. **Identify gaps.** Flag directories with 3+ files and no README. Prioritize boundary directories (components/, hooks/, features/, config/, utils/).
-3. **Create directory READMEs.** Each should contain:
-   - 1-2 sentence purpose statement
-   - File table: `| File | Purpose |` for every file in the directory
-   - Conventions (naming, patterns, how to add new items)
-   - Key interfaces or exports other parts of the codebase depend on
-4. **Create spoke READMEs** (sub-project roots). Include: what the sub-project is, quick start, architecture overview, key files, where to find detailed docs.
-5. **Rules:** Be factual, not aspirational. Describe what IS, not what should be. Don't duplicate content that belongs in CLAUDE.md or the three-doc system. Keep READMEs under 100 lines.
+**Version:** X.Y.Z | **Status:** summary | **Updated:** YYYY-MM-DD
+
+---
+
+## Quick Reference
+(build, test, deploy, lint commands — copy-pasteable)
+
+## Critical Rules
+### DO NOT
+(anti-patterns, forbidden approaches, explicit architectural decisions)
+### ALWAYS
+(mandatory practices, required checks before commit)
+
+## Tech Stack
+(table: Component | Choice | Notes)
+
+## File Structure
+(tree with annotations — key files only, not exhaustive)
+
+## API Endpoints (if applicable)
+(grouped table with counts)
+
+## Known Issues / Tech Debt
+(current, not aspirational)
+```
+
+**Rules for CLAUDE.md:**
+- Be factual, not aspirational. Describe what IS.
+- Front-load anti-patterns — agents often start acting before finishing the read.
+- Keep under 5KB for root CLAUDE.md. Move details to brain.db or spoke docs.
+- No duplication — information lives in ONE place.
+- Strategic context (plans, decisions, architecture) belongs in brain.db, not CLAUDE.md.
+- IMPLEMENTATION_PLAN.md and PROJECT_ROADMAP.md content should be in brain.db plans table.
+
+### 4. Cross-project CLAUDE.md audit
+
+If asked to audit multiple projects, check each for:
+- Existence of CLAUDE.md
+- Version accuracy (matches package.json / brain.db)
+- Staleness (updated_at > 7 days)
+- Missing required sections
+- Stale endpoint counts
+
+Report findings as a table.
+
+## README Protocol (secondary)
+
+For directory README.md files within a project:
+
+**Create a README when:** 3+ files with shared purpose, non-obvious conventions, boundary directory (components/, hooks/, features/).
+
+**Skip when:** Fewer than 3 files, parent README covers it, directory has its own CLAUDE.md.
+
+Each directory README should contain:
+- 1-2 sentence purpose statement
+- File table: `| File | Purpose |`
+- Conventions (naming, patterns, how to add new items)
+- Key interfaces or exports
+
+**Rules:** Be factual. Don't duplicate content from CLAUDE.md. Keep under 80 lines.

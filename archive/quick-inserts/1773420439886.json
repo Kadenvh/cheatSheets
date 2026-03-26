@@ -1,0 +1,19 @@
+{
+  "input": "ls command — list directory contents",
+  "mode": "quick",
+  "ts": "2026-03-13T16:47:19.886Z",
+  "curatorOutput": "{\"status\":\"merged\",\"title\":\"ls\",\"type\":\"reference\",\"sections\":6,\"related_unexplored\":[\"find\",\"tree\",\"dircolors\",\"eza\"],\"action\":\"merged\"}",
+  "curatorParsed": {
+    "status": "merged",
+    "title": "ls",
+    "type": "reference",
+    "sections": 6,
+    "related_unexplored": [
+      "find",
+      "tree",
+      "dircolors",
+      "eza"
+    ],
+    "action": "merged"
+  }
+}

@@ -1,7 +1,6 @@
 ---
 name: incident
 description: "Respond to production incidents — triage, stabilize, investigate, resolve, postmortem"
-disable-model-invocation: true
 allowed-tools:
   - Read
   - Edit
@@ -17,8 +16,9 @@ Respond to a production incident. Restore service first, investigate second, pre
 
 ## Instructions
 
-1. Read the full incident template at `.prompts/incident.md` (relative to the project's `documentation/` folder).
-2. Follow its protocol:
+Follow the protocol below. For the full detailed version, read `.prompts/incident.md`.
+
+### Protocol
    - Assess severity (S1-S4) in the first 60 seconds
    - Stabilize (rollback, restart, scale, feature flag off — restore service FIRST)
    - Communicate (acknowledge, update every 15-30 min, resolve)
@@ -33,9 +33,9 @@ Respond to a production incident. Restore service first, investigate second, pre
 - **Communicate proactively.** Silence during an incident is worse than bad news.
 - **Postmortem = blameless.** Focus on systems, not individuals.
 
-## Inline Fallback (if prompt file not found)
+## Full Protocol
 
-If `.prompts/incident.md` cannot be located:
+Detailed steps:
 
 1. **Severity.** S1 (system down, all users) → S2 (core feature broken) → S3 (degraded, workaround exists) → S4 (minor, use `/debugging` instead).
 2. **Stabilize.** Try in order: rollback last deployment → restart service → scale up → feature flag off → traffic redirect. Note what you did and when.

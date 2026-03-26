@@ -1,7 +1,6 @@
 ---
 name: testing
 description: "Define test strategy, generate tests, or audit existing test coverage for the project"
-disable-model-invocation: true
 allowed-tools:
   - Read
   - Edit
@@ -17,8 +16,8 @@ Define, generate, and verify tests for this project.
 
 ## Instructions
 
-1. Read the full testing template at `.prompts/testing.md` (relative to the project's `documentation/` folder).
-2. Follow its protocol for the appropriate mode:
+Follow the protocol below. For the full detailed version, read `.prompts/testing.md`.
+### Protocol:
    - **Strategy** → Analyze codebase, classify testable surface, recommend framework, produce test plan
    - **Generation** → Write tests by priority, follow Arrange-Act-Assert, verify all pass
    - **Audit** → Measure coverage, score 6 quality dimensions, recommend improvements
@@ -30,9 +29,9 @@ If the user didn't specify, determine mode automatically:
 - **Tests exist, user wants more** → Generation
 - **Tests exist, user wants evaluation** → Audit
 
-## Inline Fallback (if prompt file not found)
+## Full Protocol
 
-If `.prompts/testing.md` cannot be located, follow these core rules:
+Detailed steps:
 
 1. **Strategy:** Map testable surface into P0 (critical paths), P1 (business logic + integrations), P2 (edge cases + UI), P3 (config). Recommend the ecosystem-standard framework. Set coverage targets: 80%+ lines for services, 70%+ for apps, 50%+ critical paths for MVPs.
 

@@ -12,11 +12,11 @@ User provides a command, concept, or snippet. Your job:
 
 1. **Identify** what the input is (command, function, concept, pattern)
 2. **Research** the full scope — all subcommands, flags, options, common patterns
-3. **Check existing** — query ChromaDB via `http://127.0.0.1:8001/query` to see if this topic already exists
-   - If the query returns results with similarity > 0.8 for the SAME topic: merge new information (upsert — see below)
-   - If the query returns NO results or only loosely related results: create a NEW entry
-   - CRITICAL: If ChromaDB has 0 total documents, ALWAYS create a new entry — never skip
-   - The "skipped" status should ONLY be used when you find an EXACT duplicate with identical content already embedded
+3. **Check existing** — query ChromaDB via `http://127.0.0.1:8001/query` with `min_score: 0.8` to check for duplicates
+   - **Exact duplicate** (similarity >= 0.9, same topic): respond with `"status": "skipped"` — this is the ONLY valid reason to skip
+   - **Close match** (similarity >= 0.8, same topic): merge new information into existing (upsert — see below) → `"status": "merged"`
+   - **Everything else** (no results, different topics, similarity < 0.8, 0 total documents): ALWAYS CREATE a new entry → `"status": "embedded"`
+   - **Fallback rule: When in doubt, CREATE.** Embedding a near-duplicate is far better than skipping valid new knowledge.
 4. **Generate exploration stubs** — identify related commands/concepts NOT yet in the knowledge base. Add these as `related_unexplored` metadata. Do NOT create separate entries for them.
 5. **Format** as a reference entry (see format below)
 6. **Embed** via `http://127.0.0.1:8001/ingest` with metadata: `type: reference`, `status: shelved`, `related_unexplored: "comma,separated,list"`, `category: <detected>`, `domain: <detected>`
@@ -98,3 +98,4 @@ ChromaDB does not have a native merge. When you find an existing entry:
 - For concepts (not commands): adapt the format — use Definition/Key Points/Examples/Related instead of Synopsis/Subcommands/Flags
 - Your response MUST end with the JSON object on its own line — the server parses it
 - ALWAYS embed when the knowledge base has 0 entries — there is nothing to skip or merge with
+- Your response MUST contain `status` set to exactly one of: `embedded`, `merged`, or `skipped`. No other values are valid. If uncertain, embed.

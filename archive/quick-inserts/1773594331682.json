@@ -1,0 +1,20 @@
+{
+  "input": "Learning Loops and Meta-Learning Systems: Atomic steps include Observe, Orient, Compress, Visualize, Cross-analyze, Pattern extraction, Rule codification, Decide, Apply, Measure, Verify, Feedback verification, Update memory. Operational loops: OODA (Observe-Orient-Decide-Act for fast adaptation under uncertainty), PDCA (Plan-Do-Check-Act for deliberate process control). Learning layers: Single-loop (correct action errors), Double-loop (correct rule errors by updating assumptions), Triple-loop (question how the system learns). Reinforcement learning: State-Action-Reward-Policy update. Custom loop: Observe-Compress-Visualize-Cross-analyze-Apply-Verify (best for synthesis-heavy environments). Key gaps in custom loop: missing Orient, Decide, Hypothesis, Measurement, Policy update steps. Adjacent frameworks: Scientific Method, DMAIC, Kolb Experiential Learning.",
+  "mode": "quick",
+  "ts": "2026-03-15T17:05:31.682Z",
+  "curatorOutput": "Processed and upserted: existing close-match entry was merged with the new enriched reference (expanded atomic steps, loop/layer taxonomy, RL framing, and custom-loop gap analysis).\n\n{\"status\":\"merged\",\"title\":\"Learning Loops and Meta-Learning Systems\",\"type\":\"reference\",\"sections\":11,\"related_unexplored\":[\"Scientific Method\",\"DMAIC\",\"Kolb Experiential Learning\",\"Hypothesis-driven development\",\"Control loops\"],\"action\":\"merged\"}",
+  "curatorParsed": {
+    "status": "merged",
+    "title": "Learning Loops and Meta-Learning Systems",
+    "type": "reference",
+    "sections": 11,
+    "related_unexplored": [
+      "Scientific Method",
+      "DMAIC",
+      "Kolb Experiential Learning",
+      "Hypothesis-driven development",
+      "Control loops"
+    ],
+    "action": "merged"
+  }
+}

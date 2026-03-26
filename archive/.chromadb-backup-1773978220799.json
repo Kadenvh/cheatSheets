@@ -1,0 +1,635 @@
+{
+  "ts": "2026-03-20T03:43:40.799Z",
+  "docs": [
+    {
+      "id": "7b12fd9654fdce65",
+      "metadata": {
+        "status_updated_at": "",
+        "session": "Data Exploration with Pandas",
+        "domain": "cheatSheets",
+        "created": "2025-02-16",
+        "source_file": "data-exploration-with-pandas.md",
+        "category": "Python",
+        "title": "Data Exploration with Pandas",
+        "tags": "python, pandas, data-exploration, learning",
+        "related_unexplored": "",
+        "status": "new",
+        "type": "cheatsheet",
+        "section": "Overview"
+      },
+      "content": "# Data Exploration with Pandas"
+    },
+    {
+      "id": "61155ff0d3f965db",
+      "metadata": {
+        "domain": "cheatSheets",
+        "tags": "python, pandas, data-exploration, learning",
+        "created": "2025-02-16",
+        "status_updated_at": "",
+        "section": "Quick Reference",
+        "session": "Data Exploration with Pandas",
+        "status": "new",
+        "related_unexplored": "",
+        "category": "Python",
+        "type": "cheatsheet",
+        "title": "Data Exploration with Pandas",
+        "source_file": "data-exploration-with-pandas.md"
+      },
+      "content": "## Quick Reference\n- `import pandas as pd` : Import [[Pandas]] // Standard alias for tabular work\n- `pd.DataFrame({...})` : Create a [[DataFrame]] // Useful for quick experiments without a file\n- `df.head(5)` : Preview first rows // Fast structure check\n- `df.dtypes` : Inspect column data types // Spot numeric, object, and boolean columns\n- `df.info()` : Show schema, null counts, memory usage // Better structural summary than `head()`\n- `df['col']` : Select one column // Returns a [[Series]]\n- `df[['a', 'b']]` : Select multiple columns // Returns a [[DataFrame]]\n- `df['col'].value_counts()` : Count category frequency // Fast distribution check\n- `df['col'].value_counts(normalize=True)` : Convert counts to proportions // Compare relative frequency\n- `df.describe()` : Summarize numeric columns // Mean, std, quartiles, min, max\n- `df.describe(include='all')` : Summarize all columns // Pulls categorical stats too"
+    },
+    {
+      "id": "24df12cc4850840e",
+      "metadata": {
+        "status_updated_at": "",
+        "category": "Python",
+        "related_unexplored": "",
+        "domain": "cheatSheets",
+        "status": "new",
+        "section": "Functional Logic",
+        "session": "Data Exploration with Pandas",
+        "source_file": "data-exploration-with-pandas.md",
+        "type": "cheatsheet",
+        "tags": "python, pandas, data-exploration, learning",
+        "created": "2025-02-16",
+        "title": "Data Exploration with Pandas"
+      },
+      "content": "## Functional Logic\n- **Concept:** [[Pandas]] // High-level library for structured tabular analysis in Python.\n- **Concept:** [[DataFrame]] // Two-dimensional labeled table for mixed data types.\n- **Concept:** [[Series]] // One-dimensional labeled array; returned by single-column selection.\n- **Dependency:** [[Python]] // Required runtime for Pandas code.\n- **Dependency:** [[Tabular Data]] // Exploration assumes rows, columns, and typed fields.\n- **Selection Rule:** `df['col']` returns a [[Series]] // Best for single-column methods like `value_counts()`.\n- **Selection Rule:** `df[['a', 'b']]` returns a [[DataFrame]] // Best when preserving table structure across columns.\n- **Distribution Check:** `value_counts(normalize=True)` returns proportions // Useful when raw counts hide scale differences.\n- **Inspection Flow:** `head()` -> `dtypes` / `info()` -> `value_counts()` -> `describe()` // Good default order for first-pass exploration."
+    },
+    {
+      "id": "3887fd6fdf94758d",
+      "metadata": {
+        "title": "Data Exploration with Pandas",
+        "session": "Data Exploration with Pandas",
+        "category": "Python",
+        "created": "2025-02-16",
+        "type": "cheatsheet",
+        "tags": "python, pandas, data-exploration, learning",
+        "source_file": "data-exploration-with-pandas.md",
+        "domain": "cheatSheets",
+        "status_updated_at": "",
+        "section": "Implementation",
+        "status": "new",
+        "related_unexplored": ""
+      },
+      "content": "## Implementation\n```python\nimport pandas as pd\n\ndf = pd.DataFrame(\n    {\n        \"city\": [\"Chicago\", \"Chicago\", \"Austin\", \"Denver\", \"Austin\"],\n        \"sales\": [120, 150, 90, 200, 110],\n        \"is_new\": [True, False, True, False, True],\n    }\n)\n\nprint(df.head(5))\nprint(df.dtypes)\nprint(df.info())\n\nprint(df[\"city\"].value_counts())\nprint(df[\"city\"].value_counts(normalize=True))\n\nprint(df.describe())\nprint(df.describe(include=\"all\"))\n\nsingle_column = df[\"city\"]                # Series\nmultiple_columns = df[[\"city\", \"sales\"]]  # DataFrame\n\nprint(type(single_column))\nprint(type(multiple_columns))\n```"
+    },
+    {
+      "id": "f6c57c532175eaa9",
+      "metadata": {
+        "title": "Data Exploration with Pandas",
+        "section": "Graph Connections",
+        "source_file": "data-exploration-with-pandas.md",
+        "status": "new",
+        "session": "Data Exploration with Pandas",
+        "tags": "python, pandas, data-exploration, learning",
+        "type": "cheatsheet",
+        "related_unexplored": "",
+        "category": "Python",
+        "status_updated_at": "",
+        "created": "2025-02-16",
+        "domain": "cheatSheets"
+      },
+      "content": "## Graph Connections\n- **Parents:** [[Python]], [[Data Analysis]]\n- **Children:** [[Missing Values in Pandas]], [[Grouping and Aggregation in Pandas]], [[Filtering Rows in Pandas]]\n- **Lateral:** [[NumPy Arrays]], [[Data Cleaning]], [[Exploratory Data Analysis]]"
+    },
+    {
+      "id": "2bdb22bc96cd64aa",
+      "metadata": {
+        "status": "new",
+        "title": "Data Exploration with Pandas",
+        "domain": "cheatSheets",
+        "related_unexplored": "",
+        "session": "Data Exploration with Pandas",
+        "category": "Python",
+        "tags": "python, pandas, data-exploration, learning",
+        "type": "cheatsheet",
+        "section": "Sandbox / To Explore",
+        "source_file": "data-exploration-with-pandas.md",
+        "status_updated_at": "",
+        "created": "2025-02-16"
+      },
+      "content": "## Sandbox / To Explore\n- Specific questions from user notes: When is `df.info()` more useful than `df.dtypes` for first-pass inspection?\n- Specific questions from user notes: How does `describe(include='all')` change output for categorical columns?\n- Specific questions from user notes: What does `value_counts(dropna=False)` reveal about missing categories?\n- Logical next steps: Add [[Missing Values in Pandas]] and [[Grouping and Aggregation in Pandas]] cheatsheets."
+    },
+    {
+      "id": "f2eef94e553f1ad7",
+      "metadata": {
+        "status_updated_at": "",
+        "session": "Docker Compose Fundamentals",
+        "domain": "cheatSheets",
+        "created": "2026-03-16",
+        "section": "Overview",
+        "title": "Docker Compose Fundamentals",
+        "tags": "docker, compose, containers, orchestration, learning",
+        "source_file": "docker-compose-fundamentals.md",
+        "related_unexplored": "",
+        "category": "Tools",
+        "type": "cheatsheet",
+        "status": "new"
+      },
+      "content": "# Docker Compose Fundamentals"
+    },
+    {
+      "id": "e159787e6880cdd3",
+      "metadata": {
+        "tags": "docker, compose, containers, orchestration, learning",
+        "session": "Docker Compose Fundamentals",
+        "source_file": "docker-compose-fundamentals.md",
+        "domain": "cheatSheets",
+        "section": "Quick Reference",
+        "related_unexplored": "",
+        "status": "new",
+        "category": "Tools",
+        "status_updated_at": "",
+        "created": "2026-03-16",
+        "type": "cheatsheet",
+        "title": "Docker Compose Fundamentals"
+      },
+      "content": "## Quick Reference\n- `docker compose up -d` : Start services in background // Creates containers, network, and attached resources\n- `docker compose down` : Stop and remove services // Removes containers and default network\n- `docker compose down -v` : Remove services and named volumes // Destructive for persisted local data\n- `docker compose ps` : List service status // Fast health and port mapping check\n- `docker compose logs -f api` : Follow service logs // Useful during startup and debugging\n- `docker compose exec api sh` : Open shell in running container // Inspect files and environment live\n- `docker compose build --no-cache` : Rebuild image without cache // Useful after dependency or Dockerfile changes\n- `services:` : Define containers in the stack // Core top-level section in `compose.yaml`\n- `ports:` : Publish container ports to host // Format is `\"HOST:CONTAINER\"`\n- `volumes:` : Persist or mount data // Named volumes survive container recreation\n- `depends_on:` : Order service startup dependencies // Stronger when paired with `healthcheck`\n- `healthcheck:` : Define readiness check // Lets dependent services wait on actual health"
+    },
+    {
+      "id": "0e654449d8ac6ff6",
+      "metadata": {
+        "source_file": "docker-compose-fundamentals.md",
+        "related_unexplored": "",
+        "status_updated_at": "",
+        "session": "Docker Compose Fundamentals",
+        "created": "2026-03-16",
+        "domain": "cheatSheets",
+        "status": "new",
+        "tags": "docker, compose, containers, orchestration, learning",
+        "type": "cheatsheet",
+        "title": "Docker Compose Fundamentals",
+        "category": "Tools",
+        "section": "Functional Logic"
+      },
+      "content": "## Functional Logic\n- **Concept:** [[Docker Compose]] // Tool for defining and running multi-container applications from one file.\n- **Dependency:** [[Docker Engine]] // Compose runs as part of the Docker CLI in v2.\n- **Core File:** `compose.yaml` // Declares services, volumes, networks, environment, and startup behavior.\n- **Version Distinction:** `docker compose` is the v2 CLI plugin // Replaces legacy `docker-compose` v1 binary.\n- **Startup Logic:** `depends_on` orders startup attempts // It does not replace a real readiness check by itself.\n- **Readiness Logic:** `healthcheck` marks a service healthy or unhealthy // Best paired with `depends_on.condition: service_healthy`.\n- **Storage Logic:** Named volumes persist container data // Better than bind mounts for database durability.\n- **Network Logic:** Services resolve each other by service name // `db` becomes a hostname inside the Compose network."
+    },
+    {
+      "id": "be6ff4820faa4fbf",
+      "metadata": {
+        "source_file": "docker-compose-fundamentals.md",
+        "section": "Implementation",
+        "session": "Docker Compose Fundamentals",
+        "title": "Docker Compose Fundamentals",
+        "status": "new",
+        "related_unexplored": "",
+        "created": "2026-03-16",
+        "type": "cheatsheet",
+        "tags": "docker, compose, containers, orchestration, learning",
+        "category": "Tools",
+        "domain": "cheatSheets",
+        "status_updated_at": ""
+      },
+      "content": "## Implementation\n```yaml\nservices:\n  api:\n    image: node:20-alpine\n    working_dir: /app\n    command:\n      - sh\n      - -c\n      - |\n        node -e \"require('http').createServer((req,res)=>res.end('ok')).listen(3000,'0.0.0.0')\"\n    environment:\n      DATABASE_URL: postgres://app:secret@db:5432/appdb\n    ports:\n      - \"3000:3000\"\n    depends_on:\n      db:\n        condition: service_healthy\n\n  db:\n    image: postgres:16-alpine\n    environment:\n      POSTGRES_USER: app\n      POSTGRES_PASSWORD: secret\n      POSTGRES_DB: appdb\n    ports:\n      - \"5432:5432\"\n    volumes:\n      - pgdata:/var/lib/postgresql/data\n    healthcheck:\n      test: [\"CMD-SHELL\", \"pg_isready -U app -d appdb\"]\n      interval: 5s\n      timeout: 3s\n      retries: 5\n\nvolumes:\n  pgdata:\n```"
+    },
+    {
+      "id": "0ae593d5276967d1",
+      "metadata": {
+        "type": "cheatsheet",
+        "related_unexplored": "",
+        "status": "new",
+        "category": "Tools",
+        "created": "2026-03-16",
+        "session": "Docker Compose Fundamentals",
+        "section": "Graph Connections",
+        "status_updated_at": "",
+        "source_file": "docker-compose-fundamentals.md",
+        "tags": "docker, compose, containers, orchestration, learning",
+        "title": "Docker Compose Fundamentals",
+        "domain": "cheatSheets"
+      },
+      "content": "## Graph Connections\n- **Parents:** [[Docker]], [[Containerization]]\n- **Children:** [[Docker Networking]], [[Docker Volumes]], [[Docker Health Checks]]\n- **Lateral:** [[Kubernetes]], [[Docker Swarm]], [[Podman Compose]]"
+    },
+    {
+      "id": "7c49701bbac06d1e",
+      "metadata": {
+        "domain": "cheatSheets",
+        "related_unexplored": "",
+        "status_updated_at": "",
+        "tags": "docker, compose, containers, orchestration, learning",
+        "category": "Tools",
+        "session": "Docker Compose Fundamentals",
+        "source_file": "docker-compose-fundamentals.md",
+        "status": "new",
+        "created": "2026-03-16",
+        "type": "cheatsheet",
+        "title": "Docker Compose Fundamentals",
+        "section": "Sandbox / To Explore"
+      },
+      "content": "## Sandbox / To Explore\n- Specific questions from user notes: When is a bind mount better than a named volume during development?\n- Specific questions from user notes: What does `depends_on` guarantee, and what does it not guarantee?\n- Specific questions from user notes: How do `profiles` change optional dev-only services?\n- Logical next steps: Add cheatsheets for [[Docker Networking]] and [[Docker Volumes]]."
+    },
+    {
+      "id": "3ab7f211c16f5f0a",
+      "metadata": {
+        "title": "Learning Loops and Meta-Learning Systems",
+        "section": "Overview",
+        "tags": "learning-loops, meta-learning, decision-systems, learning",
+        "domain": "cheatSheets",
+        "related_unexplored": "",
+        "status_updated_at": "",
+        "created": "2026-03-11",
+        "source_file": "learning-loops-and-meta-learning-systems.md",
+        "type": "cheatsheet",
+        "status": "processed",
+        "session": "Learning Loops and System Improvement",
+        "category": "General"
+      },
+      "content": "# Learning Loops and Meta-Learning Systems"
+    },
+    {
+      "id": "5f5792cff4a43a1d",
+      "metadata": {
+        "created": "2026-03-11",
+        "title": "Learning Loops and Meta-Learning Systems",
+        "related_unexplored": "",
+        "domain": "cheatSheets",
+        "section": "⚡ Quick Reference",
+        "status": "processed",
+        "status_updated_at": "",
+        "tags": "learning-loops, meta-learning, decision-systems, learning",
+        "category": "General",
+        "type": "cheatsheet",
+        "session": "Learning Loops and System Improvement",
+        "source_file": "learning-loops-and-meta-learning-systems.md"
+      },
+      "content": "## ⚡ Quick Reference\n- `atomic-step` : Small reusable action inside a loop // Example: observe, verify, decide\n- `operational-loop` : End-to-end action cycle // Example: [[OODA]], [[PDCA]]\n- `learning-layer` : Sub-loop that updates rules or policy // Converts outcomes into adaptation\n- `Observe` : Gather signals // Inputs, events, anomalies, context\n- `Orient` : Frame signals through goals and models // Turns raw input into interpreted input\n- `Compress` : Reduce noise and summarize // Not the same as extracting rules\n- `Visualize` : Externalize structure // Maps, timelines, matrices, diagrams\n- `Cross-analyze` : Compare across cases or time windows // Useful for transfer and contrast\n- `Extract patterns` : Identify repeated structure // Invariants, motifs, failure modes\n- `Hypothesize` : Predict what should happen next // Makes verification meaningful\n- `Decide` : Select the next action // Prevents analysis from collapsing into vague action\n- `Apply` : Execute an intervention // Test, rollout, response, experiment\n- `Measure` : Define how success is scored // Reward signal or evaluation target\n- `Verify` : Compare outcome to expectation // Did the action work?\n- `Validate feedback` : Check if the metric itself is trustworthy // Guards against false learning\n- `Update memory / policy` : Store lessons in reusable form // Rules, heuristics, operating policy"
+    },
+    {
+      "id": "0b8154e3a8998644",
+      "metadata": {
+        "section": "🧠 Functional Logic",
+        "session": "Learning Loops and System Improvement",
+        "type": "cheatsheet",
+        "status_updated_at": "",
+        "domain": "cheatSheets",
+        "related_unexplored": "",
+        "status": "processed",
+        "tags": "learning-loops, meta-learning, decision-systems, learning",
+        "source_file": "learning-loops-and-meta-learning-systems.md",
+        "title": "Learning Loops and Meta-Learning Systems",
+        "created": "2026-03-11",
+        "category": "General"
+      },
+      "content": "## 🧠 Functional Logic\n- **Concept:** [[Learning-Loop]] // Repeating cycle that converts observation into action and action into adaptation.\n- **Dependency:** [[Feedback-Loops]] // No learning loop works without interpretable return signals.\n- **Dependency:** [[Mental-Models]] // [[Orient]] depends on goals, priors, constraints, and assumptions.\n- **Dependency:** [[Knowledge-Externalization]] // [[Visualize]] and rule codification make lessons reusable across cases.\n- **Operational Gap:** Observe -> Compress -> Visualize -> Cross-analyze -> Apply -> Verify // Strong for synthesis, weak on explicit framing and decision.\n- **Missing Step:** [[Orient]] // Adds framing before compression and comparison.\n- **Missing Step:** [[Hypothesis]] // Gives verification an expected target instead of a vague check.\n- **Missing Step:** [[Decide]] // Separates analysis from prioritization.\n- **Missing Step:** [[Measure]] // Makes success scoreable instead of impressionistic.\n- **Missing Step:** [[Memory-Update]] // Ensures the system learns rather than merely reacts.\n- **Best Reframe:** Orient -> Observe -> Compress -> Visualize -> Cross-analyze -> Extract patterns -> Hypothesize -> Decide -> Apply -> Measure -> Verify -> Validate feedback -> Codify rules -> Update memory -> Repeat // Converts a useful operating loop into a learning system.\n- **Reference Models:** [[OODA]] favors speed under uncertainty; [[PDCA]] favors controlled process improvement; [[Single-Loop-Learning]] adjusts behavior; [[Double-Loop-Learning]] adjusts governing assumptions."
+    },
+    {
+      "id": "0b47bea4337b7d10",
+      "metadata": {
+        "type": "cheatsheet",
+        "title": "Learning Loops and Meta-Learning Systems",
+        "tags": "learning-loops, meta-learning, decision-systems, learning",
+        "section": "💻 Implementation",
+        "created": "2026-03-11",
+        "source_file": "learning-loops-and-meta-learning-systems.md",
+        "session": "Learning Loops and System Improvement",
+        "status": "processed",
+        "status_updated_at": "",
+        "domain": "cheatSheets",
+        "related_unexplored": "",
+        "category": "General"
+      },
+      "content": "## 💻 Implementation\n```mermaid\nflowchart LR\n    A[Orient / Frame] --> B[Observe]\n    B --> C[Compress]\n    C --> D[Visualize]\n    D --> E[Cross-analyze]\n    E --> F[Extract patterns]\n    F --> G[Hypothesize]\n    G --> H[Decide / Prioritize]\n    H --> I[Apply]\n    I --> J[Measure / Verify]\n    J --> K[Validate feedback]\n    K --> L[Codify rules]\n    L --> M[Update memory / policy]\n    M --> A\n\n    J -. error only .-> I\n    L -. governing rules .-> A\n```"
+    },
+    {
+      "id": "7e23650e7e719534",
+      "metadata": {
+        "category": "General",
+        "session": "Learning Loops and System Improvement",
+        "related_unexplored": "",
+        "title": "Learning Loops and Meta-Learning Systems",
+        "tags": "learning-loops, meta-learning, decision-systems, learning",
+        "type": "cheatsheet",
+        "status_updated_at": "",
+        "created": "2026-03-11",
+        "status": "processed",
+        "source_file": "learning-loops-and-meta-learning-systems.md",
+        "section": "🕸️ Graph Connections",
+        "domain": "cheatSheets"
+      },
+      "content": "## 🕸️ Graph Connections\n- **Parents:** [[Systems-Thinking]], [[Decision-Theory]], [[Cybernetics]], [[Learning-Systems]]\n- **Children:** [[OODA]], [[PDCA]], [[Single-Loop-Learning]], [[Double-Loop-Learning]], [[Reinforcement-Learning]]\n- **Lateral:** [[Sensemaking]], [[Root-Cause-Analysis]], [[Experiment-Design]], [[Knowledge-Management]], [[Observability]]"
+    },
+    {
+      "id": "71a6fcf9bc1a9de9",
+      "metadata": {
+        "type": "cheatsheet",
+        "status_updated_at": "",
+        "category": "General",
+        "status": "processed",
+        "source_file": "learning-loops-and-meta-learning-systems.md",
+        "related_unexplored": "",
+        "title": "Learning Loops and Meta-Learning Systems",
+        "section": "🛠️ Sandbox / To Explore",
+        "session": "Learning Loops and System Improvement",
+        "tags": "learning-loops, meta-learning, decision-systems, learning",
+        "created": "2026-03-11",
+        "domain": "cheatSheets"
+      },
+      "content": "## 🛠️ Sandbox / To Explore\n- Specific questions from user notes: Where should [[Pattern-Extraction]] sit relative to [[Compress]] and [[Cross-Analyze]]?\n- Specific questions from user notes: When should [[Orient]] be explicit rather than implicit context loading?\n- Specific questions from user notes: What is the minimum viable [[Measurement]] layer for qualitative systems?\n- Specific questions from user notes: Should [[Rule-Codification]] happen every cycle or only after repeated verification?\n- Logical next steps: Split the framework into separate notes for atomic steps, operational loops, and meta-learning loops."
+    },
+    {
+      "id": "756acd185b5e1827",
+      "metadata": {
+        "source_file": "python-string-and-list-methods.md",
+        "category": "Python",
+        "status_updated_at": "",
+        "related_unexplored": "",
+        "section": "Overview",
+        "type": "cheatsheet",
+        "tags": "python, strings, lists, learning",
+        "created": "2025-02-16",
+        "status": "new",
+        "session": "Python Methods and Lists",
+        "domain": "cheatSheets",
+        "title": "Python String and List Methods"
+      },
+      "content": "# Python String and List Methods"
+    },
+    {
+      "id": "fd06084b0c92c41f",
+      "metadata": {
+        "status_updated_at": "",
+        "section": "⚡ Quick Reference",
+        "type": "cheatsheet",
+        "related_unexplored": "",
+        "domain": "cheatSheets",
+        "created": "2025-02-16",
+        "category": "Python",
+        "tags": "python, strings, lists, learning",
+        "session": "Python Methods and Lists",
+        "status": "new",
+        "title": "Python String and List Methods",
+        "source_file": "python-string-and-list-methods.md"
+      },
+      "content": "## ⚡ Quick Reference\n- `object.method()` : Call behavior on an object // Methods use parentheses\n- `object.attribute` : Access stored data // Attributes do not use parentheses\n- `text.lower()` : Return lowercase copy of a string // Original string is unchanged\n- `items.append(value)` : Add one item to end of list // Mutates the list in place\n- `items.sort()` : Sort list ascending in place // Returns `None`\n- `items.sort(reverse=True)` : Sort list descending in place // Same list, reversed order\n- `sorted(items)` : Return a new sorted list // Leaves original list unchanged"
+    },
+    {
+      "id": "bbfa492d362ce89a",
+      "metadata": {
+        "related_unexplored": "",
+        "session": "Python Methods and Lists",
+        "title": "Python String and List Methods",
+        "domain": "cheatSheets",
+        "source_file": "python-string-and-list-methods.md",
+        "section": "🧠 Functional Logic",
+        "tags": "python, strings, lists, learning",
+        "type": "cheatsheet",
+        "category": "Python",
+        "status": "new",
+        "created": "2025-02-16",
+        "status_updated_at": ""
+      },
+      "content": "## 🧠 Functional Logic\n- **Concept:** [[Python Methods]] // Callable operations attached to objects.\n- **Concept:** [[Python Attributes]] // Data stored on an object without a function call.\n- **Dependency:** [[Python]] // Required runtime for string and list behavior.\n- **String Logic:** [[Strings]] are immutable // Methods like `lower()` return new strings rather than modifying the original.\n- **List Logic:** [[Lists]] are mutable // Methods like `append()` and `sort()` update the existing list.\n- **Mutation Rule:** `list.sort()` returns `None` // Prevents confusion between in-place mutation and value-returning functions.\n- **Comparison Rule:** `sorted(items)` creates a new list // Better when original order must be preserved."
+    },
+    {
+      "id": "2de38a23fd35479c",
+      "metadata": {
+        "tags": "python, strings, lists, learning",
+        "session": "Python Methods and Lists",
+        "status_updated_at": "",
+        "title": "Python String and List Methods",
+        "created": "2025-02-16",
+        "source_file": "python-string-and-list-methods.md",
+        "related_unexplored": "",
+        "status": "new",
+        "category": "Python",
+        "section": "💻 Implementation",
+        "domain": "cheatSheets",
+        "type": "cheatsheet"
+      },
+      "content": "## 💻 Implementation\n```python\ncategory = \"Data Science\"\nnormalized_category = category.lower()\n\nscores = [7, 2, 9]\nscores.append(5)\nscores.sort(reverse=True)\n\nprint(normalized_category)  # data science\nprint(scores)               # [9, 7, 5, 2]\n\noriginal = [\"b\", \"c\", \"a\"]\ncopy_sorted = sorted(original)\n\nprint(original)     # ['b', 'c', 'a']\nprint(copy_sorted)  # ['a', 'b', 'c']\n```"
+    },
+    {
+      "id": "7908cef656bf52ae",
+      "metadata": {
+        "session": "Python Methods and Lists",
+        "category": "Python",
+        "domain": "cheatSheets",
+        "title": "Python String and List Methods",
+        "section": "🕸️ Graph Connections",
+        "status": "new",
+        "status_updated_at": "",
+        "related_unexplored": "",
+        "type": "cheatsheet",
+        "source_file": "python-string-and-list-methods.md",
+        "tags": "python, strings, lists, learning",
+        "created": "2025-02-16"
+      },
+      "content": "## 🕸️ Graph Connections\n- **Parents:** [[Python]], [[Data Types]]\n- **Children:** [[String Methods]], [[List Methods]], [[Sorting in Python]]\n- **Lateral:** [[Tuples]], [[Dictionaries]], [[Mutability]]"
+    },
+    {
+      "id": "0637554ecb92ea60",
+      "metadata": {
+        "related_unexplored": "",
+        "session": "Python Methods and Lists",
+        "title": "Python String and List Methods",
+        "section": "🛠️ Sandbox / To Explore",
+        "status_updated_at": "",
+        "category": "Python",
+        "domain": "cheatSheets",
+        "source_file": "python-string-and-list-methods.md",
+        "type": "cheatsheet",
+        "created": "2025-02-16",
+        "tags": "python, strings, lists, learning",
+        "status": "new"
+      },
+      "content": "## 🛠️ Sandbox / To Explore\n- Specific questions from user notes: Why does `list.sort()` return `None` instead of a sorted list?\n- Specific questions from user notes: When should `sorted()` be preferred over `list.sort()`?\n- Specific questions from user notes: Which common string methods besides `lower()` matter for cleaning text data?\n- Logical next steps: Add focused cheatsheets for [[String Methods]] and [[Sorting in Python]]."
+    },
+    {
+      "id": "a4adde083cf590c2",
+      "metadata": {
+        "related_unexplored": "",
+        "tags": "standard-deviation, statistics, descriptive-statistics, learning",
+        "status_updated_at": "",
+        "session": "Descriptive Statistics",
+        "domain": "cheatSheets",
+        "section": "Overview",
+        "source_file": "standard-deviation.md",
+        "created": "2026-02-11",
+        "status": "new",
+        "title": "Standard Deviation",
+        "category": "DataScience",
+        "type": "cheatsheet"
+      },
+      "content": "# Standard Deviation"
+    },
+    {
+      "id": "186c9e6ae5728a73",
+      "metadata": {
+        "tags": "standard-deviation, statistics, descriptive-statistics, learning",
+        "related_unexplored": "",
+        "status": "new",
+        "section": "Quick Reference",
+        "type": "cheatsheet",
+        "title": "Standard Deviation",
+        "status_updated_at": "",
+        "session": "Descriptive Statistics",
+        "category": "DataScience",
+        "domain": "cheatSheets",
+        "created": "2026-02-11",
+        "source_file": "standard-deviation.md"
+      },
+      "content": "## Quick Reference\n- `Standard deviation` : Square root of [[Variance]] // Spread in original data units\n- `Population std` : `σ = sqrt(Σ(x - μ)^2 / N)` // Uses entire population\n- `Sample std` : `s = sqrt(Σ(x - x̄)^2 / (N - 1))` // Uses Bessel's correction\n- `np.std(data)` : Population standard deviation by default // Equivalent to `ddof=0`\n- `np.std(data, ddof=1)` : Sample standard deviation // Adjusts denominator to `N - 1`\n- `z = (x - μ) / σ` : Standardize a value // Expresses distance from mean in standard deviations"
+    },
+    {
+      "id": "66f73a7d58572b13",
+      "metadata": {
+        "created": "2026-02-11",
+        "domain": "cheatSheets",
+        "status_updated_at": "",
+        "section": "Functional Logic",
+        "title": "Standard Deviation",
+        "related_unexplored": "",
+        "category": "DataScience",
+        "status": "new",
+        "session": "Descriptive Statistics",
+        "tags": "standard-deviation, statistics, descriptive-statistics, learning",
+        "type": "cheatsheet",
+        "source_file": "standard-deviation.md"
+      },
+      "content": "## Functional Logic\n- **Concept:** [[Standard Deviation]] // Measures how far observations typically sit from the mean.\n- **Dependency:** [[Mean]] // Deviations are measured relative to the average.\n- **Dependency:** [[Variance]] // Standard deviation is the square root transformation of variance.\n- **Interpretation Rule:** Standard deviation returns to original units // Easier to reason about than squared units.\n- **Modeling Use:** Z-scores scale observations by spread // Makes comparisons easier across datasets.\n- **Estimator Choice:** `ddof=0` treats data as a population; `ddof=1` treats data as a sample // Important when estimating from limited observations."
+    },
+    {
+      "id": "ae40aeec90b89c9b",
+      "metadata": {
+        "created": "2026-02-11",
+        "status": "new",
+        "related_unexplored": "",
+        "title": "Standard Deviation",
+        "domain": "cheatSheets",
+        "session": "Descriptive Statistics",
+        "status_updated_at": "",
+        "source_file": "standard-deviation.md",
+        "type": "cheatsheet",
+        "category": "DataScience",
+        "tags": "standard-deviation, statistics, descriptive-statistics, learning",
+        "section": "Implementation"
+      },
+      "content": "## Implementation\n```python\nimport numpy as np\n\ndata = np.array([1, 2, 3, 4, 5], dtype=float)\n\npopulation_std = np.std(data)\nsample_std = np.std(data, ddof=1)\nmanual_population_std = np.sqrt(np.var(data))\nz_score = (data[0] - data.mean()) / population_std\n\nprint(population_std)\nprint(sample_std)\nprint(manual_population_std)\nprint(z_score)\n```"
+    },
+    {
+      "id": "76d7d9fc3c9d7234",
+      "metadata": {
+        "source_file": "standard-deviation.md",
+        "session": "Descriptive Statistics",
+        "domain": "cheatSheets",
+        "related_unexplored": "",
+        "section": "Graph Connections",
+        "status_updated_at": "",
+        "tags": "standard-deviation, statistics, descriptive-statistics, learning",
+        "title": "Standard Deviation",
+        "created": "2026-02-11",
+        "type": "cheatsheet",
+        "category": "DataScience",
+        "status": "new"
+      },
+      "content": "## Graph Connections\n- **Parents:** [[Variance]], [[Descriptive Statistics]]\n- **Children:** [[Z-Score]], [[Outlier Detection]]\n- **Lateral:** [[Normal Distribution]], [[Mean]], [[Distribution Spread]]"
+    },
+    {
+      "id": "df38d71f4c5ed855",
+      "metadata": {
+        "related_unexplored": "",
+        "domain": "cheatSheets",
+        "category": "DataScience",
+        "source_file": "standard-deviation.md",
+        "session": "Descriptive Statistics",
+        "status_updated_at": "",
+        "created": "2026-02-11",
+        "status": "new",
+        "title": "Standard Deviation",
+        "type": "cheatsheet",
+        "tags": "standard-deviation, statistics, descriptive-statistics, learning",
+        "section": "Sandbox / To Explore"
+      },
+      "content": "## Sandbox / To Explore\n- Specific questions from user notes: When does `ddof=1` materially change interpretation for small datasets?\n- Specific questions from user notes: Why is standard deviation more interpretable than variance for most reporting?\n- Specific questions from user notes: How do robust spread measures like [[IQR]] and [[MAD]] behave with heavy outliers?\n- Logical next steps: Pair this with cheatsheets for [[Variance]] and [[Z-Score]]."
+    },
+    {
+      "id": "2cb17b10a5bee395",
+      "metadata": {
+        "category": "DataScience",
+        "status": "new",
+        "section": "Quick Reference",
+        "source_file": "variance.md",
+        "related_unexplored": "",
+        "tags": "variance, statistics, descriptive-statistics, learning",
+        "type": "cheatsheet",
+        "created": "2026-02-11",
+        "title": "Variance",
+        "domain": "cheatSheets",
+        "session": "Descriptive Statistics",
+        "status_updated_at": ""
+      },
+      "content": "## Quick Reference\n- `Variance` : Average squared distance from the mean // Measures spread in squared units\n- `Population variance` : `σ^2 = Σ(x - μ)^2 / N` // Use when the full population is observed\n- `Sample variance` : `s^2 = Σ(x - x̄)^2 / (N - 1)` // Uses Bessel's correction for estimation\n- `np.var(data)` : Population variance by default // Equivalent to `ddof=0`\n- `np.var(data, ddof=1)` : Sample variance // Uses denominator `N - 1`\n- `Small variance` : Tight clustering around mean // Low spread\n- `Large variance` : Wider spread around mean // High spread"
+    },
+    {
+      "id": "992ef765d291557c",
+      "metadata": {
+        "tags": "variance, statistics, descriptive-statistics, learning",
+        "session": "Descriptive Statistics",
+        "source_file": "variance.md",
+        "status_updated_at": "",
+        "created": "2026-02-11",
+        "category": "DataScience",
+        "related_unexplored": "",
+        "type": "cheatsheet",
+        "title": "Variance",
+        "status": "new",
+        "section": "Functional Logic",
+        "domain": "cheatSheets"
+      },
+      "content": "## Functional Logic\n- **Concept:** [[Variance]] // Quantifies spread by averaging squared deviations from the mean.\n- **Dependency:** [[Mean]] // Each deviation is measured relative to average location.\n- **Why Squared:** Squaring removes negative signs and weights larger deviations more heavily // Makes spread additive and penalty-sensitive.\n- **Interpretation Limit:** Variance is in squared units // Less intuitive than [[Standard Deviation]] for reporting.\n- **Estimator Choice:** Population variance describes observed data; sample variance estimates population spread // Choice depends on whether data is complete or sampled."
+    },
+    {
+      "id": "e50289914e4aca1d",
+      "metadata": {
+        "title": "Variance",
+        "related_unexplored": "",
+        "domain": "cheatSheets",
+        "section": "Implementation",
+        "created": "2026-02-11",
+        "status": "new",
+        "source_file": "variance.md",
+        "status_updated_at": "",
+        "session": "Descriptive Statistics",
+        "tags": "variance, statistics, descriptive-statistics, learning",
+        "category": "DataScience",
+        "type": "cheatsheet"
+      },
+      "content": "## Implementation\n```python\nimport numpy as np\n\ndata = np.array([1, 2, 3, 4, 5], dtype=float)\n\npopulation_variance = np.var(data)\nsample_variance = np.var(data, ddof=1)\n\nmean_value = data.mean()\nmanual_population_variance = ((data - mean_value) ** 2).mean()\nmanual_sample_variance = ((data - mean_value) ** 2).sum() / (len(data) - 1)\n\nprint(population_variance)\nprint(sample_variance)\nprint(manual_population_variance)\nprint(manual_sample_variance)\n```"
+    },
+    {
+      "id": "631b0360c7fd9f9e",
+      "metadata": {
+        "domain": "cheatSheets",
+        "source_file": "variance.md",
+        "related_unexplored": "",
+        "status": "new",
+        "category": "DataScience",
+        "section": "Graph Connections",
+        "title": "Variance",
+        "type": "cheatsheet",
+        "created": "2026-02-11",
+        "tags": "variance, statistics, descriptive-statistics, learning",
+        "status_updated_at": "",
+        "session": "Descriptive Statistics"
+      },
+      "content": "## Graph Connections\n- **Parents:** [[Descriptive Statistics]], [[Distribution Spread]]\n- **Children:** [[Standard Deviation]], [[Z-Score]]\n- **Lateral:** [[Mean]], [[Normal Distribution]], [[Outlier Detection]]"
+    },
+    {
+      "id": "89a18f9c1ca558ca",
+      "metadata": {
+        "status_updated_at": "",
+        "section": "Sandbox / To Explore",
+        "related_unexplored": "",
+        "session": "Descriptive Statistics",
+        "category": "DataScience",
+        "domain": "cheatSheets",
+        "type": "cheatsheet",
+        "tags": "variance, statistics, descriptive-statistics, learning",
+        "source_file": "variance.md",
+        "status": "new",
+        "title": "Variance",
+        "created": "2026-02-11"
+      },
+      "content": "## Sandbox / To Explore\n- Specific questions from user notes: Why does variance penalize large deviations more heavily than mean absolute deviation?\n- Specific questions from user notes: When should population variance versus sample variance be reported?\n- Specific questions from user notes: How does `ddof=1` matter for small samples?\n- Logical next steps: Pair this with [[Standard Deviation]] and a note on [[Bessel's Correction]]."
+    }
+  ]
+}

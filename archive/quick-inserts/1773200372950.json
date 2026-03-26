@@ -1,0 +1,7 @@
+{
+  "input": "sed",
+  "mode": "quick",
+  "ts": "2026-03-11T03:39:32.950Z",
+  "curatorOutput": "{\"status\": \"enriched-manually\", \"note\": \"Re-curated via Phase 6a batch with expanded input\"}",
+  "recuratedAt": "2026-03-13T16:54:29.253263"
+}

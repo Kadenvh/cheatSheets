@@ -1,0 +1,14 @@
+{
+  "input": "---\ndomain: cheatSheets\ncategory: DataScience\ntags: variance, statistics, data-science, descriptive-statistics, learning\ntitle: Variance\ncreated: 2026-02-11\n---\n\nDomain: cheatSheets\nConcept: Variance\nDetail: Numerical measure of spread that squares differences from mean to ensure positive values. Calculate: `np.var(data)`. Formula: `Σ(X - μ)² / N`. Symbol: σ². Small variance = clustered data near mean. Manual: compute mean, square differences, average them. Sample variance uses N-1 denominator. Related: standard deviation, mean, normal distribution.\nContext: DataScience | variance, statistics, data-science, descriptive-statistics, learning",
+  "mode": "cheatsheet",
+  "ts": "2026-03-11T21:15:02.122Z",
+  "curatorOutput": "{ \"status\": \"embedded\", \"title\": \"Variance\", \"type\": \"cheatsheet\", \"sections\": 6, \"related_unexplored\": [], \"action\": \"created\" }",
+  "curatorParsed": {
+    "status": "embedded",
+    "title": "Variance",
+    "type": "cheatsheet",
+    "sections": 6,
+    "related_unexplored": [],
+    "action": "created"
+  }
+}

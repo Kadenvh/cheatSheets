@@ -1,0 +1,19 @@
+{
+  "input": "curl command — transfer data from URLs",
+  "mode": "quick",
+  "ts": "2026-03-13T16:48:05.831Z",
+  "curatorOutput": "{\"status\":\"embedded\",\"title\":\"curl\",\"type\":\"reference\",\"sections\":5,\"related_unexplored\":[\"wget\",\"HTTPie\",\"libcurl\",\"jq\"],\"action\":\"created\"}",
+  "curatorParsed": {
+    "status": "embedded",
+    "title": "curl",
+    "type": "reference",
+    "sections": 5,
+    "related_unexplored": [
+      "wget",
+      "HTTPie",
+      "libcurl",
+      "jq"
+    ],
+    "action": "created"
+  }
+}

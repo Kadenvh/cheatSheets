@@ -1,0 +1,723 @@
+{
+  "ts": "2026-03-11T20:36:34.978Z",
+  "docs": [
+    {
+      "id": "685c91a2da0945ac",
+      "metadata": {
+        "section": "Overview",
+        "category": "Python",
+        "tags": "python, pandas, data-science, learning",
+        "source_file": "gemini-said.md",
+        "status": "new",
+        "related_unexplored": "",
+        "type": "cheatsheet",
+        "title": "Data Exploration with Pandas",
+        "created": "2025-02-16",
+        "domain": "cheatSheets",
+        "status_updated_at": "",
+        "session": ""
+      },
+      "content": "Domain: cheatSheets\nConcept: Data Exploration with Pandas\nDetail: Quick reference for pandas data exploration. Import: `import pandas as pd`. Load: `pd.read_csv('file.csv')`. View: `.head(n=5)`. Types: `.dtypes`. Counts: `.value_counts()`. Stats: `.describe()`. DataFrame is 2D table, Series is 1D column. Access single column: `df['col']` (Series), multiple: `df[['a','b']]` (DataFrame). Normalize counts: `.value_counts(normalize=True)`.\nContext: Python | python, pandas, data-science, learning"
+    },
+    {
+      "id": "75dcd4fb1e61c46f",
+      "metadata": {
+        "session": "",
+        "section": "Overview",
+        "category": "Python",
+        "created": "2025-02-16",
+        "source_file": "tags-python-pandas-data-science-learning-created-2025-02-16-.md",
+        "status": "new",
+        "tags": "python, pandas, data-science, learning",
+        "title": "Python Data Exploration - Methods & Lists",
+        "related_unexplored": "",
+        "type": "cheatsheet",
+        "status_updated_at": "",
+        "domain": "cheatSheets"
+      },
+      "content": "Domain: cheatSheets\nConcept: Python Methods & Lists\nDetail: String methods: `.lower()` converts to lowercase. List methods: `.sort()` sorts ascending in-place, `.append(item)` adds to end. Parameter `reverse=True` for descending sort. Methods use parentheses (actions), attributes don't (stored info). List manipulation: `my_list.sort(reverse=True)`. String: `category.lower()`.\nContext: Python | python, pandas, data-science, learning"
+    },
+    {
+      "id": "83ad74a9f3d65917",
+      "metadata": {
+        "tags": "statistics, data-science, descriptive-statistics, learning",
+        "type": "cheatsheet",
+        "status": "new",
+        "created": "2026-02-11",
+        "source_file": "tags-statistics-data-science-descriptive-statistics-learning.md",
+        "related_unexplored": "",
+        "domain": "cheatSheets",
+        "section": "Overview",
+        "title": "Standard Deviation",
+        "category": "DataScience",
+        "session": "",
+        "status_updated_at": ""
+      },
+      "content": "Domain: cheatSheets\nConcept: Standard Deviation\nDetail: Measure of spread returning units to original scale via square root of variance. Calculate: `np.std(data)`. Manual: `variance ** 0.5`. Z-Score formula: `(x - μ) / σ` gives number of standard deviations from mean. Symbol: σ. Requires variance calculation as prerequisite. Related: Z-Score, outlier detection, normal distribution.\nContext: DataScience | statistics, data-science, descriptive-statistics, learning"
+    },
+    {
+      "id": "e7210bf1c758de3e",
+      "metadata": {
+        "title": "Variance",
+        "section": "Overview",
+        "session": "",
+        "status": "new",
+        "domain": "cheatSheets",
+        "status_updated_at": "",
+        "tags": "variance, statistics, data-science, descriptive-statistics, learning",
+        "category": "DataScience",
+        "related_unexplored": "",
+        "type": "cheatsheet",
+        "created": "2026-02-11",
+        "source_file": "tags-variance-statistics-data-science-descriptive-statistics.md"
+      },
+      "content": "Domain: cheatSheets\nConcept: Variance\nDetail: Numerical measure of spread that squares differences from mean to ensure positive values. Calculate: `np.var(data)`. Formula: `Σ(X - μ)² / N`. Symbol: σ². Small variance = clustered data near mean. Manual: compute mean, square differences, average them. Sample variance uses N-1 denominator. Related: standard deviation, mean, normal distribution.\nContext: DataScience | variance, statistics, data-science, descriptive-statistics, learning"
+    },
+    {
+      "id": "cc067c684f1a4c93",
+      "metadata": {
+        "status_updated_at": "2026-03-11",
+        "source_file": "quick:ls",
+        "type": "reference",
+        "title": "ls",
+        "status": "new",
+        "section": "Quick Insert",
+        "tags": "",
+        "created": "2026-03-11",
+        "domain": "general",
+        "related_unexplored": "",
+        "category": "General"
+      },
+      "content": "# ls\n\nls"
+    },
+    {
+      "id": "64d3fa0de6656dc1",
+      "metadata": {
+        "category": "General",
+        "related_unexplored": "",
+        "title": "systemctl",
+        "domain": "general",
+        "status_updated_at": "2026-03-11",
+        "type": "reference",
+        "created": "2026-03-11",
+        "section": "Quick Insert",
+        "tags": "",
+        "source_file": "quick:systemctl",
+        "status": "new"
+      },
+      "content": "# systemctl\n\nsystemctl"
+    },
+    {
+      "id": "6866362ae805b2e3",
+      "metadata": {
+        "status_updated_at": "2026-03-11",
+        "category": "Tools",
+        "section": "Quick Insert",
+        "status": "new",
+        "tags": "",
+        "title": "docker run",
+        "type": "reference",
+        "created": "2026-03-11",
+        "related_unexplored": "",
+        "source_file": "quick:docker run",
+        "domain": "general"
+      },
+      "content": "# docker run\n\ndocker run"
+    },
+    {
+      "id": "181b785fb95ab73f",
+      "metadata": {
+        "status": "new",
+        "domain": "general",
+        "created": "2026-03-11",
+        "status_updated_at": "2026-03-11",
+        "category": "Tools",
+        "title": "git rebase",
+        "type": "reference",
+        "section": "Quick Insert",
+        "source_file": "quick:git rebase",
+        "related_unexplored": "",
+        "tags": ""
+      },
+      "content": "# git rebase\n\ngit rebase"
+    },
+    {
+      "id": "b9cb7ae5ab3b739a",
+      "metadata": {
+        "domain": "general",
+        "section": "Quick Insert",
+        "status_updated_at": "2026-03-11",
+        "related_unexplored": "",
+        "title": "journalctl",
+        "status": "new",
+        "type": "reference",
+        "created": "2026-03-11",
+        "source_file": "quick:journalctl",
+        "category": "General",
+        "tags": ""
+      },
+      "content": "# journalctl\n\njournalctl"
+    },
+    {
+      "id": "666a8ab9ead71564",
+      "metadata": {
+        "category": "General",
+        "status_updated_at": "2026-03-11",
+        "type": "reference",
+        "related_unexplored": "",
+        "tags": "",
+        "title": "curl",
+        "domain": "general",
+        "status": "new",
+        "section": "Quick Insert",
+        "source_file": "quick:curl",
+        "created": "2026-03-11"
+      },
+      "content": "# curl\n\ncurl"
+    },
+    {
+      "id": "877f57e843079cb1",
+      "metadata": {
+        "type": "reference",
+        "related_unexplored": "",
+        "status": "new",
+        "source_file": "quick:pandas DataFrame",
+        "section": "Quick Insert",
+        "domain": "general",
+        "created": "2026-03-11",
+        "tags": "",
+        "category": "Python",
+        "title": "pandas DataFrame",
+        "status_updated_at": "2026-03-11"
+      },
+      "content": "# pandas DataFrame\n\npandas DataFrame"
+    },
+    {
+      "id": "e5df1ec0ecdf51a0",
+      "metadata": {
+        "status": "new",
+        "status_updated_at": "2026-03-11",
+        "related_unexplored": "",
+        "category": "Tools",
+        "domain": "general",
+        "source_file": "quick:tmux",
+        "section": "Quick Insert",
+        "type": "reference",
+        "created": "2026-03-11",
+        "tags": "",
+        "title": "tmux"
+      },
+      "content": "# tmux\n\ntmux"
+    },
+    {
+      "id": "adb8e9d2928caa85",
+      "metadata": {
+        "tags": "",
+        "status": "new",
+        "category": "General",
+        "source_file": "quick:ufw",
+        "type": "reference",
+        "status_updated_at": "2026-03-11",
+        "title": "ufw",
+        "created": "2026-03-11",
+        "section": "Quick Insert",
+        "related_unexplored": "",
+        "domain": "general"
+      },
+      "content": "# ufw\n\nufw"
+    },
+    {
+      "id": "8ebeb401097f00b8",
+      "metadata": {
+        "tags": "",
+        "category": "General",
+        "created": "2026-03-11",
+        "section": "Quick Insert",
+        "source_file": "quick:rsync",
+        "status": "new",
+        "type": "reference",
+        "domain": "general",
+        "related_unexplored": "",
+        "title": "rsync",
+        "status_updated_at": "2026-03-11"
+      },
+      "content": "# rsync\n\nrsync"
+    },
+    {
+      "id": "db15504359e6f1b5",
+      "metadata": {
+        "source_file": "quick:crontab",
+        "title": "crontab",
+        "section": "Quick Insert",
+        "category": "Automation",
+        "related_unexplored": "",
+        "domain": "general",
+        "created": "2026-03-11",
+        "status": "new",
+        "type": "reference",
+        "status_updated_at": "2026-03-11",
+        "tags": ""
+      },
+      "content": "# crontab\n\ncrontab"
+    },
+    {
+      "id": "4608e0999bb48fa8",
+      "metadata": {
+        "status_updated_at": "2026-03-11",
+        "domain": "general",
+        "related_unexplored": "",
+        "category": "General",
+        "created": "2026-03-11",
+        "status": "new",
+        "title": "sudo systemctl reboot",
+        "section": "Quick Insert",
+        "source_file": "quick:sudo systemctl reboot",
+        "tags": "",
+        "type": "reference"
+      },
+      "content": "# sudo systemctl reboot\n\nsudo systemctl reboot"
+    },
+    {
+      "id": "f65537c797ef9300",
+      "metadata": {
+        "type": "reference",
+        "related_unexplored": "",
+        "status_updated_at": "2026-03-11",
+        "tags": "",
+        "created": "2026-03-11",
+        "category": "General",
+        "source_file": "quick:grep",
+        "title": "grep",
+        "domain": "general",
+        "section": "Quick Insert",
+        "status": "new"
+      },
+      "content": "# grep\n\ngrep"
+    },
+    {
+      "id": "d84b56197e0b0742",
+      "metadata": {
+        "source_file": "quick:systemctl list-units",
+        "status_updated_at": "2026-03-11",
+        "domain": "general",
+        "related_unexplored": "",
+        "title": "systemctl list-units",
+        "created": "2026-03-11",
+        "status": "new",
+        "type": "reference",
+        "category": "General",
+        "tags": "",
+        "section": "Quick Insert"
+      },
+      "content": "# systemctl list-units\n\nsystemctl list-units"
+    },
+    {
+      "id": "98fe4412d596bc7d",
+      "metadata": {
+        "related_unexplored": "",
+        "source_file": "quick:ls -la directory listing",
+        "domain": "general",
+        "created": "2026-03-11",
+        "title": "ls -la directory listing",
+        "status_updated_at": "2026-03-11",
+        "tags": "",
+        "section": "Quick Insert",
+        "status": "new",
+        "type": "reference",
+        "category": "General"
+      },
+      "content": "# ls -la directory listing\n\nls -la directory listing"
+    },
+    {
+      "id": "34674edcb6146bd6",
+      "metadata": {
+        "status_updated_at": "2026-03-11",
+        "domain": "general",
+        "created": "2026-03-11",
+        "category": "General",
+        "related_unexplored": "",
+        "title": "chmod",
+        "tags": "",
+        "type": "reference",
+        "status": "new",
+        "source_file": "quick:chmod",
+        "section": "Quick Insert"
+      },
+      "content": "# chmod\n\nchmod"
+    },
+    {
+      "id": "1f36614b303a7e60",
+      "metadata": {
+        "type": "reference",
+        "source_file": "quick:test-unique-concept-smoke-verify",
+        "status_updated_at": "2026-03-11",
+        "created": "2026-03-11",
+        "category": "General",
+        "section": "Quick Insert",
+        "tags": "",
+        "related_unexplored": "",
+        "domain": "general",
+        "status": "new",
+        "title": "test-unique-concept-smoke-verify"
+      },
+      "content": "# test-unique-concept-smoke-verify\n\ntest-unique-concept-smoke-verify"
+    },
+    {
+      "id": "c241cf7815026e62",
+      "metadata": {
+        "status_updated_at": "2026-03-11",
+        "source_file": "quick:test-unique-concept-verify-fix",
+        "created": "2026-03-11",
+        "section": "Quick Insert",
+        "domain": "general",
+        "tags": "",
+        "title": "test-unique-concept-verify-fix",
+        "category": "General",
+        "type": "reference",
+        "related_unexplored": "",
+        "status": "new"
+      },
+      "content": "# test-unique-concept-verify-fix\n\ntest-unique-concept-verify-fix"
+    },
+    {
+      "id": "724c6b756342887c",
+      "metadata": {
+        "title": "podman-compose",
+        "created": "2026-03-11",
+        "status": "new",
+        "domain": "general",
+        "status_updated_at": "2026-03-11",
+        "category": "General",
+        "section": "Quick Insert",
+        "related_unexplored": "",
+        "type": "reference",
+        "tags": "",
+        "source_file": "quick:podman-compose"
+      },
+      "content": "# podman-compose\n\npodman-compose"
+    },
+    {
+      "id": "2fc4690fac55bffa",
+      "metadata": {
+        "type": "reference",
+        "section": "Quick Insert",
+        "title": "pip freeze > requirements.txt",
+        "related_unexplored": "",
+        "domain": "general",
+        "source_file": "quick:pip freeze > requirements.txt",
+        "tags": "",
+        "status": "new",
+        "status_updated_at": "2026-03-11",
+        "category": "Python",
+        "created": "2026-03-11"
+      },
+      "content": "# pip freeze > requirements.txt\n\npip freeze > requirements.txt"
+    },
+    {
+      "id": "8ee861a92c48a0d6",
+      "metadata": {
+        "category": "General",
+        "created": "2026-03-11",
+        "domain": "general",
+        "status_updated_at": "2026-03-11",
+        "source_file": "quick:Restart-Service",
+        "title": "Restart-Service",
+        "status": "new",
+        "section": "Quick Insert",
+        "type": "reference",
+        "related_unexplored": "",
+        "tags": ""
+      },
+      "content": "# Restart-Service\n\nRestart-Service"
+    },
+    {
+      "id": "949e2237b10b9011",
+      "metadata": {
+        "source_file": "quick:grep -r",
+        "status": "new",
+        "category": "General",
+        "created": "2026-03-11",
+        "section": "Quick Insert",
+        "title": "grep -r",
+        "status_updated_at": "2026-03-11",
+        "domain": "general",
+        "related_unexplored": "",
+        "type": "reference",
+        "tags": ""
+      },
+      "content": "# grep -r\n\ngrep -r"
+    },
+    {
+      "id": "c4dcb3c0375bc979",
+      "metadata": {
+        "section": "Quick Insert",
+        "type": "reference",
+        "status": "new",
+        "related_unexplored": "",
+        "category": "General",
+        "status_updated_at": "2026-03-11",
+        "created": "2026-03-11",
+        "source_file": "quick:tar",
+        "tags": "",
+        "domain": "general",
+        "title": "tar"
+      },
+      "content": "# tar\n\ntar"
+    },
+    {
+      "id": "bde244769c5117bc",
+      "metadata": {
+        "tags": "",
+        "status_updated_at": "2026-03-11",
+        "status": "new",
+        "title": "find",
+        "domain": "general",
+        "related_unexplored": "",
+        "section": "Quick Insert",
+        "category": "General",
+        "source_file": "quick:find",
+        "created": "2026-03-11",
+        "type": "reference"
+      },
+      "content": "# find\n\nfind"
+    },
+    {
+      "id": "2e300b1812d119ba",
+      "metadata": {
+        "section": "Quick Insert",
+        "category": "General",
+        "related_unexplored": "",
+        "domain": "general",
+        "tags": "",
+        "status_updated_at": "2026-03-11",
+        "title": "awk",
+        "created": "2026-03-11",
+        "source_file": "quick:awk",
+        "type": "reference",
+        "status": "new"
+      },
+      "content": "# awk\n\nawk"
+    },
+    {
+      "id": "4ba55adea03f7980",
+      "metadata": {
+        "title": "sed",
+        "related_unexplored": "",
+        "tags": "",
+        "status_updated_at": "2026-03-11",
+        "type": "reference",
+        "domain": "general",
+        "status": "new",
+        "category": "General",
+        "source_file": "quick:sed",
+        "created": "2026-03-11",
+        "section": "Quick Insert"
+      },
+      "content": "# sed\n\nsed"
+    },
+    {
+      "id": "d258f8f7afce02d9",
+      "metadata": {
+        "domain": "general",
+        "source_file": "quick:xargs",
+        "type": "reference",
+        "category": "General",
+        "related_unexplored": "",
+        "title": "xargs",
+        "created": "2026-03-11",
+        "status": "new",
+        "section": "Quick Insert",
+        "status_updated_at": "2026-03-11",
+        "tags": ""
+      },
+      "content": "# xargs\n\nxargs"
+    },
+    {
+      "id": "5b416053877b7377",
+      "metadata": {
+        "category": "DataScience",
+        "domain": "general",
+        "source_file": "quick:Deep Learning Fundamentals: Deep learning is a subset of machine learning using multi-layered neural networks. Key concepts: \"Deep\" = multiple layers learning progressively complex patterns. Mimics brain structure. Requires massive data + GPUs. Applications: language models (ChatGPT), self-driving cars, facial recognition. Trade-offs: accurate with large datasets, learns from raw data, but needs huge data, computationally expensive, black-box decisions. History: 1957 Perceptron (Rosenblatt), 2012 deep CNN won ImageNet by 10.8%. Neural networks teach computers pattern recognition. Core math: scalars, vectors, matrices, tensors. Forward propagation, loss functions (MSE, cross-entropy), backpropagation, gradient descent, learning rate.",
+        "status_updated_at": "2026-03-11",
+        "type": "reference",
+        "section": "Quick Insert",
+        "status": "new",
+        "tags": "",
+        "title": "Deep Learning Fundamentals: Deep learning is a subset of machine learning using multi-layered neural networks. Key concepts: \"Deep\" = multiple layers learning progressively complex patterns. Mimics brain structure. Requires massive data + GPUs. Applications: language models (ChatGPT), self-driving cars, facial recognition. Trade-offs: accurate with large datasets, learns from raw data, but needs huge data, computationally expensive, black-box decisions. History: 1957 Perceptron (Rosenblatt), 2012 deep CNN won ImageNet by 10.8%. Neural networks teach computers pattern recognition. Core math: scalars, vectors, matrices, tensors. Forward propagation, loss functions (MSE, cross-entropy), backpropagation, gradient descent, learning rate.",
+        "related_unexplored": "",
+        "created": "2026-03-11"
+      },
+      "content": "# Deep Learning Fundamentals: Deep learning is a subset of machine learning using multi-layered neural networks. Key concepts: \"Deep\" = multiple layers learning progressively complex patterns. Mimics brain structure. Requires massive data + GPUs. Applications: language models (ChatGPT), self-driving cars, facial recognition. Trade-offs: accurate with large datasets, learns from raw data, but needs huge data, computationally expensive, black-box decisions. History: 1957 Perceptron (Rosenblatt), 2012 deep CNN won ImageNet by 10.8%. Neural networks teach computers pattern recognition. Core math: scalars, vectors, matrices, tensors. Forward propagation, loss functions (MSE, cross-entropy), backpropagation, gradient descent, learning rate.\n\nDeep Learning Fundamentals: Deep learning is a subset of machine learning using multi-layered neural networks. Key concepts: \"Deep\" = multiple layers learning progressively complex patterns. Mimics brain structure. Requires massive data + GPUs. Applications: language models (ChatGPT), self-driving cars, facial recognition. Trade-offs: accurate with large datasets, learns from raw data, but needs huge data, computationally expensive, black-box decisions. History: 1957 Perceptron (Rosenblatt), 2012 deep CNN won ImageNet by 10.8%. Neural networks teach computers pattern recognition. Core math: scalars, vectors, matrices, tensors. Forward propagation, loss functions (MSE, cross-entropy), backpropagation, gradient descent, learning rate."
+    },
+    {
+      "id": "05db0f3ce6b52387",
+      "metadata": {
+        "title": "Neural Network Architecture: Three layer types — Input Layer (1, each node = one feature), Hidden Layers (0 to many, add complexity and learn patterns), Output Layer (1, final prediction). Components: Nodes/Neurons hold values, Weights are learning parameters connecting nodes (adjusted during training), Bias added to weighted sum. Forward Propagation: Input → [Weighted Sum → Activation] → Hidden → Output. At each layer: weighted_sum = (inputs · weights_transpose) + bias, then output = Activation(weighted_sum). Activation Functions: ReLU (hidden layers, most popular, introduces nonlinearity), Sigmoid (output, binary classification), Softmax (output, multi-class). Without activation functions, multiple layers = just linear regression.",
+        "category": "General",
+        "tags": "",
+        "created": "2026-03-11",
+        "status": "new",
+        "status_updated_at": "2026-03-11",
+        "domain": "general",
+        "related_unexplored": "",
+        "type": "reference",
+        "source_file": "quick:Neural Network Architecture: Three layer types — Input Layer (1, each node = one feature), Hidden Layers (0 to many, add complexity and learn patterns), Output Layer (1, final prediction). Components: Nodes/Neurons hold values, Weights are learning parameters connecting nodes (adjusted during training), Bias added to weighted sum. Forward Propagation: Input → [Weighted Sum → Activation] → Hidden → Output. At each layer: weighted_sum = (inputs · weights_transpose) + bias, then output = Activation(weighted_sum). Activation Functions: ReLU (hidden layers, most popular, introduces nonlinearity), Sigmoid (output, binary classification), Softmax (output, multi-class). Without activation functions, multiple layers = just linear regression.",
+        "section": "Quick Insert"
+      },
+      "content": "# Neural Network Architecture: Three layer types — Input Layer (1, each node = one feature), Hidden Layers (0 to many, add complexity and learn patterns), Output Layer (1, final prediction). Components: Nodes/Neurons hold values, Weights are learning parameters connecting nodes (adjusted during training), Bias added to weighted sum. Forward Propagation: Input → [Weighted Sum → Activation] → Hidden → Output. At each layer: weighted_sum = (inputs · weights_transpose) + bias, then output = Activation(weighted_sum). Activation Functions: ReLU (hidden layers, most popular, introduces nonlinearity), Sigmoid (output, binary classification), Softmax (output, multi-class). Without activation functions, multiple layers = just linear regression.\n\nNeural Network Architecture: Three layer types — Input Layer (1, each node = one feature), Hidden Layers (0 to many, add complexity and learn patterns), Output Layer (1, final prediction). Components: Nodes/Neurons hold values, Weights are learning parameters connecting nodes (adjusted during training), Bias added to weighted sum. Forward Propagation: Input → [Weighted Sum → Activation] → Hidden → Output. At each layer: weighted_sum = (inputs · weights_transpose) + bias, then output = Activation(weighted_sum). Activation Functions: ReLU (hidden layers, most popular, introduces nonlinearity), Sigmoid (output, binary classification), Softmax (output, multi-class). Without activation functions, multiple layers = just linear regression."
+    },
+    {
+      "id": "7c19973450415a73",
+      "metadata": {
+        "status_updated_at": "2026-03-11",
+        "type": "reference",
+        "category": "DataScience",
+        "status": "new",
+        "domain": "general",
+        "section": "Quick Insert",
+        "created": "2026-03-11",
+        "related_unexplored": "",
+        "source_file": "quick:Neural Network Training Process: 1) Forward Propagation → make prediction, 2) Calculate Loss → how wrong are we?, 3) Backpropagation → calculate gradients, 4) Gradient Descent → update weights, 5) Repeat. Loss Functions: MSE for regression (predicting numbers), Cross-Entropy for classification (predicting categories). Backpropagation: going backward through network to calculate how much each weight contributed to error. Gradient = rate of change of loss w.r.t. each weight. Gradient Descent formula: parameter_new = parameter_old + learning_rate × gradient(loss). Learning rate: too small = slow/stuck, too large = overshoots, just right = efficient. Variants: GD (all data, slow, smooth), SGD (1 random point, fast, noisy), Mini-batch (32-128 samples, balanced, most common), Adam (adaptive per-parameter, most popular).",
+        "title": "Neural Network Training Process: 1) Forward Propagation → make prediction, 2) Calculate Loss → how wrong are we?, 3) Backpropagation → calculate gradients, 4) Gradient Descent → update weights, 5) Repeat. Loss Functions: MSE for regression (predicting numbers), Cross-Entropy for classification (predicting categories). Backpropagation: going backward through network to calculate how much each weight contributed to error. Gradient = rate of change of loss w.r.t. each weight. Gradient Descent formula: parameter_new = parameter_old + learning_rate × gradient(loss). Learning rate: too small = slow/stuck, too large = overshoots, just right = efficient. Variants: GD (all data, slow, smooth), SGD (1 random point, fast, noisy), Mini-batch (32-128 samples, balanced, most common), Adam (adaptive per-parameter, most popular).",
+        "tags": ""
+      },
+      "content": "# Neural Network Training Process: 1) Forward Propagation → make prediction, 2) Calculate Loss → how wrong are we?, 3) Backpropagation → calculate gradients, 4) Gradient Descent → update weights, 5) Repeat. Loss Functions: MSE for regression (predicting numbers), Cross-Entropy for classification (predicting categories). Backpropagation: going backward through network to calculate how much each weight contributed to error. Gradient = rate of change of loss w.r.t. each weight. Gradient Descent formula: parameter_new = parameter_old + learning_rate × gradient(loss). Learning rate: too small = slow/stuck, too large = overshoots, just right = efficient. Variants: GD (all data, slow, smooth), SGD (1 random point, fast, noisy), Mini-batch (32-128 samples, balanced, most common), Adam (adaptive per-parameter, most popular).\n\nNeural Network Training Process: 1) Forward Propagation → make prediction, 2) Calculate Loss → how wrong are we?, 3) Backpropagation → calculate gradients, 4) Gradient Descent → update weights, 5) Repeat. Loss Functions: MSE for regression (predicting numbers), Cross-Entropy for classification (predicting categories). Backpropagation: going backward through network to calculate how much each weight contributed to error. Gradient = rate of change of loss w.r.t. each weight. Gradient Descent formula: parameter_new = parameter_old + learning_rate × gradient(loss). Learning rate: too small = slow/stuck, too large = overshoots, just right = efficient. Variants: GD (all data, slow, smooth), SGD (1 random point, fast, noisy), Mini-batch (32-128 samples, balanced, most common), Adam (adaptive per-parameter, most popular)."
+    },
+    {
+      "id": "fd6fd9894b8109b0",
+      "metadata": {
+        "type": "reference",
+        "tags": "",
+        "related_unexplored": "",
+        "section": "Quick Insert",
+        "status_updated_at": "2026-03-11",
+        "domain": "general",
+        "created": "2026-03-11",
+        "source_file": "quick:Machine Learning Taxonomy & Roadmap: Three branches — Supervised Learning (labeled data): Classical ML (Linear/Logistic Regression, Random Forest, XGBoost, SVM) and Deep Learning (Dense Networks, RNNs/LSTM, CNNs, Transformers). Unsupervised Learning (no labels): Clustering (K-means, DBSCAN), Dimensionality Reduction (PCA, t-SNE), Anomaly Detection. Reinforcement Learning (learn from environment): Value-based (DQN), Policy-based (PPO, A2C), applications in Game AI (RLGym), Robotics, Trading. Key concepts: epochs (one pass through dataset), iterations (one weight update), batch (subset per iteration), hyperparameters (learning rate, batch size). Classical ML good for structured/tabular data. Deep learning excels with large datasets, complex patterns, raw data (images, audio, text).",
+        "status": "new",
+        "title": "Machine Learning Taxonomy & Roadmap: Three branches — Supervised Learning (labeled data): Classical ML (Linear/Logistic Regression, Random Forest, XGBoost, SVM) and Deep Learning (Dense Networks, RNNs/LSTM, CNNs, Transformers). Unsupervised Learning (no labels): Clustering (K-means, DBSCAN), Dimensionality Reduction (PCA, t-SNE), Anomaly Detection. Reinforcement Learning (learn from environment): Value-based (DQN), Policy-based (PPO, A2C), applications in Game AI (RLGym), Robotics, Trading. Key concepts: epochs (one pass through dataset), iterations (one weight update), batch (subset per iteration), hyperparameters (learning rate, batch size). Classical ML good for structured/tabular data. Deep learning excels with large datasets, complex patterns, raw data (images, audio, text).",
+        "category": "DataScience"
+      },
+      "content": "# Machine Learning Taxonomy & Roadmap: Three branches — Supervised Learning (labeled data): Classical ML (Linear/Logistic Regression, Random Forest, XGBoost, SVM) and Deep Learning (Dense Networks, RNNs/LSTM, CNNs, Transformers). Unsupervised Learning (no labels): Clustering (K-means, DBSCAN), Dimensionality Reduction (PCA, t-SNE), Anomaly Detection. Reinforcement Learning (learn from environment): Value-based (DQN), Policy-based (PPO, A2C), applications in Game AI (RLGym), Robotics, Trading. Key concepts: epochs (one pass through dataset), iterations (one weight update), batch (subset per iteration), hyperparameters (learning rate, batch size). Classical ML good for structured/tabular data. Deep learning excels with large datasets, complex patterns, raw data (images, audio, text).\n\nMachine Learning Taxonomy & Roadmap: Three branches — Supervised Learning (labeled data): Classical ML (Linear/Logistic Regression, Random Forest, XGBoost, SVM) and Deep Learning (Dense Networks, RNNs/LSTM, CNNs, Transformers). Unsupervised Learning (no labels): Clustering (K-means, DBSCAN), Dimensionality Reduction (PCA, t-SNE), Anomaly Detection. Reinforcement Learning (learn from environment): Value-based (DQN), Policy-based (PPO, A2C), applications in Game AI (RLGym), Robotics, Trading. Key concepts: epochs (one pass through dataset), iterations (one weight update), batch (subset per iteration), hyperparameters (learning rate, batch size). Classical ML good for structured/tabular data. Deep learning excels with large datasets, complex patterns, raw data (images, audio, text)."
+    },
+    {
+      "id": "408c79c2a46bf002",
+      "metadata": {
+        "section": "Quick Insert",
+        "domain": "general",
+        "tags": "",
+        "category": "DataScience",
+        "created": "2026-03-11",
+        "type": "reference",
+        "title": "Linear Algebra for Machine Learning: Data structures — Scalar (0D, single number), Vector (1D, array), Matrix (2D, rows × columns), Tensor (3D+, multidimensional). Matrix dimensions always Rows × Columns. Operations: Addition (element-wise), Scalar Multiplication (multiply all by constant), Matrix Multiplication (inner dimensions must match: (A×B)·(B×C)=(A×C), row-column dot products), Transpose (flip rows↔columns, essential for neural network calculations, aligns dimensions for multiplication). Why it matters: forward propagation is matrix multiplication — weighted_sum = (inputs · weights_transpose) + bias. NumPy: np.dot(A,B) for multiplication, A.T for transpose, A.shape for dimensions.",
+        "status_updated_at": "2026-03-11",
+        "source_file": "quick:Linear Algebra for Machine Learning: Data structures — Scalar (0D, single number), Vector (1D, array), Matrix (2D, rows × columns), Tensor (3D+, multidimensional). Matrix dimensions always Rows × Columns. Operations: Addition (element-wise), Scalar Multiplication (multiply all by constant), Matrix Multiplication (inner dimensions must match: (A×B)·(B×C)=(A×C), row-column dot products), Transpose (flip rows↔columns, essential for neural network calculations, aligns dimensions for multiplication). Why it matters: forward propagation is matrix multiplication — weighted_sum = (inputs · weights_transpose) + bias. NumPy: np.dot(A,B) for multiplication, A.T for transpose, A.shape for dimensions.",
+        "related_unexplored": "",
+        "status": "new"
+      },
+      "content": "# Linear Algebra for Machine Learning: Data structures — Scalar (0D, single number), Vector (1D, array), Matrix (2D, rows × columns), Tensor (3D+, multidimensional). Matrix dimensions always Rows × Columns. Operations: Addition (element-wise), Scalar Multiplication (multiply all by constant), Matrix Multiplication (inner dimensions must match: (A×B)·(B×C)=(A×C), row-column dot products), Transpose (flip rows↔columns, essential for neural network calculations, aligns dimensions for multiplication). Why it matters: forward propagation is matrix multiplication — weighted_sum = (inputs · weights_transpose) + bias. NumPy: np.dot(A,B) for multiplication, A.T for transpose, A.shape for dimensions.\n\nLinear Algebra for Machine Learning: Data structures — Scalar (0D, single number), Vector (1D, array), Matrix (2D, rows × columns), Tensor (3D+, multidimensional). Matrix dimensions always Rows × Columns. Operations: Addition (element-wise), Scalar Multiplication (multiply all by constant), Matrix Multiplication (inner dimensions must match: (A×B)·(B×C)=(A×C), row-column dot products), Transpose (flip rows↔columns, essential for neural network calculations, aligns dimensions for multiplication). Why it matters: forward propagation is matrix multiplication — weighted_sum = (inputs · weights_transpose) + bias. NumPy: np.dot(A,B) for multiplication, A.T for transpose, A.shape for dimensions."
+    },
+    {
+      "id": "52cf52d9358bffef",
+      "metadata": {
+        "created": "2026-03-11",
+        "related_unexplored": "",
+        "category": "Tools",
+        "title": "tmux — terminal multiplexer for managing multiple shell sessions",
+        "status_updated_at": "2026-03-11",
+        "type": "reference",
+        "source_file": "quick:tmux — terminal multiplexer for managing multiple shell sessions",
+        "tags": "",
+        "status": "new",
+        "section": "Quick Insert",
+        "domain": "general"
+      },
+      "content": "# tmux — terminal multiplexer for managing multiple shell sessions\n\n{\"status\":\"embedded\",\"title\":\"tmux\",\"type\":\"reference\",\"sections\":7,\"related_unexplored\":[\"GNU Screen\",\"byobu\",\"tmuxinator\",\"tmuxp\",\"zellij\"],\"action\":\"created\"}"
+    },
+    {
+      "id": "38b040e1c9c5cb3c",
+      "metadata": {
+        "source_file": "quick:grep — search text using regex patterns in files",
+        "related_unexplored": "",
+        "status_updated_at": "2026-03-11",
+        "title": "grep — search text using regex patterns in files",
+        "section": "Quick Insert",
+        "category": "General",
+        "status": "new",
+        "type": "reference",
+        "tags": "",
+        "created": "2026-03-11",
+        "domain": "general"
+      },
+      "content": "# grep — search text using regex patterns in files\n\n{ \"status\": \"embedded\", \"title\": \"grep\", \"type\": \"reference\", \"sections\": 7, \"related_unexplored\": [\"sed\", \"awk\", \"ripgrep\", \"find\"], \"action\": \"created\" }"
+    },
+    {
+      "id": "278b50d73630d326",
+      "metadata": {
+        "section": "Quick Insert",
+        "type": "reference",
+        "status": "new",
+        "category": "General",
+        "domain": "general",
+        "source_file": "quick:awk — pattern scanning and text processing language",
+        "tags": "",
+        "status_updated_at": "2026-03-11",
+        "related_unexplored": "",
+        "created": "2026-03-11",
+        "title": "awk — pattern scanning and text processing language"
+      },
+      "content": "# awk — pattern scanning and text processing language\n\n{\"status\":\"merged\",\"title\":\"awk\",\"type\":\"reference\",\"sections\":6,\"related_unexplored\":[\"gawk\",\"mawk\",\"sed\",\"grep\",\"record separators\"],\"action\":\"merged\"}"
+    },
+    {
+      "id": "8d45f28dc6e19a01",
+      "metadata": {
+        "created": "2026-03-11",
+        "source_file": "quick:docker compose — multi-container Docker application orchestration",
+        "status_updated_at": "2026-03-11",
+        "section": "Quick Insert",
+        "title": "docker compose — multi-container Docker application orchestration",
+        "related_unexplored": "",
+        "status": "new",
+        "tags": "",
+        "domain": "general",
+        "type": "reference",
+        "category": "Tools"
+      },
+      "content": "# docker compose — multi-container Docker application orchestration\n\n{\"status\":\"embedded\",\"title\":\"docker compose\",\"type\":\"reference\",\"sections\":6,\"related_unexplored\":[\"docker swarm\",\"kubernetes deployments\",\"docker compose profiles\",\"docker networking bridge\",\"docker volumes\"],\"action\":\"created\"}"
+    },
+    {
+      "id": "145b9e4f22ba7544",
+      "metadata": {
+        "status_updated_at": "2026-03-11",
+        "type": "reference",
+        "section": "Quick Insert",
+        "status": "new",
+        "category": "General",
+        "created": "2026-03-11",
+        "tags": "",
+        "domain": "general",
+        "title": "ssh-keygen — generate SSH authentication key pairs",
+        "source_file": "quick:ssh-keygen — generate SSH authentication key pairs",
+        "related_unexplored": ""
+      },
+      "content": "# ssh-keygen — generate SSH authentication key pairs\n\n{\"status\":\"embedded\",\"title\":\"ssh-keygen\",\"type\":\"reference\",\"sections\":6,\"related_unexplored\":[\"ssh-agent\",\"ssh-copy-id\",\"authorized_keys\",\"~/.ssh/config\"],\"action\":\"created\"}"
+    },
+    {
+      "id": "fd4458e6b6caf647",
+      "metadata": {
+        "source_file": "quick:jq — command-line JSON processor",
+        "status": "new",
+        "related_unexplored": "",
+        "title": "jq — command-line JSON processor",
+        "status_updated_at": "2026-03-11",
+        "section": "Quick Insert",
+        "domain": "general",
+        "type": "reference",
+        "tags": "",
+        "created": "2026-03-11",
+        "category": "General"
+      },
+      "content": "# jq — command-line JSON processor\n\n{\"status\":\"embedded\",\"title\":\"jq\",\"type\":\"reference\",\"sections\":6,\"related_unexplored\":[\"yq\",\"gron\",\"jid\",\"JSONPath\",\"JMESPath\"],\"action\":\"created\"}"
+    }
+  ]
+}

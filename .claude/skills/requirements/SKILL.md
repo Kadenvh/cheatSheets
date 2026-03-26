@@ -1,7 +1,6 @@
 ---
 name: requirements
 description: "Translate briefs and requests into buildable specifications with testable acceptance criteria"
-disable-model-invocation: true
 allowed-tools:
   - Read
   - Edit
@@ -17,8 +16,9 @@ Produce structured, testable requirements from briefs, stakeholder requests, or 
 
 ## Instructions
 
-1. Read the full requirements template at `.prompts/requirements.md` (relative to the project's `documentation/` folder).
-2. Follow its protocol:
+Follow the protocol below. For the full detailed version, read `.prompts/requirements.md`.
+
+### Protocol
    - Determine input (discovery brief, stakeholder request, existing feature, bug)
    - Clarify ambiguity (ask questions, document assumptions)
    - Write requirements with Given/When/Then acceptance criteria
@@ -32,9 +32,9 @@ Produce structured, testable requirements from briefs, stakeholder requests, or 
 - **Document assumptions.** Every requirement rests on assumptions — make them explicit.
 - **Scope creep starts here.** If it's not in the spec, it's out of scope.
 
-## Inline Fallback (if prompt file not found)
+## Full Protocol
 
-If `.prompts/requirements.md` cannot be located:
+Detailed steps:
 
 1. **Clarify.** Ask: Who's the user? What can they do today? What should they do after? What explicitly shouldn't change? What happens on error? How will we know it's done?
 2. **Document assumptions** that would change the spec if wrong.

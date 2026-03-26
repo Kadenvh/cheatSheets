@@ -1,0 +1,26 @@
+{
+  "input": "ls -la directory listing",
+  "mode": "quick",
+  "ts": "2026-03-08T08:21:45.951Z",
+  "curatorOutput": "{\"ok\":true,\"title\":\"ls\",\"type\":\"reference\",\"sections\":6,\"related_unexplored\":[\"find\",\"tree\",\"stat\",\"du\"],\"action\":\"created\",\"warnings\":[{\"gate\":\"domainBalance\",\"message\":\"Domain \\\"cheatSheets\\\" has 12 entries (threshold: 10)\"}]}",
+  "curatorParsed": {
+    "ok": true,
+    "title": "ls",
+    "type": "reference",
+    "sections": 6,
+    "related_unexplored": [
+      "find",
+      "tree",
+      "stat",
+      "du"
+    ],
+    "action": "created",
+    "warnings": [
+      {
+        "gate": "domainBalance",
+        "message": "Domain \"cheatSheets\" has 12 entries (threshold: 10)"
+      }
+    ]
+  },
+  "recuratedAt": "2026-03-13T16:36:29.041Z"
+}
