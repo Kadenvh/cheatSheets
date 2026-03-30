@@ -1,6 +1,6 @@
 # Knowledge System
 
-**Version:** 7.0 | **Status:** Obsidian-First (Pipeline Restoration In Progress) | **Updated:** 2026-03-30
+**Version:** 7.1.0 | **Status:** Obsidian-First (Pipeline Restored, Pending Server Restart) | **Updated:** 2026-03-30
 
 ## Parent Documentation
 
