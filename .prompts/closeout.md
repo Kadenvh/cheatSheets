@@ -395,7 +395,7 @@ Sub-projects (directories with their own package.json, brain.db, or significant 
 
 ### Step 7: Confirm Prompts Are Present
 
-The `.prompts/` directory should contain the 17 canonical prompts. Verify the core set exists:
+The `.prompts/` directory should contain the 21 canonical prompts. Verify the core set exists:
 
 - [ ] `init.md` — session initialization (orient, read docs, verify state)
 - [ ] `closeout.md` — this file (end-of-session documentation updates)
@@ -414,8 +414,12 @@ The `.prompts/` directory should contain the 17 canonical prompts. Verify the co
 - [ ] `cleanup.md` — DAL reconciliation and knowledge hygiene
 - [ ] `agent-qa.md` — agent quality assurance protocols
 - [ ] `METRICS.md` — metrics definitions and tracking
+- [ ] `plan-validator.md` — plan auditing and gap analysis
+- [ ] `triage.md` — ecosystem-wide status assessment and prioritization
+- [ ] `ui-dev.md` — frontend UI development protocols
+- [ ] `supabase.md` — Supabase development protocols
 
-If any are missing, copy from the canonical source at `/home/ava/Prompt_Engineering/template/.prompts/`.
+If any are missing, copy from the template source directory (check brain.db identity `template.source`, or the PE template location configured for this environment).
 
 These prompts are universal — they are NOT project-specific. Do not generate per-project versions. Project-specific context lives in `CLAUDE.md` and the documentation files, not in the prompts.
 

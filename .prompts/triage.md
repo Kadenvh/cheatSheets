@@ -35,8 +35,8 @@ node .ava/dal.mjs ecosystem notes 2>/dev/null
 for proj in Ava_Main CloudBooks seatwise tradeSignal WATTS cheatSheets 3D_Printing; do
   echo "=== $proj ==="
   sqlite3 /home/ava/$proj/.ava/brain.db "SELECT key, value FROM identity WHERE key = 'project.name';" 2>/dev/null
-  sqlite3 /home/ava/$proj/.ava/brain.db "SELECT count(*) as open_notes FROM notes WHERE completed_at IS NULL;" 2>/dev/null
-  sqlite3 /home/ava/$proj/.ava/brain.db "SELECT id, substr(summary, 1, 80) as summary, ended_at FROM sessions ORDER BY started_at DESC LIMIT 1;" 2>/dev/null
+  sqlite3 /home/ava/$proj/.ava/brain.db "SELECT count(*) as open_notes FROM notes WHERE completed = 0;" 2>/dev/null
+  sqlite3 /home/ava/$proj/.ava/brain.db "SELECT id, substr(summary, 1, 80) as summary, end_time FROM sessions ORDER BY start_time DESC LIMIT 1;" 2>/dev/null
 done
 ```
 
@@ -47,8 +47,11 @@ done
 For each project with a vault folder, read the most recent session note:
 
 ```bash
+# Resolve vault path: brain.db vault.path > $OBSIDIAN_VAULT > ~/Obsidian/Ava/
+VAULT_PATH=$(node .ava/dal.mjs identity get vault.path 2>/dev/null || echo "${OBSIDIAN_VAULT:-$HOME/Obsidian/Ava}")
+
 for proj in PE Ava_Main McQueenyML CloudBooks TradeSignal WATTS Seatwise Adze-CAD; do
-  latest=$(ls -t "/home/ava/Obsidian/Ava/$proj/sessions/"*.md 2>/dev/null | head -1)
+  latest=$(ls -t "$VAULT_PATH/$proj/sessions/"*.md 2>/dev/null | head -1)
   if [ -n "$latest" ]; then
     echo "=== $proj: $(basename "$latest") ==="
   fi
@@ -83,8 +86,9 @@ Flag any notes older than 14 days as potentially stale.
 ## 4. READ ACTIVE VAULT PLANS
 
 ```bash
+# VAULT_PATH resolved above in Step 2
 for proj in PE Ava_Main McQueenyML CloudBooks TradeSignal WATTS; do
-  plans=$(ls "/home/ava/Obsidian/Ava/$proj/plans/"*.md 2>/dev/null)
+  plans=$(ls "$VAULT_PATH/$proj/plans/"*.md 2>/dev/null)
   for plan in $plans; do
     status=$(head -10 "$plan" | grep "status:" | sed 's/status: //')
     if [ "$status" = "active" ]; then

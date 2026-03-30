@@ -16,6 +16,22 @@ Determine the target project. If the user specified a path, use it. Otherwise, u
 
 ### Step 0a: Determine if target is local or remote
 
+Check whether the target project is on the local filesystem or a remote machine. For local projects, access brain.db directly. For remote projects, SSH in and run dal.mjs commands, or pull brain.db via SCP for local diagnosis.
+
+```bash
+# Remote example: run dal.mjs directly on remote host
+ssh user@remote-host "cd /path/to/project && node .ava/dal.mjs health"
+ssh user@remote-host "cd /path/to/project && node .ava/dal.mjs verify"
+
+# Fallback: pull brain.db via SCP for local diagnosis
+scp user@remote-host:"/path/to/project/.ava/brain.db" /tmp/remote-brain.db
+sqlite3 /tmp/remote-brain.db "SELECT MAX(version) FROM schema_version;"
+```
+
+<!-- PE-ECOSYSTEM-ONLY: The following section contains PE/Ava ecosystem-specific configuration.
+     Downstream projects should customize these values for their own environment. -->
+**PE ecosystem device topology:**
+
 | Project | Location | Access |
 |---------|----------|--------|
 | Ava_Main, CloudBooks, seatwise, tradeSignal, WATTS, PE | Local `/home/ava/` | Direct filesystem |
@@ -23,23 +39,19 @@ Determine the target project. If the user specified a path, use it. Otherwise, u
 | adze-cad | Zoe `C:\adze-cad` | SCP via `Kaden@100.90.215.74` |
 | CheatSheets, 3D_Printing | Ava_Main spokes | Local under Ava_Main |
 
-For remote projects: SSH in and run dal.mjs commands directly (Node.js confirmed working on Frank/Zoe).
-
 ```bash
-# Preferred: run dal.mjs directly on remote
+# PE ecosystem SSH examples
 ssh kaden@frank "cd C:\\McQueenyML && node .ava/dal.mjs health"
 ssh kaden@zoe "cd C:\\adze-cad && node .ava/dal.mjs health"
 ssh kaden@frank "cd C:\\McQueenyML && node .ava/dal.mjs verify"
-
-# Fallback: pull brain.db via SCP for local diagnosis
 scp kaden@frank:"C:/McQueenyML/.ava/brain.db" /tmp/ava-remote-brain-mcq.db
-sqlite3 /tmp/ava-remote-brain-mcq.db "SELECT MAX(version) FROM schema_version;"
 ```
 
 **Syncthing shares (automatic transport):**
 - `pe-template`: PE/template/ → `C:\PE-Template` on Frank/Zoe (sendonly)
 - `pe-health`: `~/.pe-health/` bidirectional (health beacon collection)
 - `mcqueenyml`: Full project replication Frank ↔ Ava
+<!-- /PE-ECOSYSTEM-ONLY -->
 
 ### Step 0b: Check DAL runtime
 
@@ -50,15 +62,15 @@ ls -la <project>/.ava/dal.mjs
 **If `.ava/dal.mjs` does not exist:** The DAL runtime needs to be deployed from PE.
 
 ```bash
-# Deploy DAL runtime from PE canonical
+# Deploy DAL runtime from PE canonical (resolve PE path from brain.db identity template.source)
 mkdir -p <project>/.ava/lib <project>/.ava/migrations
-cp /home/ava/Prompt_Engineering/.ava/dal.mjs <project>/.ava/
-cp /home/ava/Prompt_Engineering/.ava/lib/*.mjs <project>/.ava/lib/
-cp /home/ava/Prompt_Engineering/.ava/migrations/*.sql <project>/.ava/migrations/
+cp <PE_PATH>/.ava/dal.mjs <project>/.ava/
+cp <PE_PATH>/.ava/lib/*.mjs <project>/.ava/lib/
+cp <PE_PATH>/.ava/migrations/*.sql <project>/.ava/migrations/
 cd <project>/.ava && npm init -y && npm install better-sqlite3
 ```
 
-Or use template sync: `node /home/ava/Prompt_Engineering/.ava/dal.mjs template sync <project> --dal`
+Or use template sync: `node <PE_PATH>/.ava/dal.mjs template sync <project> --dal`
 
 ### Step 0c: Check brain.db
 
@@ -89,12 +101,18 @@ If `CLAUDE.md` does not exist at the project root, the project needs documentati
 
 ### Step 0e: Check vault folder
 
-If the Obsidian vault exists at `/home/ava/Obsidian/Ava/` AND this project does not have a subfolder:
+Resolve vault path:
+1. brain.db: `node .ava/dal.mjs identity get vault.path`
+2. Environment: `$OBSIDIAN_VAULT`
+3. Default: `~/Obsidian/Ava/{ProjectName}/`
+
+If the Obsidian vault exists AND this project does not have a subfolder:
 
 ```bash
 # Determine vault folder name from project identity
 # Map: Prompt_Engineering -> PE, tradeSignal -> TradeSignal, etc.
-mkdir -p /home/ava/Obsidian/Ava/{ProjectName}/{plans,schemas,sessions,architecture}
+VAULT_PATH=$(node .ava/dal.mjs identity get vault.path 2>/dev/null || echo "${OBSIDIAN_VAULT:-$HOME/Obsidian/Ava}")
+mkdir -p "$VAULT_PATH/{ProjectName}"/{plans,schemas,sessions,architecture}
 ```
 
 Copy `VAULT_GUIDE.md` from `_templates/` if available, or create a minimal one.
@@ -136,9 +154,13 @@ node <project>/.ava/dal.mjs identity get template.version
 node <project>/.ava/dal.mjs identity get template.auto_pull
 ```
 
-**If `template.source` is not set:** Configure it. Use the correct path for the device:
+**If `template.source` is not set:** Configure it based on where the PE template is accessible from this device.
+
+<!-- PE-ECOSYSTEM-ONLY: The following section contains PE/Ava ecosystem-specific configuration.
+     Downstream projects should customize these values for their own environment. -->
 - Ava (local projects): `/home/ava/Prompt_Engineering/template`
 - Frank/Zoe (Syncthing mirror): `C:\PE-Template`
+<!-- /PE-ECOSYSTEM-ONLY -->
 
 **If `project.name` is UNNAMED or missing:** Set it from CLAUDE.md or directory name.
 
@@ -208,7 +230,8 @@ SELECT category, COUNT(*) as c FROM notes WHERE completed = 0 GROUP BY category;
 **Prompts are physical files, NOT brain.db rows.** Check `.prompts/` directory against PE canonical:
 
 ```bash
-PE="/home/ava/Prompt_Engineering/template/.prompts"
+PE_SOURCE=$(node <project>/.ava/dal.mjs identity get template.source 2>/dev/null || echo "")
+PE="${PE_SOURCE:-.}/.prompts"
 PROJECT="<project>/.prompts"
 # Compare file counts
 ls "$PE"/*.md 2>/dev/null | wc -l
@@ -266,7 +289,8 @@ The dry-run shows exactly what would be updated. Health shows drift counts, veri
 **If template.source is NOT configured, use PE-centric diff (fallback):**
 
 ```bash
-node /home/ava/Prompt_Engineering/.ava/dal.mjs template diff <project>
+# Use the PE canonical path (resolve from environment or default)
+node <PE_PATH>/.ava/dal.mjs template diff <project>
 ```
 
 **Remediation:** If drift detected and auto_pull is not enabled:
@@ -289,17 +313,20 @@ node <project>/.ava/dal.mjs identity set template.auto_pull --value true
 
 ## Phase 3: Vault Health
 
-**Conditional:** Skip this entire phase if no vault exists at `/home/ava/Obsidian/Ava/`. Report INFO: "No Obsidian vault found — four-layer architecture not deployed."
+**Conditional:** Resolve vault path (1. brain.db `vault.path`, 2. `$OBSIDIAN_VAULT`, 3. `~/Obsidian/Ava/`). Skip this entire phase if no vault exists. Report INFO: "No Obsidian vault found — four-layer architecture not deployed."
 
 ### Category 10: Vault Folder Structure
 
 ```bash
+# Resolve vault path
+VAULT_PATH=$(node <project>/.ava/dal.mjs identity get vault.path 2>/dev/null || echo "${OBSIDIAN_VAULT:-$HOME/Obsidian/Ava}")
+
 # Check project vault folder exists
-ls /home/ava/Obsidian/Ava/{ProjectName}/ 2>/dev/null
+ls "$VAULT_PATH/{ProjectName}/" 2>/dev/null
 
 # Expected subdirectories: sessions/ at minimum
 for subdir in sessions architecture plans schemas; do
-  [ -d "/home/ava/Obsidian/Ava/{ProjectName}/$subdir" ] || echo "MISSING: $subdir/"
+  [ -d "$VAULT_PATH/{ProjectName}/$subdir" ] || echo "MISSING: $subdir/"
 done
 ```
 
@@ -309,15 +336,15 @@ done
 ### Category 11: Vault Templates & Notes
 
 ```bash
-# Check vault templates exist
-ls /home/ava/Obsidian/Ava/_templates/*.md 2>/dev/null
+# Check vault templates exist (VAULT_PATH resolved in Category 10)
+ls "$VAULT_PATH/_templates/"*.md 2>/dev/null
 # Expected: session.md, decision.md, plan.md, schema.md, architecture.md
 ```
 
 Check frontmatter on vault notes:
 
 ```bash
-find /home/ava/Obsidian/Ava/{ProjectName} -name "*.md" -not -name "VAULT_GUIDE.md" | while read f; do
+find "$VAULT_PATH/{ProjectName}" -name "*.md" -not -name "VAULT_GUIDE.md" | while read f; do
   head -1 "$f" | grep -q "^---$" || echo "NO FRONTMATTER: $f"
 done
 ```
@@ -370,20 +397,32 @@ AND NOT EXISTS (
 
 ### Category 14: Cross-Project Schema Drift
 
-Only for ecosystem sweeps. Check all projects:
+Only for ecosystem sweeps. Check all projects known to this environment. Use the sibling registry if available, or enumerate known project paths.
 
 ```bash
+# If siblings.json exists, iterate over siblings
+if [ -f .ava/siblings.json ]; then
+  # Parse siblings and check each
+  node -e "JSON.parse(require('fs').readFileSync('.ava/siblings.json','utf8')).siblings.forEach(s => console.log(s.path))" | while read p; do
+    echo "=== $(basename $p) ==="
+    node "$p/.ava/dal.mjs" status --brief 2>&1 || echo "NO DAL"
+  done
+fi
+```
+
+<!-- PE-ECOSYSTEM-ONLY: The following section contains PE/Ava ecosystem-specific configuration.
+     Downstream projects should customize these values for their own environment. -->
+```bash
+# PE ecosystem hardcoded paths
 for p in /home/ava/Ava_Main /home/ava/CloudBooks /home/ava/seatwise /home/ava/tradeSignal /home/ava/WATTS /home/ava/Prompt_Engineering; do
   echo "=== $(basename $p) ==="
   node "$p/.ava/dal.mjs" status --brief 2>&1 || echo "NO DAL"
 done
-```
 
-Or use the Documentation tab API:
-
-```bash
+# Ava_Main Documentation tab API
 curl -s http://localhost:4173/api/dal/ecosystem | python3 -m json.tool
 ```
+<!-- /PE-ECOSYSTEM-ONLY -->
 
 - Schema version behind PE canonical -> WARNING
 - brain.db missing -> INFO
@@ -417,10 +456,17 @@ curl -s http://localhost:4173/api/dal/ecosystem | python3 -m json.tool
 **Deploy missing templates:**
 
 ```bash
-# Via dal.mjs template sync
-node /home/ava/Prompt_Engineering/.ava/dal.mjs template sync <project>
+# Via dal.mjs template sync (use configured template.source or PE path)
+node <PE_PATH>/.ava/dal.mjs template sync <project>
 
-# Via Documentation tab API (auto-handles remote projects)
+# Or use pull-based model if template.source is configured
+node <project>/.ava/dal.mjs template pull
+```
+
+<!-- PE-ECOSYSTEM-ONLY: The following section contains PE/Ava ecosystem-specific configuration.
+     Downstream projects should customize these values for their own environment. -->
+```bash
+# Via Ava_Main Documentation tab API (auto-handles remote projects)
 curl -s -X POST http://localhost:4173/api/docs/sync-templates \
   -H 'Content-Type: application/json' \
   -d '{"projectPath": "/home/ava/<project>"}'
@@ -428,6 +474,7 @@ curl -s -X POST http://localhost:4173/api/docs/sync-prompts \
   -H 'Content-Type: application/json' \
   -d '{"projectPath": "/home/ava/<project>"}'
 ```
+<!-- /PE-ECOSYSTEM-ONLY -->
 
 **Delete legacy `.prompts/` location:**
 
@@ -481,16 +528,20 @@ Terse output. Don't list clean categories. Lead with what's broken.
 
 ## Ecosystem Sweep Mode
 
-When asked for ecosystem-wide check, query the Documentation tab APIs:
+When asked for ecosystem-wide check, use `node .ava/dal.mjs health --json` per project, or query ecosystem APIs if available.
 
+Produce summary table, then detail findings per YELLOW/RED project. Offer to remediate.
+
+<!-- PE-ECOSYSTEM-ONLY: The following section contains PE/Ava ecosystem-specific configuration.
+     Downstream projects should customize these values for their own environment. -->
 ```bash
+# Ava_Main Documentation tab APIs (PE ecosystem only)
 curl -s http://localhost:4173/api/dal/ecosystem
 curl -s http://localhost:4173/api/docs/template-drift
 curl -s http://localhost:4173/api/docs/prompt-drift
 curl -s http://localhost:4173/api/docs/project-status
 ```
-
-Produce summary table, then detail findings per YELLOW/RED project. Offer to remediate.
+<!-- /PE-ECOSYSTEM-ONLY -->
 
 ---
 
@@ -572,7 +623,7 @@ node .ava/dal.mjs status                          # DB health, schema version, s
 node .ava/dal.mjs version                         # DAL version
 node .ava/dal.mjs context                         # Generate context payload
 node .ava/dal.mjs context --role dev              # Dev-focused context
-node .ava/dal.mjs verify                          # 7-layer cross-verification
+node .ava/dal.mjs verify                          # 8-layer cross-verification
 node .ava/dal.mjs migrate                         # Run pending migrations
 ```
 

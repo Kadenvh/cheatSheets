@@ -1,6 +1,6 @@
 # Agent System Reference
 
-**For:** PE Documentation Framework v5.10.0 | **Schema:** v12 | **Updated:** 2026-03-28
+**For:** PE Documentation Framework v5.12.0 | **Schema:** v12 | **Updated:** 2026-03-30
 
 This is the single reference document for understanding the full agent memory and documentation system. Any agent — Claude or otherwise — should be able to read this file and understand how the system works.
 
@@ -11,8 +11,8 @@ This is the single reference document for understanding the full agent memory an
 - **brain.db** at `.ava/brain.db` — SQLite database, schema v12, 10 tables. Active memory cache for session continuity.
 - **Prompts** at `.prompts/*.md` — protocol files for skills. Canonical location: **project root**. NOT `documentation/.prompts/` (legacy, should be deleted if found).
 - **Skills** invoked via `/skill-name` slash commands. Definitions in `.claude/skills/*/SKILL.md`.
-- **Hooks** in `.claude/hooks/*.js` — auto-fire on tool use and session events. 7 hooks deployed.
-- **Vault** at `/home/ava/Obsidian/Ava/{ProjectName}/` — persistent knowledge web (Layer 2). Optional.
+- **Hooks** in `.claude/hooks/*.js` — auto-fire on tool use and session events. 8 hooks deployed.
+- **Vault** — persistent knowledge web (Layer 2). Optional. Resolve path: brain.db `vault.path` > `$OBSIDIAN_VAULT` > `~/Obsidian/Ava/{ProjectName}/`.
 - **CLAUDE.md** at project root — critical rules, auto-loaded by Claude Code. Keep under 5KB.
 - **Full project state:** `node .ava/dal.mjs context` — generates the context payload injected at session start.
 
@@ -95,7 +95,7 @@ node .ava/dal.mjs metric record <key> --value <n>
 node .ava/dal.mjs loop summary                      # Full performance overview
 
 # System
-node .ava/dal.mjs verify                            # 7-layer cross-verification
+node .ava/dal.mjs verify                            # 8-layer cross-verification
 node .ava/dal.mjs migrate                           # Run pending migrations
 
 # Template deployment
@@ -115,8 +115,8 @@ Markdown files containing detailed protocols that skills read at invocation time
 
 Each prompt file is a standalone protocol: oriented toward a specific workflow (init, closeout, debugging, etc.) with step-by-step instructions an agent can follow.
 
-Current inventory (20 active):
-`init.md`, `closeout.md`, `cleanup.md`, `dal-doctor.md`, `system-reference.md` (this file), `explore.md` (includes discovery mode), `validate.md` (includes docs/setup/readme checks), `architecture.md`, `code-review.md`, `debugging.md`, `requirements.md`, `testing.md`, `refactor.md`, `migration.md`, `together.md`, `agent-qa.md`, `METRICS.md`, `supabase.md`, `triage.md`, `ui-dev.md`
+Current inventory (21 active):
+`init.md`, `closeout.md`, `cleanup.md`, `dal-doctor.md`, `system-reference.md` (this file), `explore.md` (includes discovery mode), `validate.md` (includes docs/setup/readme checks), `architecture.md`, `code-review.md`, `debugging.md`, `requirements.md`, `testing.md`, `refactor.md`, `migration.md`, `together.md`, `agent-qa.md`, `METRICS.md`, `plan-validator.md`, `supabase.md`, `triage.md`, `ui-dev.md`
 
 ### `.claude/skills/` — Slash Command Definitions
 
@@ -134,11 +134,11 @@ Hooks fire automatically on Claude Code events. They are `.js` files (CommonJS v
 | Hook | Event | Purpose |
 |------|-------|---------|
 | `session-context.js` | SessionStart, SessionResume | Injects brain.db context + git status + REMINDER about `/session-closeout` |
-| `block-protected-files.js` | PreEdit, PreWrite | Blocks writes to protected files (CLAUDE.md OpenClaw configs, .env, etc.) |
+| `block-protected-files.js` | PreEdit, PreWrite | Blocks writes to protected files (.env, lock files, credentials, secrets, etc.) |
 | `block-dangerous-commands.js` | PreBash | Blocks catastrophic commands (rm -rf /, force push main, etc.) |
 | `typecheck-on-edit.js` | PostEdit, PostWrite | Runs type checker on modified files (if tsconfig exists) |
 | `lint-on-edit.js` | PostEdit, PostWrite | Runs linter on modified files (if eslint/prettier configured) |
-| `stop-closeout-check.js` | Stop | Warns if docs stale >30min and uncommitted changes exist |
+| `stop-closeout-check.js` | Stop | Warns if docs stale >120min and uncommitted changes exist |
 | `completion-check.js` | Stop | Warns about partial-outcome actions in the learning loop |
 
 Hooks are configured in `.claude/settings.json` under the `hooks` key. Each entry maps an event type to a command.
@@ -179,10 +179,10 @@ Agent definitions for autonomous sub-agents. Each agent has a directory with ide
 
 ### Vault Structure
 
-Single vault at `/home/ava/Obsidian/Ava/`. One folder per project in the ecosystem.
+Single vault per ecosystem. Resolve path: brain.db `vault.path` > `$OBSIDIAN_VAULT` > `~/Obsidian/Ava/`. One folder per project.
 
 ```
-/home/ava/Obsidian/Ava/
+~/Obsidian/Ava/   (or resolved vault path)
 ├── _templates/              # Note templates (session, decision, plan, schema, architecture)
 ├── _inbox/                  # Unsorted notes
 ├── PE/                      # Prompt Engineering
@@ -245,7 +245,7 @@ Work
       |
       v
 Stop
-  stop-closeout-check.js: warns if docs stale >30min
+  stop-closeout-check.js: warns if docs stale >120min
   completion-check.js: warns about partial-outcome actions
 ```
 

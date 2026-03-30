@@ -132,6 +132,26 @@ if (fs.existsSync(brainDbPath)) {
   }
 }
 
+// Handoff injection — read most recent YAML handoff for session continuity
+const handoffDir = path.join(dalDir, ".ava", "handoffs");
+if (fs.existsSync(handoffDir)) {
+  try {
+    const files = fs.readdirSync(handoffDir)
+      .filter(f => f.endsWith(".yaml"))
+      .sort()
+      .reverse();
+    if (files.length > 0) {
+      const latest = fs.readFileSync(path.join(handoffDir, files[0]), "utf8");
+      const truncated = latest.length > 2000
+        ? latest.slice(0, 2000) + "\n... (truncated, see full file)"
+        : latest;
+      context.push(`## Previous Session Handoff\n\n\`\`\`yaml\n${truncated}\n\`\`\``);
+    }
+  } catch {
+    // Silent — handoff injection is best-effort
+  }
+}
+
 // Sibling project context injection (always uses project root, not spoke workspace)
 const siblingsPath = path.join(projectDir, ".ava", "siblings.json");
 if (fs.existsSync(siblingsPath)) {

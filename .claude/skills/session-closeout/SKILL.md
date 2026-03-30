@@ -62,9 +62,11 @@ Detailed steps (always follow these):
    - `node .ava/dal.mjs action record "..." --type <type> --outcome success|failure|partial`
 4. **Handoff generation** (if brain.db exists):
    - `node .ava/dal.mjs handoff generate "session summary"`
-   - Do NOT auto-export to Obsidian vault — vault writes are human-initiated only
+   - Export vault session note if session has 1+ decisions, version change, cross-project work, or significant features. Trivial sessions skip. `node .ava/dal.mjs vault-export session "summary"`
+   - Sync to ChromaDB if embedding service running: `node .ava/dal.mjs vault sync {ProjectSlug} 2>/dev/null || true`
 5. **Update CLAUDE.md.** Update version header, refresh "Recent Changes," add any new anti-patterns.
-6. **File mode additionally:** Update IMPLEMENTATION_PLAN.md (tasks, handoff) and PROJECT_ROADMAP.md (if milestone).
-7. **Create READMEs** for any new major directories.
-8. **Verify consistency.** Version numbers match. No orphaned references. No duplicated content.
-9. **Commit.** Stage specific files, commit with descriptive message.
+6. **Update working documents.** If `OVERVIEW.md`, `FileStructure.md`, or `documentation/plans/` contain active audit annotations or execution plans, update them to reflect completed work. Mark completed phases. Add new findings if discovered during implementation.
+7. **File mode additionally:** Update `documentation/IMPLEMENTATION_PLAN.md` (tasks, handoff) and `documentation/PROJECT_ROADMAP.md` (if milestone).
+8. **Create READMEs** for any new major directories.
+9. **Verify consistency.** Version numbers match. No orphaned references. No duplicated content.
+10. **Commit.** Stage specific files, commit with descriptive message.

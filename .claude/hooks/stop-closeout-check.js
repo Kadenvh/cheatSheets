@@ -46,7 +46,7 @@ if (!anyDocExists) {
 
 const timeSinceLastEdit = now - mostRecentMod;
 
-// If docs were edited more than 30 minutes ago, they may be stale
+// If docs were edited more than 120 minutes ago, they may be stale
 if (timeSinceLastEdit > STALE_THRESHOLD_MS) {
   // Check if there are uncommitted changes (suggests active work happened)
   const { execSync } = require("child_process");

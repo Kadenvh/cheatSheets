@@ -140,7 +140,7 @@ Check `~/Obsidian/Ava/{ProjectName}/` for the project's vault folder. If it exis
 
 1. **END-GOAL.md version check** - Read the first 30 lines. Extract version references. Compare against brain.db `project.version`. Flag mismatch as FAIL.
 2. **Session note gap** - Count vault session notes vs brain.db session count. Report the gap. Flag gap > 5 as WARN.
-3. **ChromaDB sync** - Run `node .ava/dal.mjs vault status`. Flag errors or 0 doc count as FAIL.
+3. **ChromaDB sync** - Run `node .ava/dal.mjs vault status`. If ChromaDB is not deployed or the vault command is unavailable, flag as SKIP (ChromaDB not deployed -- optional layer). If deployed but returning errors or 0 doc count, flag as WARN.
 
 If no vault folder exists for the project, report as INFO (vault is optional, not required).
 

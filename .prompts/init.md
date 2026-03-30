@@ -83,10 +83,11 @@ These hooks fire automatically — you don't invoke them, but you should know th
 |------|------|-------------|
 | `session-context.js` | Session start/resume | Injected the DAL state and git context you see above |
 | `stop-closeout-check.js` | Session end | Warns if docs are stale (>2hrs since last edit) and there are uncommitted changes |
-| `block-protected-files.js` | Before Edit/Write | Blocks writes to protected files (CLAUDE.md OpenClaw configs, .env, etc.) |
+| `block-protected-files.js` | Before Edit/Write | Blocks writes to protected files (.env, lock files, credentials, etc.) |
 | `block-dangerous-commands.js` | Before Bash | Blocks catastrophic commands (rm -rf /, force push main, etc.) |
 | `typecheck-on-edit.js` | After Edit/Write | Runs type checker on modified files |
 | `lint-on-edit.js` | After Edit/Write | Runs linter on modified files |
+| `completion-check.js` | Session end | Warns if actions have partial outcomes |
 
 If a write or command gets blocked, check `.claude/hooks/` for the specific rules. SOFT_BLOCK denials include override guidance.
 
@@ -94,18 +95,24 @@ Run `/dal-doctor` for full DAL reference if needed.
 
 ### Obsidian Vault Context (if vault exists)
 
-If the Obsidian vault exists at `/home/ava/Obsidian/Ava/`, check for relevant project context beyond what brain.db provides.
+Resolve vault path:
+1. brain.db: `node .ava/dal.mjs identity get vault.path`
+2. Environment: `$OBSIDIAN_VAULT`
+3. Default: `~/Obsidian/Ava/{ProjectName}/`
+
+If the Obsidian vault exists, check for relevant project context beyond what brain.db provides.
 
 **Step 1: Identify the project folder.** Use `project.name` from identity to find the vault folder (e.g., `PE`, `Ava_Main`, `TradeSignal`).
 
 ```bash
-ls /home/ava/Obsidian/Ava/{ProjectName}/ 2>/dev/null
+VAULT_PATH=$(node .ava/dal.mjs identity get vault.path 2>/dev/null || echo "${OBSIDIAN_VAULT:-$HOME/Obsidian/Ava}")
+ls "$VAULT_PATH/{ProjectName}/" 2>/dev/null
 ```
 
 **Step 2: Read the most recent session note** (if any exist):
 
 ```bash
-ls -t /home/ava/Obsidian/Ava/{ProjectName}/sessions/*.md 2>/dev/null | head -1
+ls -t "$VAULT_PATH/{ProjectName}/sessions/"*.md 2>/dev/null | head -1
 ```
 
 Read it. This gives you the previous session's summary, decisions made, files modified, and next actions — richer context than the brain.db session summary alone.
@@ -113,7 +120,7 @@ Read it. This gives you the previous session's summary, decisions made, files mo
 **Step 3: Check for active plans:**
 
 ```bash
-ls /home/ava/Obsidian/Ava/{ProjectName}/plans/*.md 2>/dev/null
+ls "$VAULT_PATH/{ProjectName}/plans/"*.md 2>/dev/null
 ```
 
 Read any with `status: active` in their frontmatter. These are living plans that may inform the current session's priorities.

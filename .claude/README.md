@@ -1,6 +1,6 @@
 # .claude Template — Automation Layer
 
-**Version:** 5.10.0 | **Updated:** 2026-03-28
+**Version:** 5.12.0 | **Updated:** 2026-03-30
 
 This folder is the Claude Code automation layer. It ships alongside `.prompts/` as part of the PE template. Copy to your project root — Claude Code only detects `.claude/` at root level.
 

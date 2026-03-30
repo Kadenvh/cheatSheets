@@ -179,11 +179,17 @@ Target: identity has 5-7 core rows, architecture entries all have appropriate sc
 
 ### 4e. Vault Maintenance (if Obsidian vault exists)
 
-If the project has a folder in the Obsidian vault (check `~/Obsidian/Ava/{ProjectName}/`), perform ALL of the following checks. **Do not skip any step. Do not treat existence as freshness. Read the files, compare the content.**
+Resolve vault path:
+1. brain.db: `node .ava/dal.mjs identity get vault.path`
+2. Environment: `$OBSIDIAN_VAULT`
+3. Default: `~/Obsidian/Ava/{ProjectName}/`
+
+If the project has a folder in the Obsidian vault, perform ALL of the following checks. **Do not skip any step. Do not treat existence as freshness. Read the files, compare the content.**
 
 **Step 1 - Structure check:**
 ```bash
-find ~/Obsidian/Ava/{ProjectName}/ -type f -name "*.md" | sort
+VAULT_PATH=$(node .ava/dal.mjs identity get vault.path 2>/dev/null || echo "${OBSIDIAN_VAULT:-$HOME/Obsidian/Ava}")
+find "$VAULT_PATH/{ProjectName}/" -type f -name "*.md" | sort
 ```
 Verify `VAULT_GUIDE.md` exists. If missing, flag as FAIL.
 
@@ -197,10 +203,10 @@ Verify `VAULT_GUIDE.md` exists. If missing, flag as FAIL.
 
 **Step 3 - Session note coverage (MANDATORY):**
 ```bash
-# Count vault session notes
-ls ~/Obsidian/Ava/{ProjectName}/sessions/*.md 2>/dev/null | wc -l
+# Count vault session notes (VAULT_PATH resolved in Step 1 above)
+ls "$VAULT_PATH/{ProjectName}/sessions/"*.md 2>/dev/null | wc -l
 # Get latest vault session number
-ls -t ~/Obsidian/Ava/{ProjectName}/sessions/*.md 2>/dev/null | head -1
+ls -t "$VAULT_PATH/{ProjectName}/sessions/"*.md 2>/dev/null | head -1
 # Get latest brain.db session
 node .ava/dal.mjs session list 2>&1 | head -3
 ```
@@ -219,9 +225,9 @@ node .ava/dal.mjs vault sync {ProjectSlug} 2>/dev/null || true
 ```bash
 node .ava/dal.mjs vault status
 ```
-If vault doc count is 0 or sync errors, flag as FAIL.
+If ChromaDB is not deployed or the vault command is unavailable, flag as SKIP (ChromaDB not deployed -- optional layer). If deployed but returning errors or 0 doc count, flag as WARN.
 
-**Report vault checks as a block in the coverage report. "Vault: PASS/FAIL" with details for each step.**
+**Report vault checks as a block in the coverage report. "Vault: PASS/FAIL/SKIP" with details for each step.**
 
 ---
 

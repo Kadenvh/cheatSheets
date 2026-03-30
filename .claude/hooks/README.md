@@ -23,6 +23,7 @@ These are safety nets. If Claude tries to edit your `.env` or run a destructive 
 |------|---------|-------------|
 | `typecheck-on-edit.js` | Edit, Write | Runs `npx tsc --noEmit` after editing `.ts`/`.tsx` files. Auto-detects `tsconfig.json` by walking up from the edited file. If no TypeScript config found, silently skips. Feeds type errors directly to Claude so it can fix them immediately. 30-second timeout. |
 | `lint-on-edit.js` | Edit, Write | Runs `npx eslint` on the specific edited file. Auto-detects ESLint config (`eslint.config.js`, `.eslintrc.*`) by searching from project root. If no config found, silently skips. Feeds lint errors to Claude. 15-second timeout. |
+| `gitnexus-post-commit.js` | Bash (git commit, git merge) | Re-indexes the GitNexus knowledge graph after commits. Runs `npx gitnexus analyze` (with `--embeddings` if embeddings exist). Silently skips if GitNexus is not installed. |
 
 **Cold start note:** First `tsc` invocation per session takes 5-10 seconds. Subsequent runs are faster due to OS caching.
 
@@ -30,16 +31,16 @@ These are safety nets. If Claude tries to edit your `.env` or run a destructive 
 
 | Hook | Matcher | What It Does |
 |------|---------|-------------|
-| Permission beep | `permission_prompt` | Plays a system beep (800Hz, 300ms) when Claude asks for permission. Windows-only via `powershell.exe`. Async — won't block anything. |
-| Idle beep | `idle_prompt` | Plays a double beep (600Hz + 800Hz) when Claude goes idle waiting for input. Windows-only. Async. |
+| Permission beep | `permission_prompt` | Plays a terminal bell (`printf '\a'`) when Claude asks for permission. Async — won't block anything. |
+| Idle beep | `idle_prompt` | Plays a terminal bell (`printf '\a'`) when Claude goes idle waiting for input. Async. |
 
-These only work on Windows. On Linux/Mac they silently fail (async, no error).
+Cross-platform via terminal bell. Actual sound depends on terminal emulator settings.
 
 ### SessionStart (fires when session begins)
 
 | Hook | Matcher | What It Does |
 |------|---------|-------------|
-| `session-context.js` | startup, resume | Loads git branch, uncommitted changes, and 5 most recent commits into Claude's context. Also checks for the closeout prompt location and adds a reminder. Runs on every session start and resume. |
+| `session-context.js` | startup, resume | Injects brain.db context (via `dal.mjs context`), git branch, uncommitted changes, and 5 most recent commits. Adds a reminder about `/session-closeout`. Runs on every session start and resume. |
 
 ### Stop (fires when session is ending)
 

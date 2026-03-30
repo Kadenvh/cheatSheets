@@ -32,9 +32,10 @@ Follow the protocol below. For the full detailed version, read `.prompts/init.md
 
 Read context in this order:
 1. **CLAUDE.md** (project root) — critical rules, always auto-loaded
-2. **brain.db context** — already injected by session-context hook if brain.db exists
-3. **Obsidian vault** — recent session notes, active plans, latest YAML handoff (if vault exists)
-4. **File mode only:** read `documentation/PROJECT_ROADMAP.md` and `IMPLEMENTATION_PLAN.md` if no brain.db
+2. **brain.db context** — already injected by session-context hook if brain.db exists. **If brain.db does NOT exist, run `/dal-doctor` to set up the full system.** Do not fall back to file-only mode.
+3. **Working documents** — if `OVERVIEW.md` or `FileStructure.md` exist at project root, read them (they contain audit annotations and intended schemas)
+4. **Plans** — check `documentation/plans/` for any active kickstart, analysis, or remediation plans from prior sessions
+5. **Obsidian vault** — recent session notes, active plans, latest YAML handoff (if vault exists)
 
 Report ready state: current version, active blockers, insights/concerns noticed, questions, and recommended priorities.
 
@@ -55,10 +56,11 @@ Detailed steps (always follow these):
 
 1. **Find docs.** Look for `CLAUDE.md` at project root. Look for `PROJECT_ROADMAP.md` and `IMPLEMENTATION_PLAN.md` in `documentation/` or project root.
 2. **Read in order.** CLAUDE.md first (critical rules), then ROADMAP (architecture context), then IMPLEMENTATION_PLAN (current tasks).
-3. **Verify state.** Check that version numbers match across all docs. Check for stale dates (>7 days without updates). Check for blockers in IMPLEMENTATION_PLAN.
-4. **Surface insights.** Before waiting for instructions: list inconsistencies or concerns, recommend 2-3 improvements, ask questions that affect approach, offer criticism of anything that looks wrong.
-5. **Read project notes** (if any exist — `notes/`, `TODO.md`, `NOTES.md`, etc.). Categorize items, flag anything already resolved, merge into session plan.
-6. **Report ready.** State: current version, blockers, insights, questions, and recommended priorities.
-7. **Engagement rules.** Plan before implementing. No silent decisions. When tools fail, explain the error and next approach. Flag ambiguity rather than guessing.
+3. **Check working documents.** If `OVERVIEW.md`, `FileStructure.md`, or files in `documentation/plans/` exist, read them — they contain audit findings, intended schemas, and active execution plans from prior sessions. A kickstart file (`session-*-kickstart.md`) means the prior session prepared specific work for you.
+4. **Verify state.** Check that version numbers match across all docs. Check for stale dates (>7 days without updates). Check for blockers in IMPLEMENTATION_PLAN.
+5. **Surface insights.** Before waiting for instructions: list inconsistencies or concerns, recommend 2-3 improvements, ask questions that affect approach, offer criticism of anything that looks wrong.
+6. **Read project notes** (if any exist — `notes/`, `TODO.md`, `NOTES.md`, brain.db notes via `dal.mjs note list`). Categorize items, flag anything already resolved, merge into session plan.
+7. **Report ready.** State: current version, blockers, insights, questions, and recommended priorities.
+8. **Engagement rules.** Plan before implementing. Investigate what you need to implement correctly. No silent decisions. When tools fail, explain the error and next approach. Flag ambiguity rather than guessing.
 
-If no documentation files exist at all, recommend running `/dal-doctor` to set up the project.
+If brain.db does not exist or is empty, run `/dal-doctor` — it handles first-run detection, full system setup, ongoing health checks, and remediation. `/dal-doctor` is the comprehensive system health skill. Do not proceed with manual file-mode workarounds.
