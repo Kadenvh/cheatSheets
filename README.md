@@ -1,22 +1,44 @@
-# Knowledge System (CheatSheets Spoke)
+# CheatSheets Knowledge System
 
-File storage spoke for the vector knowledge system. Documents flow through `new/` → ingestion → ChromaDB. The UI lives in `ava_hub/src/features/cheatsheets/`, the embedding service in `embedding-service/`.
+Personal learning system built on Obsidian vault authoring, FSRS spaced repetition (brain.db), and ChromaDB semantic search. Part of Project Ava.
 
-**Spoke doc:** `CLAUDE.md` (component-specific rules only)
-**Hub docs:** `documentation/PROJECT_ROADMAP.md` § Knowledge System, `documentation/IMPLEMENTATION_PLAN.md`
+## How It Works
 
-## Contents
+1. **Author** cheat sheet notes in Obsidian (`vault/Concepts/`)
+2. **Sync** vault to system (`POST /api/learning/vault-sync`)
+3. **Review** via FSRS scheduling in the Learn tab (ava_hub)
+4. **Search** semantically via Q&A tab (ChromaDB)
 
-| Item | Purpose |
-|------|---------|
-| `CLAUDE.md` | Spoke rules — ingestion format, domain metadata, parent pointers |
-| `new/` | Pending documents awaiting ingestion |
-| `processed/` | Documents already ingested into ChromaDB |
-| `quick-inserts/` | Raw JSON of quick insert inputs |
-| `knowledge-agents/` | OpenClaw agent workspaces (curator, qa, verifier, learning, demo) |
+## Architecture
 
-## Document Flow
+| Layer | Tool | Owns |
+|-------|------|------|
+| Content | Obsidian vault (`vault/`) | Note text, wiki-link graph, exercise hints |
+| Scheduling | brain.db (`.ava/brain.db`) | Concepts, mastery, FSRS state, reviews, prerequisites |
+| Search | ChromaDB (`:8001`) | Embeddings, vector search, chunked content |
 
-Paste/upload → `new/` → `POST /api/knowledge/ingest` → ChromaDB → `processed/`
-Quick insert → `POST /api/knowledge/quick-insert` → ChromaDB (bypasses file stage)
-Curator insert → `POST /api/knowledge/curator-insert` → curator agent enriches → ChromaDB
+## UI (ava_hub CheatSheets tab)
+
+- **Explorer** — 3D force-graph of knowledge chunks, semantic search
+- **Q&A** — RAG chat with citations
+- **Learn** — FSRS review queue, learning sessions, mastery tracking
+- **Health** — Service monitoring, vault sync, quality gates
+
+## Agents
+
+7 OpenClaw agents in `knowledge-agents/`: curator, qa, verifier, learning (Compass), demo (Spark), tutor, architect.
+
+## Quick Start
+
+```bash
+# Author content
+# Open vault/ in Obsidian, create note in Concepts/ using the Cheatsheet template
+
+# Sync to system
+curl -X POST http://localhost:3001/api/learning/vault-sync
+
+# Check health
+node .ava/dal.mjs status
+```
+
+See `CLAUDE.md` for critical rules and `LEARNING_SYSTEM_PLAN.md` for the full plan.

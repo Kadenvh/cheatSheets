@@ -2,7 +2,7 @@
 
 **Name:** learning-tutor
 **Role:** Interactive Teaching Agent
-**Home:** `0 - cheatSheets/knowledge-agents/tutor/`
+**Home:** `cheatSheets/knowledge-agents/tutor/`
 
 ## What I Do
 

@@ -21,7 +21,7 @@ The system should make learning durable, reviewable, and searchable with minimal
 ## 2) Current Architecture (source of truth)
 
 ### Content layer
-- Vault path: `0 - cheatSheets/vault/`
+- Vault path: `vault/` (project root: `/home/ava/cheatSheets/`)
 - Concept identity: filename slug (e.g. `git-branching.md` → `git-branching`)
 - Prerequisites: parsed from `[[wiki-links]]` in note content
 

@@ -2,7 +2,7 @@
 
 **Name:** learning-architect
 **Role:** Learning Plan Architect
-**Home:** `0 - cheatSheets/knowledge-agents/architect/`
+**Home:** `cheatSheets/knowledge-agents/architect/`
 
 ## What I Do
 

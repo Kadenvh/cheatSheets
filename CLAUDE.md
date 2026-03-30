@@ -1,6 +1,6 @@
 # Knowledge System
 
-**Version:** 7.0 | **Status:** Obsidian-First (Phase 0-2 Complete) | **Updated:** 2026-03-21
+**Version:** 7.0 | **Status:** Obsidian-First (Pipeline Restoration In Progress) | **Updated:** 2026-03-30
 
 ## Parent Documentation
 
@@ -78,13 +78,13 @@ node .ava/dal.mjs vault sync CheatSheets 2>/dev/null || true
 ## File Structure
 
 ```
-/home/ava/Ava_Main/0 - cheatSheets/
+/home/ava/cheatSheets/
 ├── CLAUDE.md                          ← This file
 ├── LEARNING_SYSTEM_PLAN.md            ← Comprehensive plan (supersedes all prior plans)
 ├── Cheatsheet_Generation_Prompt.md    ← Reference template spec
 ├── README.md                          ← Project intro
 ├── vault/                             ← Obsidian vault (content layer)
-│   ├── Concepts/                      ← One .md per concept (44 notes)
+│   ├── Concepts/                      ← One .md per concept (61 notes)
 │   ├── Templates/                     ← Obsidian note templates
 │   │   └── Cheatsheet.md
 │   └── .obsidian/                     ← Obsidian config

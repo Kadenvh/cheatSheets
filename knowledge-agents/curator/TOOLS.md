@@ -37,7 +37,7 @@ curl -s -X DELETE http://127.0.0.1:8001/documents/{doc_id}
 ```bash
 curl -s -X POST http://127.0.0.1:8001/ingest-file \
   -H 'Content-Type: application/json' \
-  -d '{"file_path": "/home/ava/Ava_Main/0 - cheatSheets/new/filename.md"}'
+  -d '{"file_path": "/home/ava/cheatSheets/vault/Concepts/filename.md"}'
 ```
 
 ### Check stats / health
@@ -48,7 +48,7 @@ curl -s http://127.0.0.1:8001/stats
 
 ## File Paths
 
-- New cheatsheets: `/home/ava/Ava_Main/0 - cheatSheets/new/`
-- Processed: `/home/ava/Ava_Main/0 - cheatSheets/processed/`
-- Raw quick inserts: `/home/ava/Ava_Main/0 - cheatSheets/quick-inserts/`
-- Cheatsheet Generation Prompt: `/home/ava/Ava_Main/0 - cheatSheets/Cheatsheet_Generation_Prompt.md`
+- New cheatsheets: `/home/ava/cheatSheets/vault/Concepts/`
+- Processed: `/home/ava/cheatSheets/vault/Templates/`
+- Raw quick inserts: `/home/ava/cheatSheets/archive/quick-inserts/`
+- Cheatsheet Generation Prompt: `/home/ava/cheatSheets/Cheatsheet_Generation_Prompt.md`
