@@ -71,6 +71,22 @@ if (fs.existsSync(brainDbPath)) {
   try {
     const role = process.env.CLAUDE_AGENT_ROLE || "general";
     const roleFlag = ` --role ${role}`;
+
+    // Agent identity injection — if role matches an agent-definitions/ directory, inject SOUL.md
+    if (role !== "general") {
+      const agentDir = path.join(projectDir, "agent-definitions", role);
+      const soulPath = path.join(agentDir, "SOUL.md");
+      if (fs.existsSync(soulPath)) {
+        const soul = fs.readFileSync(soulPath, "utf8").trim();
+        context.push(`## Agent Identity: ${role}\n\n${soul}`);
+        const toolsPath = path.join(agentDir, "TOOLS.md");
+        if (fs.existsSync(toolsPath)) {
+          const tools = fs.readFileSync(toolsPath, "utf8").trim();
+          context.push(`\n\n## Agent Tools: ${role}\n\n${tools}`);
+        }
+      }
+    }
+
     const dalContext = execSync(
       `node "${path.join(dalDir, ".ava", "dal.mjs")}" context${roleFlag}`,
       { cwd: dalDir, encoding: "utf8", timeout: 10000 }
@@ -83,20 +99,20 @@ if (fs.existsSync(brainDbPath)) {
         `node "${path.join(dalDir, ".ava", "dal.mjs")}" status`,
         { cwd: dalDir, encoding: "utf8", timeout: 5000 }
       ).trim();
-      const factsMatch = statusOutput && statusOutput.match(/Facts:\s+(\d+)\s+total/);
+      const identityMatch = statusOutput && statusOutput.match(/Identity:\s+(\d+)\s+entr/);
       const sessionsMatch = statusOutput && statusOutput.match(/Sessions:\s+(\d+)\s+total/);
-      const factCount = factsMatch ? parseInt(factsMatch[1]) : -1;
+      const identityCount = identityMatch ? parseInt(identityMatch[1]) : -1;
       const sessionCount = sessionsMatch ? parseInt(sessionsMatch[1]) : -1;
 
-      if (factCount === 0 && sessionCount === 0) {
+      if (identityCount === 0 && sessionCount === 0) {
         context.push(
-          "WARNING: brain.db is deployed but EMPTY (0 facts, 0 sessions). " +
+          "WARNING: brain.db is deployed but EMPTY (0 identity entries, 0 sessions). " +
           "The DAL provides no session continuity until populated. " +
           "Run /cleanup to hydrate brain.db from existing project documentation."
         );
-      } else if (factCount > 0 && factCount < 5) {
+      } else if (identityCount > 0 && identityCount < 3) {
         context.push(
-          "WARNING: brain.db has only " + factCount + " facts — likely incomplete. " +
+          "WARNING: brain.db has only " + identityCount + " identity entries — likely incomplete. " +
           "If the context above doesn't give you enough to work without reading all docs, " +
           "run /cleanup to reconcile brain.db against project documentation."
         );

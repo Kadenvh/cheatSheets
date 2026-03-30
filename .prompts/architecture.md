@@ -265,6 +265,6 @@ Only parallelize when inputs are independent. Sequential work (e.g., defining in
 5. If designing: store design doc in `documentation/plans/`
 6. If writing ADR: store in `documentation/decisions/` (create if needed)
 7. If reviewing: summarize findings with prioritized recommendations
-8. If producing diagrams: use `/visual-intelligence` or write Mermaid to `documentation/visualization/`
+8. If producing diagrams: write Mermaid to `documentation/visualization/`
 
 Architecture is the set of decisions that are expensive to change. Make them carefully, document them thoroughly.

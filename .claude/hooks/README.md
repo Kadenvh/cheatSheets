@@ -45,7 +45,8 @@ These only work on Windows. On Linux/Mac they silently fail (async, no error).
 
 | Hook | Matcher | What It Does |
 |------|---------|-------------|
-| Closeout reminder | — | Checks modification timestamps on CLAUDE.md, PROJECT_ROADMAP.md, and IMPLEMENTATION_PLAN.md. If the most recent edit to any of them is **more than 30 minutes ago**, warns that documentation may be stale and suggests running `/session-closeout`. This catches the case where you worked for a while, changed code, but forgot to persist state to docs. |
+| Closeout reminder | — | Checks modification timestamps on CLAUDE.md, PROJECT_ROADMAP.md, and IMPLEMENTATION_PLAN.md. If the most recent edit to any of them is **more than 120 minutes (2 hours) ago**, warns that documentation may be stale and suggests running `/session-closeout`. This catches the case where you worked for a while, changed code, but forgot to persist state to docs. |
+| `completion-check.js` | — | Checks brain.db for actions with partial outcomes in the last 7 days. If any exist, warns that incomplete work needs attention. |
 
 ---
 

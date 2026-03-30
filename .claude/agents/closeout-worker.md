@@ -135,6 +135,21 @@ Only update if a milestone was reached or architectural decisions were made:
 - Update build/run commands if the process changed.
 - **Front-load critical info** -- anti-patterns and critical rules come before file structure.
 
+#### B3.5: Vault Note — Conditional Export
+
+Export a vault session note if ANY of these are true:
+- Session recorded 1+ decisions
+- Session changed project version
+- Session involved cross-project coordination
+- Session shipped a significant feature or architectural change
+
+```bash
+node .ava/dal.mjs vault-export session "concise summary"
+node .ava/dal.mjs vault sync {ProjectSlug} 2>/dev/null || true
+```
+
+Skip vault export for trivial sessions (typo fixes, single-note closes, failed/abandoned).
+
 #### B4: Create Subfolder READMEs
 
 For any new major directories created this session:

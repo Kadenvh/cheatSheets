@@ -72,6 +72,12 @@ async function main() {
         return await cmdHealth();
       case "vault":
         return await cmdVault();
+      case "vault-export":
+        return await cmdVaultExport();
+      case "ecosystem":
+        return await cmdEcosystem();
+      case "logs":
+        return await cmdLogs();
       default:
         printUsage();
         process.exit(command ? 1 : 0);
@@ -769,19 +775,29 @@ async function cmdTemplate() {
     }
     case "sync": {
       if (!positional) {
-        console.error("Usage: dal.mjs template sync <project-path> [--dal]");
+        console.error("Usage: dal.mjs template sync <project-path> [--dal] [--prune] [--dry-run]");
         process.exit(1);
       }
-      const { esm, actions } = sync(positional, { dal: flags.dal === "true" });
+      const dryRunSync = flags["dry-run"] === "true";
+      const pruneSync = flags.prune === "true";
+      const { esm, actions } = sync(positional, { dal: flags.dal === "true", prune: pruneSync, dryRun: dryRunSync });
+
+      if (dryRunSync) console.log("(dry run — no files changed)\n");
+
       if (actions.length === 0) {
         console.log("Already in sync — nothing to do.");
       } else {
         if (esm) console.log("(ESM project — hooks copied as .cjs)\n");
         for (const a of actions) {
-          const icon = a.action === "added" ? "+" : "↻";
+          const icon = a.action === "added" ? "+" : a.action === "pruned" ? "✗" : "↻";
           console.log(`  ${icon} ${a.path} (${a.category})`);
         }
-        console.log(`\n${actions.length} files synced.`);
+        const synced = actions.filter(a => a.action !== "pruned").length;
+        const pruned = actions.filter(a => a.action === "pruned").length;
+        const parts = [];
+        if (synced > 0) parts.push(`${synced} synced`);
+        if (pruned > 0) parts.push(`${pruned} pruned`);
+        console.log(`\n${parts.join(", ")}.`);
       }
       break;
     }
@@ -811,7 +827,8 @@ async function cmdTemplate() {
       }
 
       const dryRun = flags["dry-run"] === "true";
-      const { esm, actions, version } = pull(source, { dal: flags.dal === "true", dryRun });
+      const prunePull = flags.prune === "true";
+      const { esm, actions, version } = pull(source, { dal: flags.dal === "true", dryRun, prune: prunePull });
 
       if (dryRun) {
         console.log("(dry run — no files changed)\n");
@@ -822,10 +839,15 @@ async function cmdTemplate() {
       } else {
         if (esm) console.log("(ESM project — hooks pulled as .cjs)\n");
         for (const a of actions) {
-          const icon = a.action === "added" ? "+" : "↻";
+          const icon = a.action === "added" ? "+" : a.action === "pruned" ? "✗" : "↻";
           console.log(`  ${icon} ${a.path} (${a.category})`);
         }
-        console.log(`\n${actions.length} files pulled.`);
+        const pulled = actions.filter(a => a.action !== "pruned").length;
+        const prunedCount = actions.filter(a => a.action === "pruned").length;
+        const pullParts = [];
+        if (pulled > 0) pullParts.push(`${pulled} pulled`);
+        if (prunedCount > 0) pullParts.push(`${prunedCount} pruned`);
+        console.log(`\n${pullParts.join(", ")}.`);
       }
 
       if (version) {
@@ -1018,6 +1040,96 @@ async function cmdVault() {
   }
 }
 
+// ─── Vault Export ────────────────────────────────────────────────────────────
+
+async function cmdVaultExport() {
+  const { handleVaultExportCommand } = await import("./lib/vault-export.mjs");
+  const { flags, positional } = parseFlags(2);
+  handleVaultExportCommand(subcommand, flags, positional);
+}
+
+// ─── Ecosystem ───────────────────────────────────────────────────────────────
+
+async function cmdEcosystem() {
+  const { flags, positional } = parseFlags(2);
+  const json = flags.json === "true";
+
+  switch (subcommand) {
+    case "notes": {
+      const { ecosystemNotes, printEcosystemNotes } = await import("./lib/ecosystem.mjs");
+      const results = ecosystemNotes();
+      if (json) {
+        console.log(JSON.stringify(results, null, 2));
+      } else {
+        printEcosystemNotes(results);
+      }
+      break;
+    }
+    case "status": {
+      const { ecosystemStatus, printEcosystemStatus } = await import("./lib/ecosystem.mjs");
+      const status = ecosystemStatus();
+      if (json) {
+        console.log(JSON.stringify(status, null, 2));
+      } else {
+        printEcosystemStatus(status);
+      }
+      break;
+    }
+    default:
+      console.log(`Usage: dal.mjs ecosystem <notes|status>
+
+  ecosystem notes [--json]     Open notes across all local projects
+  ecosystem status [--json]    Project health from beacons + brain.db`);
+      process.exit(subcommand ? 1 : 0);
+  }
+}
+
+// ─── Logs ────────────────────────────────────────────────────────────────────
+
+async function cmdLogs() {
+  const { flags } = parseFlags(2);
+  const json = flags.json === "true";
+  const days = flags.days ? parseInt(flags.days) : null;
+  const all = flags.all === "true";
+
+  const { readHookLog, aggregateByHook, analyzeTimeWindow, crossProjectAnalytics, formatReport } = await import("./lib/log-analytics.mjs");
+
+  switch (subcommand) {
+    case "summary": {
+      if (all) {
+        const analytics = crossProjectAnalytics(days ? { days } : {});
+        formatReport(analytics, { json });
+      } else {
+        const projectPath = args[2] && !args[2].startsWith("--") ? args[2] : path.resolve(__dirname, "..");
+        const result = readHookLog(projectPath);
+        if (result.missing) {
+          console.log(`No hook-log.jsonl found at ${result.path}`);
+          process.exit(1);
+        }
+        const stats = days ? analyzeTimeWindow(result.entries, { days }) : aggregateByHook(result.entries);
+        formatReport({
+          projects: [{ project: path.basename(projectPath), entries: result.entries.length, parseErrors: result.parseErrors, missing: false, stale: false, hooks: stats }],
+          combined: stats,
+          total_entries: result.entries.length,
+        }, { json });
+      }
+      break;
+    }
+    case "dead": {
+      const analytics = crossProjectAnalytics(days ? { days } : { days: 30 });
+      formatReport(analytics, { json, mode: "dead" });
+      break;
+    }
+    default:
+      console.log(`Usage: dal.mjs logs <summary|dead>
+
+  logs summary [path] [--days N] [--json]   Hook firing stats for a project
+  logs summary --all [--days N] [--json]     Aggregate across all reachable projects
+  logs dead [--days N] [--json]              Detect hooks with zero activity`);
+      process.exit(subcommand ? 1 : 0);
+  }
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function padRight(str, len) {
@@ -1047,16 +1159,21 @@ Session Continuity:
 Template:
   template manifest [--json]      List deployable files with checksums
   template diff <path>            Compare target project against template
-  template sync <path> [--dal]    Copy missing/stale files to target (--dal includes runtime)
-  template pull [--source P]      Pull updates from configured template source
+  template sync <path> [--dal] [--prune] [--dry-run]  Sync files (--prune removes extras)
+  template pull [--source P] [--prune] [--dry-run]     Pull updates (--prune removes extras)
 
 Ecosystem:
   health [--json] [--emit] [--push <url>]  Project health beacon
+  ecosystem notes [--json]          Open notes across all local projects
+  ecosystem status [--json]         Project health from beacons + brain.db
+  logs summary [path] [--days N] [--all] [--json]  Hook firing analytics
+  logs dead [--days N] [--json]     Detect hooks with zero activity
 
 Vault (ChromaDB Layer 3):
   vault sync [project] [--clean]    Sync vault notes to embedding service
   vault query <text> [--top_k N]    Semantic search across vault
   vault status                      Embedding service health
+  vault-export session [summary]    Export session note to Obsidian vault
 
 Operations:
   bootstrap                       Initialize brain.db

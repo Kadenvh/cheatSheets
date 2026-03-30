@@ -1,6 +1,6 @@
 # Agent System Reference
 
-**For:** PE Documentation Framework v5.2.0 | **Schema:** v12 | **Updated:** 2026-03-26
+**For:** PE Documentation Framework v5.10.0 | **Schema:** v12 | **Updated:** 2026-03-28
 
 This is the single reference document for understanding the full agent memory and documentation system. Any agent — Claude or otherwise — should be able to read this file and understand how the system works.
 
@@ -11,7 +11,7 @@ This is the single reference document for understanding the full agent memory an
 - **brain.db** at `.ava/brain.db` — SQLite database, schema v12, 10 tables. Active memory cache for session continuity.
 - **Prompts** at `.prompts/*.md` — protocol files for skills. Canonical location: **project root**. NOT `documentation/.prompts/` (legacy, should be deleted if found).
 - **Skills** invoked via `/skill-name` slash commands. Definitions in `.claude/skills/*/SKILL.md`.
-- **Hooks** in `.claude/hooks/*.cjs` — auto-fire on tool use and session events. 7 hooks deployed.
+- **Hooks** in `.claude/hooks/*.js` — auto-fire on tool use and session events. 7 hooks deployed.
 - **Vault** at `/home/ava/Obsidian/Ava/{ProjectName}/` — persistent knowledge web (Layer 2). Optional.
 - **CLAUDE.md** at project root — critical rules, auto-loaded by Claude Code. Keep under 5KB.
 - **Full project state:** `node .ava/dal.mjs context` — generates the context payload injected at session start.
@@ -115,8 +115,8 @@ Markdown files containing detailed protocols that skills read at invocation time
 
 Each prompt file is a standalone protocol: oriented toward a specific workflow (init, closeout, debugging, etc.) with step-by-step instructions an agent can follow.
 
-Current inventory (17 active):
-`init.md`, `closeout.md`, `cleanup.md`, `dal-doctor.md`, `system-reference.md` (this file), `explore.md` (includes discovery mode), `validate.md` (includes docs/setup/readme checks), `architecture.md`, `code-review.md`, `debugging.md`, `requirements.md`, `testing.md`, `refactor.md`, `migration.md`, `together.md`, `agent-qa.md`, `METRICS.md`
+Current inventory (20 active):
+`init.md`, `closeout.md`, `cleanup.md`, `dal-doctor.md`, `system-reference.md` (this file), `explore.md` (includes discovery mode), `validate.md` (includes docs/setup/readme checks), `architecture.md`, `code-review.md`, `debugging.md`, `requirements.md`, `testing.md`, `refactor.md`, `migration.md`, `together.md`, `agent-qa.md`, `METRICS.md`, `supabase.md`, `triage.md`, `ui-dev.md`
 
 ### `.claude/skills/` — Slash Command Definitions
 
@@ -129,17 +129,17 @@ Skills are thin wrappers. The real protocol lives in `.prompts/`.
 
 ### `.claude/hooks/` — Automated Guards & Context Injection
 
-Hooks fire automatically on Claude Code events. They are `.cjs` files (CommonJS, required for ESM-mode projects).
+Hooks fire automatically on Claude Code events. They are `.js` files (CommonJS via `require()`).
 
 | Hook | Event | Purpose |
 |------|-------|---------|
-| `session-context.cjs` | SessionStart, SessionResume | Injects brain.db context + git status + REMINDER about `/session-closeout` |
-| `block-protected-files.cjs` | PreEdit, PreWrite | Blocks writes to protected files (CLAUDE.md OpenClaw configs, .env, etc.) |
-| `block-dangerous-commands.cjs` | PreBash | Blocks catastrophic commands (rm -rf /, force push main, etc.) |
-| `typecheck-on-edit.cjs` | PostEdit, PostWrite | Runs type checker on modified files (if tsconfig exists) |
-| `lint-on-edit.cjs` | PostEdit, PostWrite | Runs linter on modified files (if eslint/prettier configured) |
-| `stop-closeout-check.cjs` | Stop | Warns if docs stale >30min and uncommitted changes exist |
-| `completion-check.cjs` | Stop | Warns about partial-outcome actions in the learning loop |
+| `session-context.js` | SessionStart, SessionResume | Injects brain.db context + git status + REMINDER about `/session-closeout` |
+| `block-protected-files.js` | PreEdit, PreWrite | Blocks writes to protected files (CLAUDE.md OpenClaw configs, .env, etc.) |
+| `block-dangerous-commands.js` | PreBash | Blocks catastrophic commands (rm -rf /, force push main, etc.) |
+| `typecheck-on-edit.js` | PostEdit, PostWrite | Runs type checker on modified files (if tsconfig exists) |
+| `lint-on-edit.js` | PostEdit, PostWrite | Runs linter on modified files (if eslint/prettier configured) |
+| `stop-closeout-check.js` | Stop | Warns if docs stale >30min and uncommitted changes exist |
+| `completion-check.js` | Stop | Warns about partial-outcome actions in the learning loop |
 
 Hooks are configured in `.claude/settings.json` under the `hooks` key. Each entry maps an event type to a command.
 
@@ -222,7 +222,7 @@ tags: [tag1, tag2]
 
 ```
 SessionStart
-  session-context.cjs fires:
+  session-context.js fires:
   - Injects brain.db context (identity, architecture, decisions)
   - Injects git status + recent commits
   - Adds REMINDER: "Run /session-closeout at end of session"
@@ -245,8 +245,8 @@ Work
       |
       v
 Stop
-  stop-closeout-check.cjs: warns if docs stale >30min
-  completion-check.cjs: warns about partial-outcome actions
+  stop-closeout-check.js: warns if docs stale >30min
+  completion-check.js: warns about partial-outcome actions
 ```
 
 ### How Pieces Interact

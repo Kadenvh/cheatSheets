@@ -1,48 +1,10 @@
 # Agents
 
-Agents are specialized Claude instances that run as subagents — parallel workers with focused expertise. You don't invoke these directly via slash commands; they're dispatched by Claude when appropriate, or you can ask Claude to "run the security reviewer" or "dispatch the closeout worker."
+Agents are specialized Claude instances that run as subagents — parallel workers with focused expertise. You don't invoke these directly via slash commands; they're dispatched by Claude when appropriate, or you can ask Claude to "dispatch the closeout worker."
 
 ---
 
 ## Agent Inventory
-
-### security-reviewer.md
-
-**Purpose:** Security-focused code review.
-
-**When to use:** After implementing features that touch authentication, API endpoints, terminal integration, user input handling, or network access. Ask Claude: "Run the security reviewer on the changes from this session."
-
-**What it checks:**
-- Express/API input validation and CSP headers
-- Command injection in shell/terminal paths
-- XSS vectors in frontend rendering
-- `crypto.randomUUID()` fallback for HTTP contexts
-- Hardcoded secrets, tokens, keys
-- Dependency vulnerabilities
-- Network binding (0.0.0.0 vs localhost)
-
-**Output:** Structured report with CRITICAL / HIGH / MEDIUM / LOW findings, each with file path, issue description, risk assessment, and specific fix.
-
----
-
-### doc-validator.md
-
-**Purpose:** Read-only documentation consistency auditor.
-
-**When to use:** Anytime you want to verify the three-document architecture is healthy. Also available via `/validate-docs` skill which dispatches this agent. Useful before major releases, after large refactors, or when you suspect documentation drift.
-
-**What it checks (5-point audit):**
-1. Version & date sync across all three files
-2. Routing rule compliance (content in the right file)
-3. Duplication detection (no substantive content repeated)
-4. Completeness (required sections present)
-5. Orphan & staleness detection (dead references, unchecked tasks)
-
-**Output:** Structured PASS/FAIL report with specific violations and recommended fixes.
-
-**Constraint:** Strictly read-only. Will never modify files. Does not ask questions — just produces the report.
-
----
 
 ### closeout-worker.md
 

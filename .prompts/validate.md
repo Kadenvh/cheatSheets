@@ -1,6 +1,6 @@
 # Validate — Project Health Audit
 
-Unified validation covering documentation consistency, template deployment, and README coverage. Merges the former validate-docs, validate-setup, and readme skills into one tool.
+Unified validation covering documentation consistency, template deployment, CLAUDE.md coverage, and skill compliance. Merges the former validate-docs, validate-setup, and readme skills into one tool.
 
 ---
 
@@ -8,11 +8,13 @@ Unified validation covering documentation consistency, template deployment, and 
 
 Parse arguments to determine scope:
 
-- **No flags** → Run all 3 domains
-- **`--fix`** → Run all 3 domains + auto-fix safe issues
+- **No flags** → Run all 4 domains
+- **`--fix`** → Run all 4 domains + auto-fix safe issues
 - **`--docs`** → Domain 1 only (documentation consistency)
 - **`--setup`** → Domain 2 only (template deployment)
-- **`--readme`** → Domain 3 only (README coverage)
+- **`--claude`** → Domain 3 only (CLAUDE.md coverage)
+- **`--readme`** → Domain 3 only (alias for `--claude`)
+- **`--skills`** → Domain 4 only (skill structural compliance)
 
 Flags can combine: `--docs --fix` runs Domain 1 with auto-fix.
 
@@ -21,9 +23,9 @@ Flags can combine: `--docs --fix` runs Domain 1 with auto-fix.
 ## DOMAIN 1: DOCUMENTATION CONSISTENCY
 
 ### 1.1 Version & Date Consistency
-- Version numbers match across CLAUDE.md, PROJECT_ROADMAP.md, IMPLEMENTATION_PLAN.md (if they exist)
-- brain.db `project.version` matches CLAUDE.md
-- "Last Updated" / "Updated" dates are consistent
+- If `PROJECT_ROADMAP.md` and `IMPLEMENTATION_PLAN.md` exist (file-mode projects), version numbers must match across them and CLAUDE.md. brain.db-mode projects skip these files — version lives in brain.db.
+- brain.db `project.version` matches CLAUDE.md (if brain.db exists)
+- "Last Updated" / "Updated" dates are consistent across existing docs
 - **Auto-fixable:** Sync version numbers to the highest found. Sync dates to today.
 
 ### 1.2 Routing Rule Compliance
@@ -68,6 +70,7 @@ Verify expected prompts exist in `.prompts/` (project root):
 - Core lifecycle: init.md, closeout.md, cleanup.md, explore.md, together.md
 - Quality: validate.md, code-review.md, debugging.md, refactor.md
 - Design: architecture.md, requirements.md, testing.md, migration.md
+- Situational: triage.md, ui-dev.md, supabase.md, plan-validator.md
 - Reference: system-reference.md, dal-doctor.md
 - Data: agent-qa.md, METRICS.md
 - **Legacy check:** If `documentation/.prompts/` exists, flag as WARNING — stale legacy location.
@@ -78,13 +81,16 @@ Verify expected prompts exist in `.prompts/` (project root):
 
 ### 2.3 Hooks
 Verify hook scripts exist in `.claude/hooks/`:
-- `block-protected-files.js` (or .cjs)
-- `block-dangerous-commands.js` (or .cjs)
-- `typecheck-on-edit.js` (or .cjs)
-- `lint-on-edit.js` (or .cjs)
-- `session-context.js` (or .cjs)
-- `stop-closeout-check.js` (or .cjs)
-- `log-util.js` (or .cjs)
+- `block-protected-files.js`
+- `block-dangerous-commands.js`
+- `typecheck-on-edit.js`
+- `lint-on-edit.js`
+- `session-context.js`
+- `stop-closeout-check.js`
+- `completion-check.js`
+- `log-util.js`
+
+**Cross-check:** Verify `.claude/hooks/README.md` documents ALL hooks wired in `settings.json`. Any hook in settings.json but missing from the README is an undocumented hook. Any threshold or timing value in the README must match the actual code default.
 
 ### 2.4 Settings
 - `.claude/settings.json` exists and parses as valid JSON
@@ -108,31 +114,42 @@ Verify hook scripts exist in `.claude/hooks/`:
 
 ---
 
-## DOMAIN 3: README COVERAGE
+## DOMAIN 3: CLAUDE.md COVERAGE
 
-### 3.1 Audit Phase (always first)
-1. List all directories at the target level
-2. Check which already have a README.md
-3. Identify directories that need one per these criteria:
-   - 3+ files with a shared purpose
-   - Non-obvious conventions
-   - Boundary directory (components/, hooks/, features/, config/, utils/)
-   - A new agent would need context to work there
-4. **Report findings before creating anything**
+CLAUDE.md is the auto-loaded knowledge file agents read every session. Ensure CLAUDE.md exists and is current at every significant boundary.
 
-### 3.2 Creation Phase (only with `--fix` or `--readme`)
-1. Read directory contents — every file
-2. Identify conventions from existing code
-3. Write README following templates below
-4. Include only information that is currently true — no aspirational content
+### 3.1 Audit Phase
+- Project root MUST have CLAUDE.md (already checked in Domain 2)
+- Sub-projects / spokes (directories with their own package.json, brain.db, or significant scope) SHOULD have their own CLAUDE.md with domain-specific rules
+- Check: is each CLAUDE.md under 5KB? (larger means it's accumulating content that belongs in brain.db)
+- Check: does each CLAUDE.md have version, critical rules, and build/run commands?
 
-### 3.3 Update Phase
-1. Read existing README.md
-2. Diff against actual directory contents
-3. Add new files, remove deleted ones, update descriptions
-4. Preserve hand-written sections (marked with `<!-- custom -->`)
+### 3.2 Staleness Check
+- Compare CLAUDE.md version against brain.db project.version (if brain.db exists)
+- Flag CLAUDE.md files not updated in >30 days on active projects
+- Check for references to removed features, old skill names, or stale counts
 
-### README Templates
+### 3.3 Content Boundary Check
+- CLAUDE.md should contain: prescriptive rules, quick reference, key commands
+- CLAUDE.md should NOT contain: session state, task lists, historical decisions, architecture entries queryable from brain.db
+- Flag violations with specific recommendation
+
+### 3.4 Vault Freshness (if Obsidian vault exists)
+
+Check `~/Obsidian/Ava/{ProjectName}/` for the project's vault folder. If it exists, perform these checks:
+
+1. **END-GOAL.md version check** - Read the first 30 lines. Extract version references. Compare against brain.db `project.version`. Flag mismatch as FAIL.
+2. **Session note gap** - Count vault session notes vs brain.db session count. Report the gap. Flag gap > 5 as WARN.
+3. **ChromaDB sync** - Run `node .ava/dal.mjs vault status`. Flag errors or 0 doc count as FAIL.
+
+If no vault folder exists for the project, report as INFO (vault is optional, not required).
+
+### 3.5 README.md (secondary, human-facing)
+- Project root SHOULD have README.md as human guide
+- Sub-directories with 3+ files MAY have README.md for human context
+- READMEs are for humans, CLAUDE.md is for agents — don't conflate
+
+#### README Templates (optional, for human-facing docs)
 
 **Directory level:**
 ```markdown
@@ -175,7 +192,7 @@ Verify hook scripts exist in `.claude/hooks/`:
 | `src/App.tsx` | {Entry point} |
 ```
 
-### README Rules
+#### README Rules
 - Be factual — describe what exists, not what should exist
 - Be concise — scannable in 30 seconds
 - Don't duplicate — reference parent READMEs instead of repeating
@@ -185,12 +202,54 @@ Verify hook scripts exist in `.claude/hooks/`:
 
 ---
 
+## DOMAIN 4: SKILL COMPLIANCE
+
+Verify that each skill conforms to PE's structural conventions. This catches drift between skills, missing prompts, and frontmatter errors that cause silent failures.
+
+### 4.1 SKILL.md Existence & Frontmatter
+For each directory in `.claude/skills/`:
+- Must contain `SKILL.md` (and only SKILL.md — no other files)
+- SKILL.md must have valid YAML frontmatter (delimited by `---`)
+- Required frontmatter keys: `name`, `description`, `allowed-tools`
+- `allowed-tools` must be a list (not a string)
+
+### 4.2 Name Consistency
+- Frontmatter `name` must match the directory name exactly
+- Example: `skills/validate/SKILL.md` must have `name: validate`
+
+### 4.3 Prompt Linkage
+- Each skill's `## Instructions` section references a `.prompts/{name}.md` file
+- That file must exist in `.prompts/` and be non-empty (>10 bytes)
+- **Orphan detection:**
+  - Skills with no matching prompt AND no substantive inline content (<500 bytes after frontmatter): WARN
+  - Prompts with no referencing skill: INFO (some are reference docs)
+  - **Exempt from orphan detection:** METRICS.md, system-reference.md, agent-qa.md
+
+### 4.4 Required Sections
+Each SKILL.md must contain:
+- A top-level heading (`#`)
+- `## Instructions` section
+- At least one of: `## Full Protocol` or `## Inline Fallback`
+- Missing both fallback and protocol is a FAIL — the skill is useless if its prompt file is absent
+
+### 4.5 Invocation Rules
+- No skill may use `disable-model-invocation: true` (per CLAUDE.md critical rules)
+- Only `documentation-awareness` may have `user-invocable: false`
+- Any violation is a FAIL with the specific skill name and offending key
+
+### 4.6 Count Verification
+- Count skill directories (with SKILL.md), active skills (minus non-invocable), and prompt files
+- Compare against CLAUDE.md reported counts
+- Flag any mismatch
+
+---
+
 ## OUTPUT FORMAT
 
 ```
 ## Validation Report
 **Date:** {date}
-**Mode:** {Full / Docs / Setup / README} {+ Auto-Fix if applicable}
+**Mode:** {Full / Docs / Setup / CLAUDE.md} {+ Auto-Fix if applicable}
 **Status:** PASS / FAIL ({n} issues)
 
 ### Domain 1: Documentation Consistency
@@ -210,9 +269,20 @@ Verify hook scripts exist in `.claude/hooks/`:
 6. [PASS/FAIL] CLAUDE.md — {details}
 7. [PASS/FAIL] DAL State — {details, or SKIP}
 
-### Domain 3: README Coverage
-- {n} directories checked, {m} have README, {k} gaps identified
-- {list of gaps with recommendations}
+### Domain 3: CLAUDE.md & Vault Coverage
+- {n} CLAUDE.md files checked, {m} current, {k} issues identified
+- {list of issues with recommendations}
+- [PASS/FAIL/SKIP] Vault END-GOAL.md version — {brain.db version} vs {END-GOAL version}
+- [PASS/FAIL/SKIP] Vault session coverage — {vault count} notes, gap of {N} sessions
+- [PASS/FAIL/SKIP] Vault ChromaDB sync — {doc count} docs indexed
+
+### Domain 4: Skill Compliance
+1. [PASS/FAIL] SKILL.md Existence — {count}/{total} dirs have valid SKILL.md
+2. [PASS/FAIL] Name Consistency — {details}
+3. [PASS/FAIL] Prompt Linkage — {count} linked, {n} orphaned skills, {m} orphaned prompts
+4. [PASS/FAIL] Required Sections — {details}
+5. [PASS/FAIL] Invocation Rules — {details}
+6. [PASS/FAIL] Count Accuracy — {actual} skills, {actual} prompts vs CLAUDE.md
 
 ### Auto-Fixed (if --fix)
 - {what was changed, in which file, why}

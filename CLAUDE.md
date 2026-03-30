@@ -65,6 +65,14 @@ Wiki-links in notes (`[[Linux CLI]]`) are parsed as prerequisite edges during va
 - Use the Cheatsheet template in `vault/Templates/` for new notes
 - Sync vault after editing (`POST /api/learning/vault-sync`)
 
+## Vault Export
+
+After significant sessions (decisions made, version changed, cross-project work), export to Obsidian vault:
+```bash
+node .ava/dal.mjs vault-export session "summary"
+node .ava/dal.mjs vault sync CheatSheets 2>/dev/null || true
+```
+
 ---
 
 ## File Structure

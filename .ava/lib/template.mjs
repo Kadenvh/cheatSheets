@@ -135,26 +135,62 @@ export function diff(targetPath, { sourceDir } = {}) {
     }
   }
 
-  // Detect custom skills/agents (in target but not in template)
-  const templateSkills = entries
-    .filter(e => e.category === "skill")
-    .map(e => e.relativePath.split("/")[2]);
-  const uniqueTemplateSkills = [...new Set(templateSkills)];
+  // Detect EXTRA items (in target but not in template) across all managed directories
 
+  // Skills (directory-based)
+  const templateSkills = new Set(
+    entries.filter(e => e.category === "skill").map(e => e.relativePath.split("/")[2])
+  );
   const targetSkillsDir = path.join(targetPath, ".claude", "skills");
   if (fs.existsSync(targetSkillsDir)) {
-    const targetSkills = fs.readdirSync(targetSkillsDir).filter(d => {
-      try { return fs.statSync(path.join(targetSkillsDir, d)).isDirectory(); } catch { return false; }
-    });
-    for (const s of targetSkills) {
-      if (!uniqueTemplateSkills.includes(s)) {
-        results.push({
-          relativePath: `.claude/skills/${s}/`,
-          mappedPath: `.claude/skills/${s}/`,
-          category: "skill",
-          status: "EXTRA",
-          checksum: null,
-        });
+    for (const d of fs.readdirSync(targetSkillsDir)) {
+      try { if (!fs.statSync(path.join(targetSkillsDir, d)).isDirectory()) continue; } catch { continue; }
+      if (!templateSkills.has(d)) {
+        results.push({ relativePath: `.claude/skills/${d}/`, mappedPath: `.claude/skills/${d}/`, category: "skill", status: "EXTRA", checksum: null });
+      }
+    }
+  }
+
+  // Agents (directory-based)
+  const templateAgents = new Set(
+    entries.filter(e => e.category === "agent").map(e => e.relativePath.split("/")[2])
+  );
+  const targetAgentsDir = path.join(targetPath, ".claude", "agents");
+  if (fs.existsSync(targetAgentsDir)) {
+    for (const d of fs.readdirSync(targetAgentsDir)) {
+      try { if (!fs.statSync(path.join(targetAgentsDir, d)).isDirectory()) continue; } catch { continue; }
+      if (!templateAgents.has(d)) {
+        results.push({ relativePath: `.claude/agents/${d}/`, mappedPath: `.claude/agents/${d}/`, category: "agent", status: "EXTRA", checksum: null });
+      }
+    }
+  }
+
+  // Hooks (file-based, with ESM .cjs mapping — only .js/.cjs/.md files, not runtime logs)
+  const templateHooks = new Set(
+    entries.filter(e => e.category === "hook").map(e => path.basename(hookTargetPath(e.relativePath, esm)))
+  );
+  const hookExts = new Set([".js", ".cjs", ".md"]);
+  const targetHooksDir = path.join(targetPath, ".claude", "hooks");
+  if (fs.existsSync(targetHooksDir)) {
+    for (const f of fs.readdirSync(targetHooksDir)) {
+      if (!hookExts.has(path.extname(f))) continue;
+      try { if (!fs.statSync(path.join(targetHooksDir, f)).isFile()) continue; } catch { continue; }
+      if (!templateHooks.has(f)) {
+        results.push({ relativePath: `.claude/hooks/${f}`, mappedPath: `.claude/hooks/${f}`, category: "hook", status: "EXTRA", checksum: null });
+      }
+    }
+  }
+
+  // Prompts (file-based)
+  const templatePrompts = new Set(
+    entries.filter(e => e.category === "prompt").map(e => path.basename(e.relativePath))
+  );
+  const targetPromptsDir = path.join(targetPath, ".prompts");
+  if (fs.existsSync(targetPromptsDir)) {
+    for (const f of fs.readdirSync(targetPromptsDir)) {
+      try { if (!fs.statSync(path.join(targetPromptsDir, f)).isFile()) continue; } catch { continue; }
+      if (!templatePrompts.has(f)) {
+        results.push({ relativePath: `.prompts/${f}`, mappedPath: `.prompts/${f}`, category: "prompt", status: "EXTRA", checksum: null });
       }
     }
   }
@@ -173,7 +209,7 @@ function ensureDir(filePath) {
   }
 }
 
-export function sync(targetPath, { dal = false, sourceDir } = {}) {
+export function sync(targetPath, { dal = false, prune = false, dryRun = false, sourceDir } = {}) {
   const templateDir = resolveTemplateDir(sourceDir);
   const { esm, results } = diff(targetPath, { sourceDir });
   const actions = [];
@@ -186,19 +222,43 @@ export function sync(targetPath, { dal = false, sourceDir } = {}) {
     const basename = path.basename(entry.mappedPath);
     if (PROTECTED.includes(basename)) continue;
 
-    const src = path.join(templateDir, entry.relativePath);
-    const dst = path.join(targetPath, entry.mappedPath);
+    if (!dryRun) {
+      const src = path.join(templateDir, entry.relativePath);
+      const dst = path.join(targetPath, entry.mappedPath);
 
-    ensureDir(dst);
+      ensureDir(dst);
 
-    if (fs.statSync(src).isDirectory()) {
-      // Copy directory recursively
-      copyDirSync(src, dst);
-    } else {
-      fs.copyFileSync(src, dst);
+      if (fs.statSync(src).isDirectory()) {
+        copyDirSync(src, dst);
+      } else {
+        fs.copyFileSync(src, dst);
+      }
     }
 
     actions.push({ action: entry.status === "MISSING" ? "added" : "updated", path: entry.mappedPath, category: entry.category });
+  }
+
+  // Prune EXTRA files if requested
+  if (prune) {
+    for (const entry of results) {
+      if (entry.status !== "EXTRA") continue;
+      const basename = path.basename(entry.mappedPath);
+      if (PROTECTED.includes(basename)) continue;
+
+      const target = path.join(targetPath, entry.mappedPath.replace(/\/$/, ""));
+      if (!fs.existsSync(target)) continue;
+
+      if (!dryRun) {
+        const stat = fs.statSync(target);
+        if (stat.isDirectory()) {
+          fs.rmSync(target, { recursive: true });
+        } else {
+          fs.unlinkSync(target);
+        }
+      }
+
+      actions.push({ action: "pruned", path: entry.mappedPath, category: entry.category });
+    }
   }
 
   // Sync DAL runtime if requested
@@ -227,12 +287,15 @@ export function sync(targetPath, { dal = false, sourceDir } = {}) {
     for (const { src, rel } of dalFiles) {
       if (!fs.existsSync(src)) continue;
       const dst = path.join(targetPath, rel);
-      ensureDir(dst);
 
       // Skip if checksums match
       if (fs.existsSync(dst) && sha256(src) === sha256(dst)) continue;
 
-      fs.copyFileSync(src, dst);
+      if (!dryRun) {
+        ensureDir(dst);
+        fs.copyFileSync(src, dst);
+      }
+
       actions.push({ action: fs.existsSync(dst) ? "updated" : "added", path: rel, category: "dal-runtime" });
     }
   }
@@ -249,7 +312,7 @@ export function sync(targetPath, { dal = false, sourceDir } = {}) {
  * @param {object} opts - { dal: boolean, dryRun: boolean }
  * @returns {{ esm: boolean, actions: Array, version: string|null }}
  */
-export function pull(sourceDir, { dal = false, dryRun = false } = {}) {
+export function pull(sourceDir, { dal = false, dryRun = false, prune = false } = {}) {
   const resolvedSource = resolveTemplateDir(sourceDir);
   if (!fs.existsSync(resolvedSource)) {
     throw new Error(`Template source not found: ${resolvedSource}`);
@@ -334,6 +397,30 @@ export function pull(sourceDir, { dal = false, dryRun = false } = {}) {
         fs.copyFileSync(src, dst);
         actions.push({ action: "updated", path: rel, category: "dal-runtime" });
       }
+    }
+  }
+
+  // Prune EXTRA files if requested
+  if (prune) {
+    const { results: diffResults } = diff(PROJECT_DIR, { sourceDir: resolvedSource });
+    for (const entry of diffResults) {
+      if (entry.status !== "EXTRA") continue;
+      const basename = path.basename(entry.mappedPath);
+      if (PROTECTED.includes(basename)) continue;
+
+      const target = path.join(PROJECT_DIR, entry.mappedPath.replace(/\/$/, ""));
+      if (!fs.existsSync(target)) continue;
+
+      if (!dryRun) {
+        const stat = fs.statSync(target);
+        if (stat.isDirectory()) {
+          fs.rmSync(target, { recursive: true });
+        } else {
+          fs.unlinkSync(target);
+        }
+      }
+
+      actions.push({ action: "pruned", path: entry.mappedPath, category: entry.category });
     }
   }
 

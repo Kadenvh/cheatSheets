@@ -101,7 +101,7 @@ Copy `VAULT_GUIDE.md` from `_templates/` if available, or create a minimal one.
 
 ### Step 0f: Post-setup
 
-After first-run setup, add `.ava/brain.db*` to `.gitignore` if not already present. Verify the SessionStart hook (`.claude/hooks/session-context.cjs`) exists and is wired in `settings.json`. Then continue to Phase 1 for health checks.
+After first-run setup, add `.ava/brain.db*` to `.gitignore` if not already present. Verify the SessionStart hook (`.claude/hooks/session-context.js`) exists and is wired in `settings.json`. Then continue to Phase 1 for health checks.
 
 ---
 
@@ -622,4 +622,4 @@ Create `.ava/siblings.json` (gitignored) for cross-project awareness:
 }
 ```
 
-At session start, `session-context.cjs` reads each sibling's context and appends a summary.
+At session start, `session-context.js` reads each sibling's context and appends a summary.

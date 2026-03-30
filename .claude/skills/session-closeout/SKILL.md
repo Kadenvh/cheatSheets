@@ -60,11 +60,9 @@ Detailed steps (always follow these):
    - `node .ava/dal.mjs decision add ...` for architectural choices
    - `node .ava/dal.mjs note add "..." --category handoff` for next-session context
    - `node .ava/dal.mjs action record "..." --type <type> --outcome success|failure|partial`
-4. **Vault export & handoff** (if Obsidian vault exists):
+4. **Handoff generation** (if brain.db exists):
    - `node .ava/dal.mjs handoff generate "session summary"`
-   - Create Obsidian session note in `/home/ava/Obsidian/Ava/{Project}/sessions/`
-   - Create Obsidian decision notes in `/home/ava/Obsidian/Ava/{Project}/architecture/`
-   - Wiki-link session notes ↔ decision notes
+   - Do NOT auto-export to Obsidian vault — vault writes are human-initiated only
 5. **Update CLAUDE.md.** Update version header, refresh "Recent Changes," add any new anti-patterns.
 6. **File mode additionally:** Update IMPLEMENTATION_PLAN.md (tasks, handoff) and PROJECT_ROADMAP.md (if milestone).
 7. **Create READMEs** for any new major directories.

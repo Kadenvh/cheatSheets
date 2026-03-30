@@ -1,10 +1,10 @@
 # Prompt Engineering Metrics Report
-Generated: 2026-03-26T14:38:39.315Z | Events analyzed: 101
+Generated: 2026-03-30T05:15:21.998Z | Events analyzed: 115
 
 ## Usage Summary
 | Tool | Type | Uses | Unique Projects | Last Used |
 |------|------|------|-----------------|----------|
-| smoke_test | unknown | 101 | 0 | 2026-03-26 |
+| smoke_test | unknown | 115 | 0 | 2026-03-30 |
 
 ## Session Analysis
 | Metric | Value |
@@ -17,5 +17,5 @@ Generated: 2026-03-26T14:38:39.315Z | Events analyzed: 101
 ## Optimization Targets
 Priority = high usage x (high edit rate OR high error correlation)
 
-1. **smoke_test** — 101 uses, 0% edit rate
+1. **smoke_test** — 115 uses, 0% edit rate
 

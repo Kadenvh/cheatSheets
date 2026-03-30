@@ -5,11 +5,29 @@
 import { readFileSync, readdirSync, statSync, existsSync } from "fs";
 import { join, relative, basename } from "path";
 import { createHash } from "crypto";
+import { homedir, userInfo } from "os";
 
 const EMBEDDING_URL = "http://127.0.0.1:8001";
 const COLLECTION = "vault";
-const VAULT_PATH = "/home/ava/Obsidian/Ava";
 const BATCH_SIZE = 50;
+
+// Resolve vault path: env > platform defaults
+function resolveVaultPath() {
+  if (process.env.OBSIDIAN_VAULT && existsSync(process.env.OBSIDIAN_VAULT)) {
+    return process.env.OBSIDIAN_VAULT;
+  }
+  const candidates = [
+    "/home/ava/Obsidian/Ava",
+    join(homedir(), "Obsidian", "Ava"),
+    join("C:", "Users", userInfo().username, "Obsidian", "Ava"),
+  ];
+  for (const c of candidates) {
+    if (existsSync(c)) return c;
+  }
+  return "/home/ava/Obsidian/Ava"; // fallback
+}
+
+const VAULT_PATH = resolveVaultPath();
 
 // Skip these directories
 const SKIP_DIRS = new Set([".obsidian", ".stfolder", "_templates", "_inbox", ".trash"]);

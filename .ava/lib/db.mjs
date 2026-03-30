@@ -25,6 +25,7 @@ export function getDb({ create = false } = {}) {
 
   _db = new Database(DB_PATH);
   _db.pragma("journal_mode = WAL");
+  _db.pragma("busy_timeout = 5000");
   _db.pragma("synchronous = NORMAL");
   _db.pragma("foreign_keys = ON");
 

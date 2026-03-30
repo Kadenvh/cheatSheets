@@ -1,6 +1,6 @@
 ---
 name: session-init
-description: "Start a development session — read docs, verify state, orient before work"
+description: "Start a development session — read docs, verify state, orient before work. Use --auto-dev for autonomous execution."
 allowed-tools:
   - Read
   - Glob
@@ -38,11 +38,16 @@ Read context in this order:
 
 Report ready state: current version, active blockers, insights/concerns noticed, questions, and recommended priorities.
 
-## Planning Requirement
+## Modes
+
+- **`/session-init`** (default) — Full orientation, present plan, await confirmation before work.
+- **`/session-init --auto-dev`** — Full orientation, then autonomous execution. Skips the confirmation gate. Auto-selects highest-priority work from the note queue. Dispatches closeout-worker at session end.
+
+## Planning Requirement (default mode)
 
 Before implementing ANY change, present a prioritized plan and await explicit
 confirmation. List proposed changes, files affected, and sequencing. Do not begin
-implementation until the user approves.
+implementation until the user approves. (Overridden by `--auto-dev` — see Section 10 of init.md.)
 
 ## Full Protocol
 
@@ -56,4 +61,4 @@ Detailed steps (always follow these):
 6. **Report ready.** State: current version, blockers, insights, questions, and recommended priorities.
 7. **Engagement rules.** Plan before implementing. No silent decisions. When tools fail, explain the error and next approach. Flag ambiguity rather than guessing.
 
-If no documentation files exist at all, recommend running `/bootstrap` to create them.
+If no documentation files exist at all, recommend running `/dal-doctor` to set up the project.

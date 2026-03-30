@@ -13,18 +13,20 @@ Every project in this ecosystem follows a hub-and-spoke documentation model. You
 | File | What It Tells You | Read Order |
 |------|-------------------|------------|
 | `CLAUDE.md` | Critical rules, anti-patterns, quick start, file structure, tech stack | **1st** (auto-loaded by Claude Code) |
-| `documentation/PROJECT_ROADMAP.md` | Why decisions were made, version history, architecture, future direction | 2nd |
-| `documentation/IMPLEMENTATION_PLAN.md` | Current tasks, what happened last session, blockers, handoff notes | **3rd** (start work from here) |
+| `documentation/PROJECT_ROADMAP.md` | Why decisions were made, version history, architecture, future direction | 2nd (if file exists) |
+| `documentation/IMPLEMENTATION_PLAN.md` | Current tasks, what happened last session, blockers, handoff notes | **3rd** (if file exists — start work from here) |
 | `.prompts/` | Skill protocol files (this file, dal-doctor, explore, closeout, validate, system-reference, etc.) | Reference as needed |
 
 If `CLAUDE.md` exists at the project root, it is auto-loaded — you already have it. Read it anyway to confirm you've internalized the critical rules.
 
 If the project is a **spoke** (sub-project), it may have a slimmer `documentation/CLAUDE.md` with project-specific rules, plus a `README.md` at its root. The parent hub's docs cover the broader context.
 
+**File-mode vs brain.db-mode:** `PROJECT_ROADMAP.md` and `IMPLEMENTATION_PLAN.md` are used in file-mode projects. If these files exist, read them. brain.db-mode projects skip these — `node .ava/dal.mjs context` provides equivalent data (identity, architecture, decisions, session history, open notes).
+
 ### If Documentation Is Missing
 
 - No `CLAUDE.md` → flag to user, offer to run `/dal-doctor` to create the documentation system
-- No `IMPLEMENTATION_PLAN.md` → check if there's a README.md or other docs; ask the user for context on current state
+- No `IMPLEMENTATION_PLAN.md` and no `.ava/brain.db` → check if there's a README.md or other docs; ask the user for context on current state
 - No `.prompts/` → the project hasn't adopted this system yet; proceed with whatever docs exist
 
 ---
@@ -44,9 +46,9 @@ After reading the docs, build a mental model by scanning the project structure:
 
 Before proceeding to any task, confirm:
 
-- [ ] **Version consistency** — does the version in `CLAUDE.md` match `PROJECT_ROADMAP.md` and `IMPLEMENTATION_PLAN.md`? If not, flag it.
+- [ ] **Version consistency** — if `PROJECT_ROADMAP.md` and `IMPLEMENTATION_PLAN.md` exist, does the version in `CLAUDE.md` match them? If not, flag it. brain.db-mode projects: check `node .ava/dal.mjs identity list` for version instead.
 - [ ] **Stale docs** — are the "Updated" dates recent? Stale docs may not reflect the actual codebase.
-- [ ] **Blockers** — check `IMPLEMENTATION_PLAN.md` for known issues and blockers before starting work.
+- [ ] **Blockers** — if `IMPLEMENTATION_PLAN.md` exists, check for known issues and blockers before starting work. brain.db-mode: check `node .ava/dal.mjs note list` for open issues.
 - [ ] **Build/run** — can you build and run the project with the commands in `CLAUDE.md`? If the user asks you to make changes, verify the project compiles first.
 - [ ] **Incomplete features** — check brain.db for actions with partial outcomes from recent sessions:
   ```bash
@@ -162,7 +164,7 @@ The `.prompts/` directory contains session lifecycle templates. You are reading 
 | **init** (this file) | Start of every new session — orient, read docs, verify state |
 | **closeout** | End of session — update docs, version bump, handoff notes |
 | **explore** | Mid-project thinking, or pre-dev brainstorming (`--discovery`) |
-| **validate** | Project health audit: docs consistency, template deployment, README coverage |
+| **validate** | Project health audit: docs consistency, template deployment, CLAUDE.md coverage |
 | **dal-doctor** | System health, first-run setup, remediation |
 
 You don't need to create an init prompt. This IS the init prompt. The documentation system is already in place — your job is to read it, verify it, and start working.
@@ -205,11 +207,11 @@ If the project has a notes, issues, or task tracking system (markdown files, in-
    - **Markdown notes**: `notes/`, `TODO.md`, `NOTES.md`, or any notes directory/file mentioned in the documentation.
    - **Ava_Main ecosystem only** (optional): `.tab-notes.json` via REST API (`GET /api/notes/all` or `GET /api/notes/:tabKey`). Requires Ava_Main's REST server — not available in standalone deployments.
 
-   Open notes are your primary task queue alongside IMPLEMENTATION_PLAN.md handoff notes.
+   Open notes are your primary task queue. In file-mode projects, also check IMPLEMENTATION_PLAN.md handoff notes.
 
 2. **Read all open items.** Categorize what you find: bugs, improvements, feature requests, questions, stale/already-resolved items.
 3. **Flag resolved items.** If a note describes something that's already been fixed or implemented (based on the current codebase), flag it for removal.
-4. **Incorporate into session plan.** Merge relevant notes with the IMPLEMENTATION_PLAN handoff notes to build a prioritized plan for this session. Present it to the user.
+4. **Incorporate into session plan.** Merge relevant notes (and IMPLEMENTATION_PLAN handoff notes, if the file exists) to build a prioritized plan for this session. Present it to the user.
 
 If no notes system exists, skip this step.
 
@@ -234,3 +236,75 @@ Once oriented:
 4. If unclear, ask — it's cheaper to clarify now than to redo work later
 
 **When tools or commands fail:** Explain what was attempted, the specific error, and your next approach. Never silently retry or move on without surfacing what happened.
+
+---
+
+## 10. AUTONOMOUS EXECUTION (--auto-dev mode only)
+
+> **If `--auto-dev` was NOT passed, skip this section entirely.** Section 9's confirmation gate applies.
+
+You have completed orientation (Sections 1-8) and built a prioritized plan. In auto-dev mode, you skip the confirmation gate and begin executing immediately.
+
+### 10.1. Start a DAL Session
+
+```bash
+node .ava/dal.mjs session start "auto-dev: [1-line summary of top priority]"
+```
+
+### 10.2. Select Work (priority order)
+
+Pick the single highest-priority item using this hierarchy:
+
+1. **Partial outcomes** — `node .ava/dal.mjs action list --outcome partial`. Verify backing store exists and has data. If not, this is your work.
+2. **Handoff notes** — open notes with category `handoff`. These are explicit continuity from the prior session.
+3. **Bugs** — open notes with category `bug`.
+4. **Issues** — open notes with category `issue`.
+5. **Improvements** — open notes with category `improvement`.
+6. **Ideas** — DO NOT auto-select. Surface in plan only.
+
+**Within a category**, prefer foundational work (fixes to infrastructure, tooling, or process) over new features. If multiple items exist, briefly assess which unblocks the most future work or fixes the deepest problem. Do not just pick the first one returned.
+
+If no actionable items exist at any level, report the empty state and stop. Do not invent work.
+
+### 10.3. Execute
+
+Work the selected item following normal development practices:
+
+- **Plan your approach** (internally — no confirmation needed, but still think before acting).
+- **Implement** the changes.
+- **Verify** — run tests, type checks, linters. Verification must pass before proceeding.
+- **Record the action** — `node .ava/dal.mjs action record "description" --type <type> --outcome success|failure|partial`
+
+If time and scope allow, continue to the next priority item. One well-completed item is better than two partial ones.
+
+### 10.4. Guardrails During Execution
+
+- **Tool failure:** Surface the error clearly. Stop and report. Do not silently retry.
+- **Ambiguity discovered:** Choose the safer option (less blast radius, more reversible). Flag what was ambiguous and what you chose.
+- **Learning loop signal:** If `loop summary` shows failures for the action type you are about to attempt, investigate the failure pattern before proceeding. Do not repeat known failure modes.
+- **Scope creep:** Stay on the selected item. If you discover adjacent work, record it as a note (`node .ava/dal.mjs note add "..." --category improvement`) — do not chase it.
+- **Verification failure:** Do NOT commit. Record the action with `--outcome partial` and describe what failed.
+
+### 10.5. Dispatch Closeout
+
+When work is complete (or you have exhausted your session scope):
+
+1. Compile a session summary: what was selected, what was done, what was the outcome, what remains.
+2. Dispatch the closeout-worker agent with the summary.
+3. The closeout-worker handles: version increment, brain.db recording, CLAUDE.md update, handoff generation, self-verification, and commit.
+
+If the closeout-worker is not available (Agent tool not permitted), fall back to running `/session-closeout` inline.
+
+### 10.6. Report
+
+After closeout completes, output a final summary:
+
+```
+## Auto-Dev Session Complete
+
+**Selected:** [what was picked and why]
+**Outcome:** [success/partial/failure]
+**Changes:** [files modified, commits made]
+**Closeout:** [dispatched/inline, version bump]
+**Next priority:** [what the next auto-dev session should pick up]
+```

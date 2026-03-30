@@ -14,9 +14,8 @@ Unified skill for all non-implementation thinking: mid-project exploration, pre-
 
 ## Instructions
 
-1. Load the exploration prompt. Try brain.db first, fall back to file:
-   - **brain.db:** `node .ava/dal.mjs prompt get explore --content` (if `.ava/brain.db` exists)
-   - **File fallback:** Read `.prompts/explore.md` (relative to project root)
+1. Load the exploration prompt:
+   - Read `.prompts/explore.md` (relative to project root)
 2. Determine mode from arguments or context:
    - **`/explore`** — Mid-project divergent thinking. No deliverables, no decisions. Think freely.
    - **`/explore --discovery`** — Pre-dev brainstorming. Produces a structured Discovery Brief.
