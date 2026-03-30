@@ -1,6 +1,6 @@
 # Knowledge System
 
-**Version:** 7.1.0 | **Status:** Obsidian-First (Pipeline Restored, Pending Server Restart) | **Updated:** 2026-03-30
+**Version:** 7.2.0 | **Status:** Obsidian-First (Pipeline Operational) | **Updated:** 2026-03-30
 
 ## Parent Documentation
 
@@ -84,7 +84,7 @@ node .ava/dal.mjs vault sync CheatSheets 2>/dev/null || true
 ├── Cheatsheet_Generation_Prompt.md    ← Reference template spec
 ├── README.md                          ← Project intro
 ├── vault/                             ← Obsidian vault (content layer)
-│   ├── Concepts/                      ← One .md per concept (61 notes)
+│   ├── Concepts/                      ← One .md per concept (67 notes)
 │   ├── Templates/                     ← Obsidian note templates
 │   │   └── Cheatsheet.md
 │   └── .obsidian/                     ← Obsidian config

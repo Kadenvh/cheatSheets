@@ -1,8 +1,8 @@
 # Learning System Plan (Canonical)
 
-**Version:** 2.0  
-**Updated:** 2026-03-24  
-**Status:** Active — Phase 3 remaining  
+**Version:** 2.1
+**Updated:** 2026-03-30
+**Status:** Active — Phase 3 (content expansion)  
 **Supersedes:** `knowledge-learning-plan.md`, `CHEATSHEETS_PLAN.md`, legacy split-plan docs
 
 ---
@@ -69,12 +69,16 @@ The system should make learning durable, reviewable, and searchable with minimal
 - Phase 0: cleanup + vault foundation
 - Phase 1: vault-sync pipeline established
 - Phase 2: UI integration (health sync, learning UI alignment)
+- Session 3 restoration (2026-03-30):
+  - Migrated 61 concepts + 1935 reviews from Ava_Main brain.db
+  - Restored learning backend (45 endpoints, FSRS engine) with spoke DB routing
+  - Restored Learn tab UI (6 components recovered from git)
+  - Vault-sync validated: 61 concepts, 117 prerequisite edges, 283 ChromaDB docs
 
 ### Remaining (Phase 3)
-- Author 20+ high-quality concept notes/content expansion
-- Obsidian plugin polish/config hardening
+- Author 20+ high-quality concept notes (content expansion)
 - Compass suggestion quality pass
-- Streak visualization polish in Obsidian-facing workflow
+- Streak visualization polish
 
 ---
 
