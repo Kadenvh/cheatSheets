@@ -75,10 +75,19 @@ The system should make learning durable, reviewable, and searchable with minimal
   - Restored Learn tab UI (6 components recovered from git)
   - Vault-sync validated: 61 concepts, 117 prerequisite edges, 283 ChromaDB docs
 
+- Session 5 content batch (2026-03-30):
+  - Batch 1: 6 learning methods notes (spaced-repetition, active-recall, etc.)
+  - Vault-sync validated: 67 concepts, 141 prerequisite edges, 309 ChromaDB docs
+- Session 7 Linux expansion + UI fixes (2026-03-30):
+  - Batch 2: 6 Linux notes (file-system, process-management, permissions, text-processing, networking, packages)
+  - UI audit: fixed version display, domain coverage, Q&A OOM, added vault-sync button
+  - Current state: 73 concepts, 152 prerequisite edges, 338 ChromaDB docs
+
 ### Remaining (Phase 3)
-- Author 20+ high-quality concept notes (content expansion)
+- Author 10+ more concept notes (Automation category empty, Python expansion, hardware track)
 - Compass suggestion quality pass
 - Streak visualization polish
+- Q&A response parsing fix (raw JSON wrapper visible)
 
 ---
 
