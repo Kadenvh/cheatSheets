@@ -151,7 +151,7 @@ curl http://localhost:4173/api/learning/stats
 ├── README.md                        # This file
 ├── Cheatsheet_Generation_Prompt.md  # Template spec for generating notes
 ├── vault/                           # Obsidian vault (content layer)
-│   ├── Concepts/                    # One .md per concept (67 notes)
+│   ├── Concepts/                    # One .md per concept (73 notes)
 │   ├── Templates/Cheatsheet.md     # Note template
 │   └── .obsidian/                   # Obsidian config
 ├── .ava/                            # brain.db (scheduling layer)
@@ -159,8 +159,7 @@ curl http://localhost:4173/api/learning/stats
 │   ├── dal.mjs                      # DAL CLI runtime
 │   └── lib/                         # DAL libraries
 ├── knowledge-agents/                # 7 OpenClaw agent workspaces
-├── archive/                         # Superseded plans and legacy content
-└── documentation/plans/             # Active execution plans
+└── archive/                         # Superseded plans and legacy content
 ```
 
 ## Links
