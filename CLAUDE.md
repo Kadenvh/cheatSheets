@@ -1,6 +1,6 @@
 # Knowledge System
 
-**Version:** 7.3.0 | **Status:** Obsidian-First (Pipeline Operational) | **Updated:** 2026-03-30
+**Version:** 7.4.0 | **Status:** Obsidian-First (Pipeline Operational) | **Updated:** 2026-03-31
 
 ## Parent Documentation
 
@@ -84,7 +84,7 @@ node .ava/dal.mjs vault sync CheatSheets 2>/dev/null || true
 ├── Cheatsheet_Generation_Prompt.md    ← Reference template spec
 ├── README.md                          ← Project intro
 ├── vault/                             ← Obsidian vault (content layer)
-│   ├── Concepts/                      ← One .md per concept (67 notes)
+│   ├── Concepts/                      ← One .md per concept (91 notes)
 │   ├── Templates/                     ← Obsidian note templates
 │   │   └── Cheatsheet.md
 │   └── .obsidian/                     ← Obsidian config
@@ -101,7 +101,7 @@ node .ava/dal.mjs vault sync CheatSheets 2>/dev/null || true
 │   ├── demo/                          ← Spark (exercise generation)
 │   ├── tutor/                         ← Socratic teaching
 │   └── architect/                     ← Curriculum planning
-├── archive/                           ← Superseded plans + legacy dirs
+├── archive/                           ← Superseded plans + ELEGOO reference kit
 └── [agent identity files]             ← SOUL.md, IDENTITY.md, etc.
 ```
 
@@ -127,7 +127,7 @@ node .ava/dal.mjs vault sync CheatSheets 2>/dev/null || true
 
 | Field | Required | Description |
 |-------|----------|-------------|
-| `category` | Yes | Python / DataScience / Tools / Linux / General |
+| `category` | Yes | Python / DataScience / Automation / Tools / Linux / General |
 | `tags` | Yes | Lowercase, hyphenated topic tags |
 | `title` | Yes | Human-readable concept title |
 | `created` | Yes | ISO date (YYYY-MM-DD) |
