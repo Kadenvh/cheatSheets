@@ -415,7 +415,17 @@ async function cmdAction() {
         console.log("Usage: dal.mjs action record \"description\" --type <type> [--target T] [--outcome success|failure|partial|pending] [--note-id N]");
         process.exit(1);
       }
+      // Auto-detect open session if not explicitly provided
+      let sessionId = flags.session || null;
+      if (!sessionId) {
+        try {
+          const { getOpenSession } = await import("./lib/sessions.mjs");
+          const open = getOpenSession();
+          if (open) sessionId = open.id;
+        } catch { /* no sessions module or no open session — proceed without */ }
+      }
       const id = recordAction({
+        sessionId,
         actionType: flags.type,
         target: flags.target,
         description: desc,
@@ -423,7 +433,7 @@ async function cmdAction() {
         outcomeDetail: flags.detail,
         noteId: flags["note-id"],
       });
-      console.log(`Action #${id} recorded: [${flags.type}] ${desc.slice(0, 80)}`);
+      console.log(`Action #${id} recorded: [${flags.type}] ${desc.slice(0, 80)}${sessionId ? ` (session: ${sessionId.slice(0, 8)})` : ""}`);
       break;
     }
     case "update": {
@@ -901,7 +911,7 @@ async function cmdTrace() {
 
 async function cmdHandoff() {
   const { handleHandoffCommand } = await import("./lib/handoff.mjs");
-  handleHandoffCommand(args.slice(1));
+  await handleHandoffCommand(args.slice(1));
 }
 
 // ─── Health ──────────────────────────────────────────────────────────────────

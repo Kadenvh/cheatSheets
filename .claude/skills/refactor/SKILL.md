@@ -16,7 +16,7 @@ Improve code quality while preserving all existing behavior. Zero regressions is
 
 ## Instructions
 
-Follow the protocol below. For the full detailed version, read `.prompts/refactor.md`.
+Follow the protocol below. For the full detailed version, read `.claude/.prompts/refactor.md`.
 
 ### Protocol
    - Define scope and type (extract, rename, restructure, simplify, pattern migration)
@@ -41,3 +41,15 @@ Detailed steps:
 4. **Cross-cutting changes.** Change the definition first, update consumers one at a time, test after each.
 5. **Pattern migration.** Support both patterns simultaneously (adapter/bridge), migrate consumers one at a time, remove old pattern only when zero consumers remain.
 6. **Verify.** All tests pass. Measure before/after (complexity, lines, coverage, build time). Update docs if file structure or conventions changed.
+
+## Error Handling
+
+If any step fails (command errors, file not found, brain.db unreachable):
+1. Record the failure: `node .ava/dal.mjs action record "refactor: <what failed>" --type maintenance --outcome failure`
+2. Do NOT continue silently — report the error to the user with what failed, the error message, and suggested fix.
+3. If brain.db is unreachable, note the failure in the session summary for closeout.
+
+## After Completion
+
+- Record the action: `node .ava/dal.mjs action record "refactor: <summary>" --type maintenance --outcome success`
+- If this work changed CLAUDE.md rules or key commands, update CLAUDE.md

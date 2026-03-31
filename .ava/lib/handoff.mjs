@@ -1,6 +1,7 @@
 // handoff.mjs — Structured YAML session handoffs
 import fs from "fs";
 import path from "path";
+import { execSync } from "child_process";
 import { fileURLToPath } from "url";
 import { getDb } from "./db.mjs";
 
@@ -166,13 +167,64 @@ function toYaml(obj, indent = 0) {
 /**
  * CLI handler
  */
-export function handleHandoffCommand(cmdArgs) {
+export async function handleHandoffCommand(cmdArgs) {
   const sub = cmdArgs[0];
 
   if (sub === "generate") {
     const summary = cmdArgs.slice(1).join(" ") || "Manual handoff";
-    const { filepath } = generateHandoff({ summary });
-    console.log(`Handoff written: ${filepath}`);
+
+    // Auto-detect open session
+    let sessionId = null;
+    try {
+      const sessions = await import("./sessions.mjs");
+      const open = sessions.getOpenSession();
+      if (open) sessionId = open.id;
+    } catch { /* no sessions module */ }
+
+    // Auto-populate structured fields from brain.db + git
+    let filesModified = [];
+    let decisionsMade = [];
+    let nextActions = [];
+    const db = getDb();
+
+    if (db && sessionId) {
+      try {
+        // Decisions made during this session
+        const decisions = db.prepare(
+          "SELECT title FROM decisions WHERE created_at >= (SELECT start_time FROM sessions WHERE id = ?) ORDER BY created_at"
+        ).all(sessionId);
+        decisionsMade = decisions.map(d => d.title);
+      } catch { /* */ }
+    }
+
+    if (db) {
+      try {
+        // Open notes as next actions
+        const notes = db.prepare(
+          "SELECT text, category FROM notes WHERE completed = 0 ORDER BY created_at DESC LIMIT 5"
+        ).all();
+        nextActions = notes.map(n => `[${n.category}] ${n.text}`.slice(0, 120));
+      } catch { /* */ }
+    }
+
+    // Git: files modified since session start (best effort)
+    try {
+      const gitFiles = execSync("git diff --name-only HEAD~1 2>/dev/null || git diff --name-only --cached 2>/dev/null || true", {
+        cwd: path.resolve(__dirname, "../.."),
+        encoding: "utf8",
+        timeout: 5000,
+      }).trim();
+      if (gitFiles) filesModified = gitFiles.split("\n").filter(Boolean).slice(0, 20);
+    } catch { /* git not available or no changes */ }
+
+    const { filepath } = generateHandoff({
+      sessionId,
+      summary,
+      filesModified,
+      decisionsMade,
+      nextActions,
+    });
+    console.log(`Handoff written: ${filepath}${sessionId ? ` (session: ${sessionId.slice(0, 8)})` : ""}`);
     return;
   }
 

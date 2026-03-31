@@ -16,8 +16,8 @@ You are entering exploration mode. There are no tasks to complete, no deliverabl
 
 Read the project context:
 - `CLAUDE.md` — current rules and state
-- `documentation/PROJECT_ROADMAP.md` — architecture and decisions
-- `documentation/IMPLEMENTATION_PLAN.md` — what's built, what's pending
+- `PROJECT_ROADMAP.md` — architecture and decisions
+- `IMPLEMENTATION_PLAN.md` — what's built, what's pending
 - `node .ava/dal.mjs context` (if available) — session facts and decisions
 
 Understand what's established. Then deliberately step outside it. The context is not the agenda — it's the launching pad.
@@ -155,7 +155,7 @@ Synthesize sub-agent findings before presenting — don't dump raw research.
 
 ## B.7. OUTPUT
 
-Store discovery briefs in `documentation/plans/` as `discovery-<topic-slug>.md`.
+Store discovery briefs in `.claude/plans/` as `discovery-<topic-slug>.md`.
 
 ## B.8. STARTING (DISCOVERY)
 

@@ -17,7 +17,7 @@ Non-implementation research for evaluating tools, frameworks, patterns, and arch
 ## Instructions
 
 1. Load the research prompt:
-   - Read `.prompts/frontier-research.md` (relative to project root)
+   - Read `.claude/.prompts/frontier-research.md` (relative to project root)
 2. Determine mode from arguments or context:
    - **`/frontier-research`** - Standard mode. 3 searches per topic, per-tool analysis, priority matrix.
    - **`/frontier-research --deep`** - Deep mode. 5-8 searches, competitive analysis, integration matrix, risk assessment.
@@ -34,3 +34,10 @@ Non-implementation research for evaluating tools, frameworks, patterns, and arch
 ## Inline Fallback (if prompt file not found)
 
 For each topic: (1) 3 web searches (official docs, architecture, adoption). (2) Per-tool analysis: what it is, capabilities, scale, pricing, limitations, possibilities for the ecosystem. (3) Cross-cutting themes. (4) Priority matrix (impact vs effort). (5) URL appendix.
+
+## Error Handling
+
+If any step fails (command errors, file not found, brain.db unreachable):
+1. Record the failure: `node .ava/dal.mjs action record "frontier-research: <what failed>" --type investigation --outcome failure`
+2. Do NOT continue silently — report the error to the user with what failed, the error message, and suggested fix.
+3. If brain.db is unreachable, note the failure in the session summary for closeout.

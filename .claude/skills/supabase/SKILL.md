@@ -16,7 +16,7 @@ Design, implement, and maintain the Supabase layer with production discipline.
 
 ## Instructions
 
-Follow the protocol below. For the full detailed version, read `.prompts/supabase.md`.
+Follow the protocol below. For the full detailed version, read `.claude/.prompts/supabase.md`.
 
 ### Protocol:
    - **Step 0 (mandatory)** → Read existing migrations, RLS policies, client setup, and config BEFORE changing anything
@@ -47,3 +47,15 @@ Detailed steps:
 5. **Edge Functions:** Validate auth header, handle CORS, parse request body, return proper status codes. Use service role only for admin operations.
 6. **Client:** Type-safe queries with generated types. `.select()` after insert/update. `.single()` for one row. Unsubscribe real-time channels on cleanup.
 7. **Review:** Check RLS coverage, auth security, schema quality, query safety, migration hygiene, performance. Flag tables without RLS, exposed keys, missing indexes.
+
+## Error Handling
+
+If any step fails (command errors, file not found, brain.db unreachable):
+1. Record the failure: `node .ava/dal.mjs action record "supabase: <what failed>" --type feature --outcome failure`
+2. Do NOT continue silently — report the error to the user with what failed, the error message, and suggested fix.
+3. If brain.db is unreachable, note the failure in the session summary for closeout.
+
+## After Completion
+
+- Record the action: `node .ava/dal.mjs action record "supabase: <summary>" --type feature --outcome success`
+- If this work changed CLAUDE.md rules or key commands, update CLAUDE.md

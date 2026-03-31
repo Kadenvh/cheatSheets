@@ -123,14 +123,16 @@ export function verifyTemplates() {
     }
   }
 
-  // Check prompts directory exists
-  const promptsDir = path.join(PROJECT_DIR, ".prompts");
+  // Check prompts directory exists (new path: .claude/.prompts/, legacy: .prompts/)
+  const promptsDirNew = path.join(PROJECT_DIR, ".claude", ".prompts");
+  const promptsDirLegacy = path.join(PROJECT_DIR, ".prompts");
+  const promptsDir = fs.existsSync(promptsDirNew) ? promptsDirNew : promptsDirLegacy;
   const promptCount = fs.existsSync(promptsDir)
     ? fs.readdirSync(promptsDir).filter(f => f.endsWith(".md")).length
     : 0;
 
   if (promptCount === 0) {
-    details.push(result("WARN", ".prompts/ directory empty or missing"));
+    details.push(result("WARN", ".claude/.prompts/ directory empty or missing"));
     if (worst === "PASS") worst = "WARN";
   }
 
@@ -250,7 +252,9 @@ export function verifyCrossProject() {
           .filter(f => f.endsWith(".js") || f.endsWith(".cjs"))
           .map(f => f.replace(/\.(c?js)$/, ""));
       }
-      const tPromptsDir = path.join(templateDir, ".prompts");
+      const tPromptsNew = path.join(templateDir, ".claude", ".prompts");
+      const tPromptsLegacy = path.join(templateDir, ".prompts");
+      const tPromptsDir = fs.existsSync(tPromptsNew) ? tPromptsNew : tPromptsLegacy;
       if (fs.existsSync(tPromptsDir)) {
         templatePrompts = fs.readdirSync(tPromptsDir).filter(f => f.endsWith(".md"));
       }
@@ -314,8 +318,10 @@ export function verifyCrossProject() {
         if (worst === "PASS") worst = "WARN";
       }
 
-      // Prompts check
-      const targetPromptsDir = path.join(localPath, ".prompts");
+      // Prompts check (new path: .claude/.prompts/, legacy: .prompts/)
+      const tpNew = path.join(localPath, ".claude", ".prompts");
+      const tpLegacy = path.join(localPath, ".prompts");
+      const targetPromptsDir = fs.existsSync(tpNew) ? tpNew : tpLegacy;
       if (fs.existsSync(targetPromptsDir)) {
         const targetPrompts = fs.readdirSync(targetPromptsDir).filter(f => f.endsWith(".md"));
         const missingPrompts = templatePrompts.filter(p => !targetPrompts.includes(p));
@@ -324,7 +330,7 @@ export function verifyCrossProject() {
           if (worst === "PASS") worst = "WARN";
         }
       } else {
-        details.push(result("WARN", `${name}: .prompts/ not found`));
+        details.push(result("WARN", `${name}: .claude/.prompts/ not found`));
         if (worst === "PASS") worst = "WARN";
       }
     }

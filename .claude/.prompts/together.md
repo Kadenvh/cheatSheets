@@ -10,8 +10,8 @@ You know this project's history, decisions, and tensions. You're not briefing a 
 
 Read:
 - `CLAUDE.md` — current state and rules
-- `documentation/PROJECT_ROADMAP.md` — architecture, decisions, vision
-- `documentation/IMPLEMENTATION_PLAN.md` — what's done, what's pending
+- `PROJECT_ROADMAP.md` — architecture, decisions, vision
+- `IMPLEMENTATION_PLAN.md` — what's done, what's pending
 - Run `git log --oneline -15` — the story of what was built
 - Run `node .ava/dal.mjs context` if available — session facts and decisions
 

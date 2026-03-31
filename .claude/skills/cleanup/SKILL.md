@@ -21,7 +21,7 @@ Comprehensive reconciliation of brain.db against project documentation, plus ing
 
 ## Instructions
 
-Follow the protocol below. For the full detailed version, read `.prompts/cleanup.md`.
+Follow the protocol below. For the full detailed version, read `.claude/.prompts/cleanup.md`.
 
 ### Default Protocol
    - Verify DAL prerequisites and detect mode (first-run vs ongoing)
@@ -72,6 +72,18 @@ Detailed steps:
 
 5. **Extract decisions.** Every architectural choice → `node .ava/dal.mjs decision add ...`.
 
-6. **Scan for orphaned docs.** Find .md files outside expected locations (documentation/, .prompts/, .claude/). Classify: brain.db candidate, vault candidate, redundant, or legitimate. Ingest distilled knowledge, archive originals to `documentation/archive/cleanup-{date}/`.
+6. **Scan for orphaned docs.** Find .md files outside expected locations (.claude/). Classify: brain.db candidate, vault candidate, redundant, or legitimate. Ingest distilled knowledge, archive originals to `.claude/archive/cleanup-{date}/`.
 
 7. **Coverage report.** List each required identity entry as present/MISSING. Count architecture entries by scope. Report decisions. Include document ingestion results. VERDICT: PASS only if all required identity present AND no unprocessed orphans.
+
+## Error Handling
+
+If any step fails (command errors, file not found, brain.db unreachable):
+1. Record the failure: `node .ava/dal.mjs action record "cleanup: <what failed>" --type maintenance --outcome failure`
+2. Do NOT continue silently — report the error to the user with what failed, the error message, and suggested fix.
+3. If brain.db is unreachable, note the failure in the session summary for closeout.
+
+## After Completion
+
+- Record the action: `node .ava/dal.mjs action record "cleanup: <summary>" --type maintenance --outcome success`
+- If this work changed CLAUDE.md rules or key commands, update CLAUDE.md

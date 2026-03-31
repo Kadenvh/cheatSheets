@@ -187,8 +187,8 @@ Before considering the spec complete:
 
 ## 7. OUTPUT
 
-- Store requirement specs in `documentation/plans/` as `requirements-<feature-slug>.md`. (Create the directory if it doesn't exist.)
-- If the spec references architecture, link to or generate diagrams in `documentation/visualization/`.
+- Store requirement specs in `.claude/plans/` as `requirements-<feature-slug>.md`. (Create the directory if it doesn't exist.)
+- If the spec references architecture, link to or generate diagrams in the Obsidian vault or `.claude/plans/`.
 
 ---
 
@@ -198,7 +198,7 @@ Before considering the spec complete:
 2. Clarify ambiguity (ask questions, document assumptions)
 3. Write requirements with acceptance criteria (Given/When/Then)
 4. Include non-functional requirements with measurable thresholds
-5. Organize into specification document — store in `documentation/plans/`
+5. Organize into specification document — store in `.claude/plans/`
 6. Validate (every requirement testable, no vague language, edge cases covered)
 
 Clear requirements are the cheapest way to prevent expensive mistakes. Write them well.

@@ -1,6 +1,6 @@
 # Agent System Reference
 
-**For:** PE Documentation Framework v5.12.0 | **Schema:** v12 | **Updated:** 2026-03-30
+**For:** PE Documentation Framework v5.15.0 | **Schema:** v12 | **Updated:** 2026-03-30
 
 This is the single reference document for understanding the full agent memory and documentation system. Any agent — Claude or otherwise — should be able to read this file and understand how the system works.
 
@@ -9,9 +9,9 @@ This is the single reference document for understanding the full agent memory an
 ## Quick Start
 
 - **brain.db** at `.ava/brain.db` — SQLite database, schema v12, 10 tables. Active memory cache for session continuity.
-- **Prompts** at `.prompts/*.md` — protocol files for skills. Canonical location: **project root**. NOT `documentation/.prompts/` (legacy, should be deleted if found).
+- **Prompts** at `.claude/.prompts/*.md` — protocol files for skills. Canonical location: `.claude/.prompts/`. NOT any legacy `documentation/.prompts/` or root `.prompts/` location (should be deleted if found).
 - **Skills** invoked via `/skill-name` slash commands. Definitions in `.claude/skills/*/SKILL.md`.
-- **Hooks** in `.claude/hooks/*.js` — auto-fire on tool use and session events. 8 hooks deployed.
+- **Hooks** in `.claude/hooks/*.js` — auto-fire on tool use and session events. 9 hooks deployed.
 - **Vault** — persistent knowledge web (Layer 2). Optional. Resolve path: brain.db `vault.path` > `$OBSIDIAN_VAULT` > `~/Obsidian/Ava/{ProjectName}/`.
 - **CLAUDE.md** at project root — critical rules, auto-loaded by Claude Code. Keep under 5KB.
 - **Full project state:** `node .ava/dal.mjs context` — generates the context payload injected at session start.
@@ -109,23 +109,23 @@ node .ava/dal.mjs template sync <path> --dal        # Also sync DAL runtime
 
 ## File System Layout
 
-### `.prompts/` — Skill Protocol Files
+### `.claude/.prompts/` — Skill Protocol Files
 
-Markdown files containing detailed protocols that skills read at invocation time. **Canonical location: project root.** Skills reference `.prompts/*.md` — never `documentation/.prompts/`.
+Markdown files containing detailed protocols that skills read at invocation time. **Canonical location: `.claude/.prompts/`.** Skills reference `.claude/.prompts/*.md` — never any legacy `documentation/.prompts/` or root `.prompts/` path.
 
 Each prompt file is a standalone protocol: oriented toward a specific workflow (init, closeout, debugging, etc.) with step-by-step instructions an agent can follow.
 
-Current inventory (21 active):
-`init.md`, `closeout.md`, `cleanup.md`, `dal-doctor.md`, `system-reference.md` (this file), `explore.md` (includes discovery mode), `validate.md` (includes docs/setup/readme checks), `architecture.md`, `code-review.md`, `debugging.md`, `requirements.md`, `testing.md`, `refactor.md`, `migration.md`, `together.md`, `agent-qa.md`, `METRICS.md`, `plan-validator.md`, `supabase.md`, `triage.md`, `ui-dev.md`
+Current inventory (22 active):
+`init.md`, `closeout.md`, `cleanup.md`, `dal-doctor.md`, `system-reference.md` (this file), `explore.md` (includes discovery mode), `validate.md` (includes docs/setup/readme checks), `architecture.md`, `code-review.md`, `debugging.md`, `frontier-research.md`, `requirements.md`, `testing.md`, `refactor.md`, `migration.md`, `together.md`, `agent-qa.md`, `METRICS.md`, `plan-validator.md`, `supabase.md`, `triage.md`, `ui-dev.md`
 
 ### `.claude/skills/` — Slash Command Definitions
 
 Each subdirectory contains a `SKILL.md` file defining a slash command (`/skill-name`). The SKILL.md provides:
 - Frontmatter: name, description, allowed-tools
-- Brief protocol summary (inline fallback if .prompts/ file missing)
-- References the corresponding `.prompts/*.md` for full protocol
+- Brief protocol summary (inline fallback if .claude/.prompts/ file missing)
+- References the corresponding `.claude/.prompts/*.md` for full protocol
 
-Skills are thin wrappers. The real protocol lives in `.prompts/`.
+Skills are thin wrappers. The real protocol lives in `.claude/.prompts/`.
 
 ### `.claude/hooks/` — Automated Guards & Context Injection
 
@@ -252,7 +252,7 @@ Stop
 ### How Pieces Interact
 
 1. **Hooks inject brain.db context** — agent starts every session with full project state
-2. **Skills read `.prompts/`** — protocols are in markdown files, skills are thin wrappers
+2. **Skills read `.claude/.prompts/`** — protocols are in markdown files, skills are thin wrappers
 3. **Agent records to brain.db** — identity, architecture, decisions, actions, metrics during work
 4. **Closeout writes vault notes** — session summaries, decisions persist beyond brain.db
 5. **Handoff YAML** — structured session state for the next session to pick up
@@ -331,11 +331,11 @@ When bootstrapping a new project's documentation system, create three files. The
 
 ### PROJECT_ROADMAP.md Template
 
-Place in `documentation/`. Contains: project vision, version history table, architecture overview, tech stack with rationale, future roadmap, alternatives considered.
+Place at project root. Contains: project vision, version history table, architecture overview, tech stack with rationale, future roadmap, alternatives considered.
 
 ### IMPLEMENTATION_PLAN.md Template
 
-Place in `documentation/`. Contains: current status, task checklists, known issues/blockers, debugging notes, files modified, handoff notes for next session.
+Place at project root. Contains: current status, task checklists, known issues/blockers, debugging notes, files modified, handoff notes for next session.
 
 ### Routing Rule
 

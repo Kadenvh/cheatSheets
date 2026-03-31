@@ -38,6 +38,19 @@ If the summary is incomplete, work with what you have. Do NOT ask for more infor
    - New features or endpoints --> Minor (1.0.x --> 1.1.0)
    - Breaking changes or major refactors --> Major (1.x.x --> 2.0.0)
 
+### Part A-1: Completion Audit (before recording anything as done)
+
+For each feature listed in the session summary, verify vertical completion:
+
+| Check | How to Verify | If it fails |
+|-------|--------------|-------------|
+| Backing store exists | `ls -la` the DB/file. 0 bytes or missing = not done. | Mark as partial |
+| Backing store has data | Query row count or check content. Empty = not done. | Mark as partial |
+| User loop closes | Can the user perform the action end-to-end? | Mark as partial |
+
+**"Shipped X"** requires all checks passing. If any fails, record with `--outcome partial`.
+Do NOT version-bump for partial features.
+
 ### Part A-1.5: Extract Implicit Knowledge
 
 Before recording to brain.db, scan the session summary and any codebase changes for **implicit knowledge** not explicitly listed:
@@ -80,23 +93,44 @@ Add extracted knowledge to the recording list below.
 
 Record what you did this session so future sessions can learn from it:
 
-1. **Record actions** — for each significant action (feature, fix, deployment, refactor, investigation):
+1. **Verify traces were recorded** — traces should have been added during work. If not, backfill now:
+   ```bash
+   node .ava/dal.mjs trace add "key step 1 summary"
+   node .ava/dal.mjs trace add "key step 2 summary"
+   ```
+   Traces auto-collect into the handoff YAML. Without them, the next agent gets no step-by-step record.
+
+2. **Record actions** — for each significant action (feature, fix, deployment, refactor, investigation):
    ```bash
    node .ava/dal.mjs action record "description" --type <type> --outcome success|failure|partial
    ```
-   Types: `bugfix`, `feature`, `refactor`, `deployment`, `schema_evolution`, `consolidation`, `investigation`
+   Types: `bugfix`, `feature`, `refactor`, `deployment`, `schema_evolution`, `consolidation`, `investigation`, `maintenance`
 
-2. **Record metrics** — capture measurable session outcomes:
+   Actions auto-bind to the open session. If no session is open, they get `session_id = null`.
+
+3. **Record metrics** — capture measurable session outcomes:
    ```bash
    node .ava/dal.mjs metric record <key> --value <number> --context "explanation"
    ```
 
-3. **Self-assess** — run `node .ava/dal.mjs loop summary` and check:
+4. **Self-assess** — run `node .ava/dal.mjs loop summary` and check:
    - Did any action type fail this session? Record why.
    - Are key metrics trending in the right direction?
    - Record feedback on your own actions if useful: `node .ava/dal.mjs feedback record <action_id> --rating helpful|neutral|harmful --source self`
 
 **Do not skip Part A-2.5.** The learning loop only works if every session contributes data.
+
+### Part A-2.6: Close the DAL Session
+
+All brain.db recording is complete. Formally close the session:
+
+```bash
+node .ava/dal.mjs session close --summary "1-2 sentence session summary"
+```
+
+**Critical:** Pass `--summary` with a meaningful description. Without it, the session record has a NULL summary.
+
+This must happen AFTER all brain.db writes and BEFORE the final commit. If no session is open, do NOT call session close — it creates a phantom record.
 
 ### Part B: Update Documentation
 
@@ -135,6 +169,22 @@ Only update if a milestone was reached or architectural decisions were made:
 - Update build/run commands if the process changed.
 - **Front-load critical info** -- anti-patterns and critical rules come before file structure.
 
+#### B3.1: Update CHANGELOG.md (if version bumped)
+
+If version was incremented, CHANGELOG.md MUST be updated:
+- Add `[{version}] -- {YYYY-MM-DD}` section at top
+- Group changes: Breaking, Features, Fixes, Cleanup
+- Include ALL changes from the session summary
+
+#### B3.2: Check AutoMemory for Promotion
+
+Check `.claude/memory/MEMORY.md` (if exists) for entries that should be promoted to brain.db:
+- Architecture-quality entries → `arch set` with appropriate scope
+- Identity-quality entries → `identity set`
+- Decision-quality entries → `decision add`
+
+Annotate promoted entries with `<!-- promoted to brain.db -->`. Do NOT delete from MEMORY.md.
+
 #### B3.5: Vault Note — Conditional Export
 
 Export a vault session note if ANY of these are true:
@@ -149,6 +199,8 @@ node .ava/dal.mjs vault sync {ProjectSlug} 2>/dev/null || true
 ```
 
 Skip vault export for trivial sessions (typo fixes, single-note closes, failed/abandoned).
+
+**Vault folder schema:** Only `sessions/`, `architecture/`, `plans/`, `schemas/`, `VAULT_GUIDE.md` belong in the vault project folder. Do NOT copy project files into the vault.
 
 #### B4: Create Subfolder READMEs
 

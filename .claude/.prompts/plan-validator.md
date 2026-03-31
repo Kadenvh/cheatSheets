@@ -10,7 +10,7 @@ Locate all plan files in the project:
 
 ### 1.1 Local Plans
 ```bash
-find documentation/plans/ -name "*.md" -type f 2>/dev/null
+find .claude/plans/ -name "*.md" -type f 2>/dev/null
 ```
 Also check for plans at project root or in `plans/` directly.
 

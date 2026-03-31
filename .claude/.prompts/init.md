@@ -10,24 +10,93 @@ Every project in this ecosystem follows a hub-and-spoke documentation model. You
 
 ### Look For (In the Project Root)
 
-| File | What It Tells You | Read Order |
+| File / Source | What It Tells You | Read Order |
 |------|-------------------|------------|
 | `CLAUDE.md` | Critical rules, anti-patterns, quick start, file structure, tech stack | **1st** (auto-loaded by Claude Code) |
-| `documentation/PROJECT_ROADMAP.md` | Why decisions were made, version history, architecture, future direction | 2nd (if file exists) |
-| `documentation/IMPLEMENTATION_PLAN.md` | Current tasks, what happened last session, blockers, handoff notes | **3rd** (if file exists — start work from here) |
-| `.prompts/` | Skill protocol files (this file, dal-doctor, explore, closeout, validate, system-reference, etc.) | Reference as needed |
+| **brain.db context** | Identity, architecture, decisions, session history, open notes | **2nd** (already injected by session-context hook if brain.db exists) |
+| **`SYSTEM-OVERVIEW.md`** | **MUST READ.** Your operating manual - every skill, hook, brain.db command, knowledge layer, file layout. Without this you are working blind. | **3rd** (REQUIRED if file exists) |
+| `.claude/plans/` | Active kickstart, analysis, or remediation plans from prior sessions | **4th** (check for `session-*-kickstart.md` — means prior session prepared work for you) |
+| `PROJECT_ROADMAP.md` | Why decisions were made, version history, architecture, future direction | 5th (if file exists — file-mode projects) |
+| `IMPLEMENTATION_PLAN.md` | Current tasks, what happened last session, blockers, handoff notes | 6th (if file exists — file-mode projects, start work from here) |
+| `.claude/.prompts/` | Skill protocol files (this file, dal-doctor, explore, closeout, validate, system-reference, etc.) | Reference as needed |
 
 If `CLAUDE.md` exists at the project root, it is auto-loaded — you already have it. Read it anyway to confirm you've internalized the critical rules.
 
-If the project is a **spoke** (sub-project), it may have a slimmer `documentation/CLAUDE.md` with project-specific rules, plus a `README.md` at its root. The parent hub's docs cover the broader context.
+If the project is a **spoke** (sub-project), it may have a slimmer `CLAUDE.md` with project-specific rules, plus a `README.md` at its root. The parent hub's docs cover the broader context.
 
-**File-mode vs brain.db-mode:** `PROJECT_ROADMAP.md` and `IMPLEMENTATION_PLAN.md` are used in file-mode projects. If these files exist, read them. brain.db-mode projects skip these — `node .ava/dal.mjs context` provides equivalent data (identity, architecture, decisions, session history, open notes).
+**File-mode vs brain.db-mode:** `PROJECT_ROADMAP.md` and `IMPLEMENTATION_PLAN.md` are used in file-mode projects. If these files exist, read them (after brain.db context and working documents). brain.db-mode projects skip these — `node .ava/dal.mjs context` provides equivalent data (identity, architecture, decisions, session history, open notes).
 
 ### If Documentation Is Missing
 
 - No `CLAUDE.md` → flag to user, offer to run `/dal-doctor` to create the documentation system
 - No `IMPLEMENTATION_PLAN.md` and no `.ava/brain.db` → check if there's a README.md or other docs; ask the user for context on current state
-- No `.prompts/` → the project hasn't adopted this system yet; proceed with whatever docs exist
+- No `.claude/.prompts/` → the project hasn't adopted this system yet; proceed with whatever docs exist
+
+---
+
+## 1b. UNDERSTAND THE SYSTEM LAYOUT
+
+This project uses the PE documentation framework. Here is what goes where — every file and folder has exactly one home.
+
+### Project Folder Layout
+
+A properly configured project looks like this:
+
+```
+{Project}/
+├── .ava/                    # DAL runtime (gitignored)
+│   ├── brain.db             # Active memory — sessions, decisions, architecture, notes
+│   ├── dal.mjs              # CLI interface to brain.db
+│   ├── lib/                 # Runtime modules
+│   ├── migrations/          # Schema evolution
+│   └── handoffs/            # YAML session handoffs (auto-pruned to 20)
+├── .claude/                 # Claude Code configuration
+│   ├── settings.json        # Hooks, permissions, env vars (from template)
+│   ├── settings.local.json  # Machine-specific overrides (never committed)
+│   ├── skills/              # Skill definitions (SKILL.md files)
+│   ├── hooks/               # Auto-firing event handlers (JS)
+│   ├── agents/              # Subagents (closeout-worker)
+│   ├── plans/               # Active session plans and kickstarts
+│   └── memory/              # AutoMemory observations (auto-managed)
+│   └── .prompts/            # Skill protocol files (markdown, from template)
+├── CLAUDE.md                # Critical rules (auto-loaded, project-specific)
+├── README.md                # Human entry point
+├── CHANGELOG.md             # Version history (if versioned)
+└── {project code}           # The actual codebase
+```
+
+### Where Information Lives
+
+| Location | What goes here | What does NOT go here | Updated by |
+|----------|---------------|----------------------|------------|
+| **CLAUDE.md** | DO/DON'T rules, build commands, file structure, tech stack, key commands | Session state, task lists, version history, architecture rationale | Closeout (every session with changes) |
+| **brain.db** | Decisions (why), architecture (how), identity (who), sessions (when), notes (what's next), traces (breadcrumbs), learning loop (performance) | Prose, narratives, code, project data | DAL CLI during work + closeout |
+| **`.claude/memory/`** | Working observations, patterns noticed, user preferences, debug notes | Decisions, architecture, anything structured enough for brain.db | AutoMemory (automatic) |
+| **`.claude/plans/`** | Active kickstart files, analysis plans, remediation plans | Completed plans (archive or delete) | Closeout (creates kickstart for next session) |
+| **Obsidian vault** | Session summaries, architecture notes, plans, schemas — curated knowledge | Project files, code, configs, node_modules, .git, .ava, .claude | vault-export at closeout (conditional) |
+
+### Obsidian Vault Schema (if vault exists)
+
+The vault folder for this project should contain ONLY:
+
+```
+~/Obsidian/Ava/{ProjectSlug}/
+├── sessions/        # Session summary notes (from vault-export)
+├── architecture/    # Architecture notes
+├── plans/           # Plans and roadmaps
+├── schemas/         # Data schema documentation
+└── VAULT_GUIDE.md   # Project-specific vault governance
+```
+
+**NO project files** should exist in the vault folder — no code, no configs, no node_modules, no .git, no .ava, no .claude. If you find project files in the vault, the Syncthing share is misconfigured or a previous agent dumped files there incorrectly. Flag it to the user.
+
+### Template Deployment Model
+
+This project's `.claude/` (including `.claude/.prompts/`) and `.ava/` files come from the PE template. They are deployed via:
+- `node .ava/dal.mjs template pull` — pulls updates from the configured template source
+- The template source is set in brain.db: `node .ava/dal.mjs identity get template.source`
+
+Template sync NEVER overwrites: `CLAUDE.md`, `brain.db`, `settings.local.json`. These are project-specific.
 
 ---
 
@@ -45,6 +114,10 @@ After reading the docs, build a mental model by scanning the project structure:
 ## 3. VERIFY STATE
 
 Before proceeding to any task, confirm:
+
+**Note:** The session-context hook has already injected brain.db state, git status, and the latest handoff YAML into your context. Review this injected context before running additional DAL commands — most of what you need is already loaded.
+
+**Settings priority:** Project `.claude/settings.local.json` overrides `.claude/settings.json`. Global `~/.claude/` settings are system-level defaults — project settings always win. Check that `autoMemoryDirectory` is set to `.claude/memory` in `settings.local.json` (not settings.json). If missing, add it.
 
 - [ ] **Version consistency** — if `PROJECT_ROADMAP.md` and `IMPLEMENTATION_PLAN.md` exist, does the version in `CLAUDE.md` match them? If not, flag it. brain.db-mode projects: check `node .ava/dal.mjs identity list` for version instead.
 - [ ] **Stale docs** — are the "Updated" dates recent? Stale docs may not reflect the actual codebase.
@@ -72,6 +145,17 @@ node .ava/dal.mjs arch list      # Scoped architecture knowledge
 - **If brain.db has 0 identity rows and 0 sessions**: the DAL was deployed but never populated. Run `/cleanup` before starting work — it reads the project's docs and populates brain.db with identity, architecture, and decisions. Without this, the DAL provides zero continuity value.
 - **If brain.db has identity rows but is missing key ones** (no `project.name`, no `tech.stack`, no decisions): brain.db is incomplete. Run `/cleanup` to fill gaps before starting work.
 - If `.ava/brain.db` does NOT exist, skip this — the project uses the 3-doc markdown system only.
+
+**First session detection:** If brain.db has 0 sessions and <3 identity entries, this is likely a first-time setup. Run `/dal-doctor` for full initialization rather than proceeding with a partial state. If brain.db has sessions but the last one was >7 days ago, note the gap and check for stale architecture entries.
+
+### Error Recovery
+
+If any DAL command fails during initialization:
+1. Record the error for the session summary — do not silently skip the step.
+2. If brain.db is unreachable: run `/dal-doctor` to diagnose and repair.
+3. If dal.mjs is missing: the DAL runtime is not deployed. Run template sync from PE or report to user.
+4. If identity is empty (0 entries): run `/cleanup` to hydrate from existing docs.
+5. Do NOT proceed as if everything is fine when it isn't. Surface the error clearly.
 
 **Coverage evaluation:** The DAL state injected above (by the SessionStart hook) should give you enough context to understand the project without reading all the docs. If it doesn't — if you find yourself needing to read CLAUDE.md, ROADMAP, and IMPL_PLAN to understand what's going on — that means brain.db is incomplete and `/cleanup` should be run.
 
@@ -102,17 +186,18 @@ Resolve vault path:
 
 If the Obsidian vault exists, check for relevant project context beyond what brain.db provides.
 
-**Step 1: Identify the project folder.** Use `project.name` from identity to find the vault folder (e.g., `PE`, `Ava_Main`, `TradeSignal`).
+**Step 1: Identify the project folder.** Resolve `{ProjectName}` from brain.db identity: `node .ava/dal.mjs identity get project.name`. If a `vault.slug` identity key is set, use that instead (it overrides project.name for vault folder naming). Example result: `PE`, `Ava_Main`, `TradeSignal`.
 
 ```bash
+PROJECT_SLUG=$(node .ava/dal.mjs identity get vault.slug 2>/dev/null || node .ava/dal.mjs identity get project.name 2>/dev/null || echo "UNKNOWN")
 VAULT_PATH=$(node .ava/dal.mjs identity get vault.path 2>/dev/null || echo "${OBSIDIAN_VAULT:-$HOME/Obsidian/Ava}")
-ls "$VAULT_PATH/{ProjectName}/" 2>/dev/null
+ls "$VAULT_PATH/$PROJECT_SLUG/" 2>/dev/null
 ```
 
 **Step 2: Read the most recent session note** (if any exist):
 
 ```bash
-ls -t "$VAULT_PATH/{ProjectName}/sessions/"*.md 2>/dev/null | head -1
+ls -t "$VAULT_PATH/$PROJECT_SLUG/sessions/"*.md 2>/dev/null | head -1
 ```
 
 Read it. This gives you the previous session's summary, decisions made, files modified, and next actions — richer context than the brain.db session summary alone.
@@ -120,7 +205,7 @@ Read it. This gives you the previous session's summary, decisions made, files mo
 **Step 3: Check for active plans:**
 
 ```bash
-ls "$VAULT_PATH/{ProjectName}/plans/"*.md 2>/dev/null
+ls "$VAULT_PATH/$PROJECT_SLUG/plans/"*.md 2>/dev/null
 ```
 
 Read any with `status: active` in their frontmatter. These are living plans that may inform the current session's priorities.
@@ -164,7 +249,7 @@ node .ava/dal.mjs metric trend <key>     # Trend over time for a metric
 
 ## 5. UNDERSTAND THE PROMPT SYSTEM
 
-The `.prompts/` directory contains session lifecycle templates. You are reading one of them right now.
+The `.claude/.prompts/` directory contains session lifecycle templates. You are reading one of them right now.
 
 | Prompt | When To Use |
 |--------|-------------|
@@ -203,6 +288,13 @@ Before waiting for instructions, proactively share what you've noticed:
 
 Don't filter yourself. The human wants a collaborator who notices things, not an executor who waits for orders.
 
+Present your insights in this format:
+- **Version:** current version from identity
+- **Blockers:** anything preventing work (0 if none)
+- **Inconsistencies:** things that don't match (stale counts, version drift, etc)
+- **Recommendations:** 2-3 prioritized suggestions
+- **Questions:** anything that needs user clarification
+
 ---
 
 ## 8. READ PROJECT NOTES
@@ -225,7 +317,7 @@ If no notes system exists, skip this step.
 ### Archived Context
 
 If you encounter references to past decisions, sessions, or architectural context that aren't fully explained in the current core docs, check these locations:
-- `documentation/archive/` — Historical overflow from core docs
+- `.claude/archive/` — Historical overflow from core docs
 - `exploration/` — Research artifacts
 - Any `SESSION_ARCHIVE.md` or similar files referenced in the documentation
 
@@ -242,7 +334,29 @@ Once oriented:
 3. If picking from the plan, propose your approach and get confirmation
 4. If unclear, ask — it's cheaper to clarify now than to redo work later
 
+### Start a DAL Session (before implementation begins)
+
+Once you have confirmation to proceed and know what you're working on, open a DAL session:
+
+```bash
+node .ava/dal.mjs session start "description of the work"
+```
+
+This MUST happen before any `action record`, `trace add`, or other brain.db writes. The session is the container — actions and traces bind to the open session automatically. If you skip this step, all actions will have `session_id = null` and the handoff will show `session_id: "unknown"`.
+
 **When tools or commands fail:** Explain what was attempted, the specific error, and your next approach. Never silently retry or move on without surfacing what happened.
+
+### During Work: Record Traces
+
+As you work, leave breadcrumbs for the next session using session traces:
+
+```bash
+node .ava/dal.mjs trace add "investigating: found root cause in X"
+node .ava/dal.mjs trace add "implementing: rewrote Y to fix Z"
+node .ava/dal.mjs trace add "verified: tests pass after change"
+```
+
+Traces are lightweight — use them for significant steps, not every file edit. They auto-collect into the handoff YAML at closeout, giving the next agent a step-by-step record of what happened and why.
 
 ---
 

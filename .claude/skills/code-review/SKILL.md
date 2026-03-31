@@ -14,7 +14,7 @@ Conduct a structured code review with prioritized, categorized feedback.
 
 ## Instructions
 
-Follow the protocol below. For the full detailed version, read `.prompts/code-review.md`.
+Follow the protocol below. For the full detailed version, read `.claude/.prompts/code-review.md`.
 
 ### Protocol
    - Determine scope (PR diff / full file / architecture)
@@ -39,3 +39,14 @@ Detailed steps:
 3. **Check 6 dimensions:** correctness (bugs, edge cases, types), security (injection, secrets, auth), design (patterns, abstraction, simplicity), readability (naming, flow, comments), performance (obvious issues only), testing (coverage of new behavior).
 4. **Categorize:** 🔴 Must Fix (bugs, security), 🟡 Should Fix (design, maintainability), 🟢 Suggestion (style, alternatives), 💬 Question (unclear intent), 👍 Praise (done well).
 5. **Format:** Summary with finding counts + verdict (Approve / Request Changes / Needs Discussion), then detailed findings with file:line and suggested fix.
+
+## Error Handling
+
+If any step fails (command errors, file not found, brain.db unreachable):
+1. Record the failure: `node .ava/dal.mjs action record "code-review: <what failed>" --type investigation --outcome failure`
+2. Do NOT continue silently — report the error to the user with what failed, the error message, and suggested fix.
+3. If brain.db is unreachable, note the failure in the session summary for closeout.
+
+## After Completion
+
+- Record the review action: `node .ava/dal.mjs action record "code-review: <summary>" --type investigation --outcome success`

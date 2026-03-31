@@ -12,9 +12,9 @@ Activates automatically when the project has CLAUDE.md. Adapts to the project's 
 
 ## Documentation Mode
 
-**brain.db mode** (`.ava/brain.db` exists): CLAUDE.md is the only auto-loaded agent rules file. All other state (decisions, architecture, handoff, version history) lives in brain.db. Reference docs (IMPLEMENTATION_PLAN.md, PROJECT_ROADMAP.md) live in `documentation/` if they exist.
+**brain.db mode** (`.ava/brain.db` exists): CLAUDE.md is the only auto-loaded agent rules file. All other state (decisions, architecture, handoff, version history) lives in brain.db. Reference docs (IMPLEMENTATION_PLAN.md, PROJECT_ROADMAP.md) live at project root if they exist.
 
-**File mode** (no brain.db): Legacy fallback — CLAUDE.md + `documentation/PROJECT_ROADMAP.md` + `documentation/IMPLEMENTATION_PLAN.md`. **If brain.db doesn't exist, run `/dal-doctor` to set up the full system rather than operating in file mode.**
+**File mode** (no brain.db): Legacy fallback — CLAUDE.md + `PROJECT_ROADMAP.md` + `IMPLEMENTATION_PLAN.md` at project root. **If brain.db doesn't exist, run `/dal-doctor` to set up the full system rather than operating in file mode.**
 
 ## Document Hierarchy
 
@@ -25,10 +25,10 @@ Projects may have these document layers. Each has a specific purpose and owner:
 | `CLAUDE.md` | Auto-loaded rules, critical constraints, build/run commands | Agent at closeout | Every session with rule changes |
 | `OVERVIEW.md` (if exists) | Intended schemas, design questions, audit annotations | Agent + human | When system design evolves or audits run |
 | `FileStructure.md` (if exists) | Annotated file tree snapshot with health tags | Agent or tooling | After significant structural changes |
-| `documentation/plans/*.md` | Active analysis, remediation plans, kickstart prompts | Agent | Investigation/planning sessions |
-| `documentation/IMPLEMENTATION_PLAN.md` | Active work state (file mode) / historical reference (brain.db mode) | Agent at closeout | Every session (file mode) |
-| `documentation/PROJECT_ROADMAP.md` | Vision + history (file mode) / historical reference (brain.db mode) | Agent at milestones | Version milestones |
-| `documentation/archive/` | Superseded documents, preserved for historical reference | Agent during cleanup | When docs are superseded |
+| `.claude/plans/*.md` | Active analysis, remediation plans, kickstart prompts | Agent | Investigation/planning sessions |
+| `IMPLEMENTATION_PLAN.md` (root) | Active work state (file mode) / historical reference (brain.db mode) | Agent at closeout | Every session (file mode) |
+| `PROJECT_ROADMAP.md` (root) | Vision + history (file mode) / historical reference (brain.db mode) | Agent at milestones | Version milestones |
+| Obsidian vault | Persistent knowledge: session summaries, architecture notes, plans, schemas. Canonical folders: `sessions/`, `architecture/`, `plans/`, `schemas/`, `VAULT_GUIDE.md` — NO project files (code, configs, node_modules) | Agent at closeout (conditional export) | Sessions with decisions, version changes, or significant features |
 
 **Agents should improve these documents proactively.** If you discover stale content, incorrect annotations, or missing audit notes in OVERVIEW.md, FileStructure.md, or plans/ — update them as part of your work. Don't wait for explicit instruction. These are living documents, not static artifacts.
 
@@ -47,15 +47,15 @@ Information lives in ONE place. Ask: "What question does this answer?"
 | "What's done, what's broken, what's next?" | brain.db notes + session records |
 | "What is the intended system design?" | OVERVIEW.md (if exists) |
 | "What files exist and what's their status?" | FileStructure.md (if exists) |
-| "What's the plan for the next session?" | `documentation/plans/` kickstart file |
+| "What's the plan for the next session?" | `.claude/plans/` kickstart file |
 
 **File mode:**
 
 | Question | Belongs in... |
 |---|---|
 | "What do I need to know to work right now?" | CLAUDE.md |
-| "How did we get here and where are we going?" | `documentation/PROJECT_ROADMAP.md` |
-| "What's done, what's broken, what's next?" | `documentation/IMPLEMENTATION_PLAN.md` |
+| "How did we get here and where are we going?" | `PROJECT_ROADMAP.md` (root) |
+| "What's done, what's broken, what's next?" | `IMPLEMENTATION_PLAN.md` (root) |
 
 Never duplicate information. Reference, never copy.
 
@@ -90,8 +90,8 @@ The `/cleanup` skill checks for these and prompts if missing.
 
 ## Session Lifecycle
 
-1. **Init** (`/session-init`) — brain.db context is injected automatically. Read CLAUDE.md. Check for OVERVIEW.md, FileStructure.md, and `documentation/plans/` kickstart files. Verify state.
-2. **Work** — Respect boundaries. Record decisions as you make them. Update working documents (OVERVIEW.md, plans/) as findings emerge.
-3. **Closeout** (`/session-closeout`) — Record to brain.db (identity, architecture, decisions, notes, loop data). Update CLAUDE.md. Update working documents. Export vault note if session qualifies (1+ decisions, version change, significant work). Commit.
+1. **Init** (`/session-init`) — brain.db context is injected automatically. Read CLAUDE.md (rules). Read SYSTEM-OVERVIEW.md (your operating manual - skills, hooks, commands, knowledge layers). Check `.claude/plans/` for kickstart files. Verify state. **Start a DAL session** before implementation begins.
+2. **Work** — Respect boundaries. Record decisions as you make them. **Record traces** (`node .ava/dal.mjs trace add "..."`) for significant steps — these auto-collect into the handoff. Update working documents (OVERVIEW.md, plans/) as findings emerge.
+3. **Closeout** (`/session-closeout`) — Record to brain.db (identity, architecture, decisions, notes, loop data). Update CLAUDE.md. Update working documents. Export vault note if session qualifies (1+ decisions, version change, significant work). **Close session with summary.** Commit.
 
 Skipping closeout causes context loss. The Stop hook will remind you (>120 minutes since last doc edit).

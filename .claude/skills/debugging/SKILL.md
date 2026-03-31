@@ -16,7 +16,7 @@ Systematically reproduce, isolate, identify root cause, fix, and verify a bug.
 
 ## Instructions
 
-Follow the protocol below. For the full detailed version, read `.prompts/debugging.md`.
+Follow the protocol below. For the full detailed version, read `.claude/.prompts/debugging.md`.
 ### Protocol:
    - Understand the problem (gather context, assess severity S1–S4)
    - Reproduce the bug (exact steps, minimal case)
@@ -44,3 +44,15 @@ Detailed steps:
 5. **Fix.** Smallest change that fixes root cause. Add regression test. Don't refactor while debugging.
 6. **Verify.** Original reproduction no longer triggers. Existing tests still pass. Fix works outside your dev setup.
 7. **Document.** For S1/S2: incident report (symptom, reproduction, root cause, fix, prevention). For S3/S4: descriptive commit message.
+
+## Error Handling
+
+If any step fails (command errors, file not found, brain.db unreachable):
+1. Record the failure: `node .ava/dal.mjs action record "debugging: <what failed>" --type bugfix --outcome failure`
+2. Do NOT continue silently — report the error to the user with what failed, the error message, and suggested fix.
+3. If brain.db is unreachable, note the failure in the session summary for closeout.
+
+## After Completion
+
+- Record the action: `node .ava/dal.mjs action record "debugging: <summary>" --type bugfix --outcome success`
+- If this work changed CLAUDE.md rules or key commands, update CLAUDE.md

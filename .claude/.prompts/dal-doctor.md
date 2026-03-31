@@ -4,9 +4,9 @@ You are a system health agent. You handle first-run setup, ongoing diagnostics, 
 
 **This tool replaces:** `/bootstrap` (first-run setup), `/dal-setup` (configuration), and the previous `/dal-doctor` (diagnostics only). One entry point for all system health operations.
 
-**Source of truth:** Physical files (.prompts/, .claude/skills/, .claude/hooks/, .claude/agents/, CLAUDE.md) are truth. brain.db stores active memory (identity, architecture, decisions, sessions, notes) — NOT prompt content or file inventories.
+**Source of truth:** Physical files (.claude/.prompts/, .claude/skills/, .claude/hooks/, .claude/agents/, CLAUDE.md, SYSTEM-OVERVIEW.md) are truth. brain.db stores active memory (identity, architecture, decisions, sessions, notes) — NOT prompt content or file inventories.
 
-**System reference:** For full background on the system architecture, read `.prompts/system-reference.md`. It covers brain.db schema, file layout, vault architecture, session lifecycle, and documentation templates.
+**System reference:** Read `SYSTEM-OVERVIEW.md` at project root first — it's the agent operating manual covering skills, hooks, brain.db commands, knowledge layers, and file layout. For deeper schema details, read `.claude/.prompts/system-reference.md`.
 
 ---
 
@@ -34,10 +34,9 @@ sqlite3 /tmp/remote-brain.db "SELECT MAX(version) FROM schema_version;"
 
 | Project | Location | Access |
 |---------|----------|--------|
-| Ava_Main, CloudBooks, seatwise, tradeSignal, WATTS, PE | Local `/home/ava/` | Direct filesystem |
+| Ava_Main, CloudBooks, seatwise, tradeSignal, WATTS, PE, cheatSheets, 3D_Printing | Local `/home/ava/` | Direct filesystem |
 | McQueenyML | Frank `C:\McQueenyML` | SCP via `Kaden@100.78.176.121` |
 | adze-cad | Zoe `C:\adze-cad` | SCP via `Kaden@100.90.215.74` |
-| CheatSheets, 3D_Printing | Ava_Main spokes | Local under Ava_Main |
 
 ```bash
 # PE ecosystem SSH examples
@@ -87,15 +86,17 @@ node <project>/.ava/dal.mjs status     # Verify: schema version, integrity OK
 
 **If identity = 0 and sessions = 0:** Empty brain.db. Run `/cleanup` to hydrate from codebase docs, then return here for health checks.
 
-### Step 0d: Check CLAUDE.md
+### Step 0d: Check CLAUDE.md and SYSTEM-OVERVIEW.md
 
 If `CLAUDE.md` does not exist at the project root, the project needs documentation bootstrapping:
 
-1. Read all source files to understand the project
-2. Create `CLAUDE.md` at project root using the template from `.prompts/system-reference.md`
-3. Create `documentation/PROJECT_ROADMAP.md` (vision, history, architecture, future)
-4. Create `documentation/IMPLEMENTATION_PLAN.md` (status, tasks, handoff)
-5. Validate: version numbers match, no duplication, critical rules front-loaded
+1. Deploy the PE template first: `node .ava/dal.mjs template pull --dal` (this brings SYSTEM-OVERVIEW.md, skills, hooks, prompts, agents)
+2. Read all source files to understand the project
+3. Create `CLAUDE.md` at project root. Use the starter framework from the deployed template as a base. Must contain: version header, critical DO/DON'T rules, build/run commands, tech stack, file structure.
+4. Hydrate brain.db from CLAUDE.md: `node .ava/dal.mjs identity set "project.name" --value "..."` etc. Run `/cleanup` for comprehensive hydration.
+5. Validate: CLAUDE.md has Version header and Critical Rules. SYSTEM-OVERVIEW.md exists (deployed by template).
+
+**Do NOT create PROJECT_ROADMAP.md or IMPLEMENTATION_PLAN.md** - these are legacy file-mode artifacts. brain.db stores decisions, architecture, sessions, and notes. CLAUDE.md stores rules. SYSTEM-OVERVIEW.md explains the system.
 
 **Quality check:** Read ONLY your CLAUDE.md. Can you avoid every critical mistake? If not, the DO NOT section is incomplete.
 
@@ -119,7 +120,12 @@ Copy `VAULT_GUIDE.md` from `_templates/` if available, or create a minimal one.
 
 ### Step 0f: Post-setup
 
-After first-run setup, add `.ava/brain.db*` to `.gitignore` if not already present. Verify the SessionStart hook (`.claude/hooks/session-context.js`) exists and is wired in `settings.json`. Then continue to Phase 1 for health checks.
+After first-run setup:
+1. Add `.ava/brain.db*` to `.gitignore` if not already present
+2. Verify the SessionStart hook (`.claude/hooks/session-context.js`) exists and is wired in `settings.json`
+3. Verify `SYSTEM-OVERVIEW.md` exists at project root (deployed by template pull)
+4. Verify `.claude/.prompts/` has prompt files (deployed by template pull)
+Then continue to Phase 1 for health checks.
 
 ---
 
@@ -227,12 +233,12 @@ SELECT category, COUNT(*) as c FROM notes WHERE completed = 0 GROUP BY category;
 
 ### Category 7: Physical File Health
 
-**Prompts are physical files, NOT brain.db rows.** Check `.prompts/` directory against PE canonical:
+**Prompts are physical files, NOT brain.db rows.** Check `.claude/.prompts/` directory against PE canonical:
 
 ```bash
 PE_SOURCE=$(node <project>/.ava/dal.mjs identity get template.source 2>/dev/null || echo "")
-PE="${PE_SOURCE:-.}/.prompts"
-PROJECT="<project>/.prompts"
+PE="${PE_SOURCE:-.}/.claude/.prompts"
+PROJECT="<project>/.claude/.prompts"
 # Compare file counts
 ls "$PE"/*.md 2>/dev/null | wc -l
 ls "$PROJECT"/*.md 2>/dev/null | wc -l
@@ -249,18 +255,21 @@ done
 **Legacy location detection:**
 
 ```bash
-# Check for stale documentation/.prompts/ directory
-ls <project>/documentation/.prompts/ 2>/dev/null && echo "LEGACY: documentation/.prompts/ exists — should be deleted. Canonical location is .prompts/ at project root."
+# Check for stale .prompts/ in legacy locations
+ls <project>/documentation/.prompts/ 2>/dev/null && echo "LEGACY: documentation/.prompts/ exists — should be deleted. Canonical location is .claude/.prompts/."
+ls <project>/.prompts/ 2>/dev/null && echo "LEGACY: root .prompts/ exists — should be deleted. Canonical location is .claude/.prompts/."
 ```
 
-Also check CLAUDE.md exists and has required sections (Version, Critical Rules).
+Also check CLAUDE.md and SYSTEM-OVERVIEW.md exist and have required sections.
 
-- Missing .prompts/ directory -> CRITICAL
+- Missing .claude/.prompts/ directory -> CRITICAL
 - Missing prompt files vs canonical -> WARNING
 - Prompt file drift vs canonical -> INFO (may be intentional customization)
-- `documentation/.prompts/` exists -> WARNING (legacy location, recommend deletion)
+- Legacy `documentation/.prompts/` or root `.prompts/` exists -> WARNING (legacy location, recommend deletion)
+- Legacy `documentation/` folder exists -> WARNING (eliminated v5.14.0; plans go to .claude/plans/, archives to archive/)
 - Missing CLAUDE.md -> CRITICAL
 - CLAUDE.md missing Version header -> WARNING
+- Missing SYSTEM-OVERVIEW.md -> WARNING (deploy via template pull)
 
 ### Category 8: Skills, Hooks & Settings Alignment
 
@@ -414,7 +423,7 @@ fi
      Downstream projects should customize these values for their own environment. -->
 ```bash
 # PE ecosystem hardcoded paths
-for p in /home/ava/Ava_Main /home/ava/CloudBooks /home/ava/seatwise /home/ava/tradeSignal /home/ava/WATTS /home/ava/Prompt_Engineering; do
+for p in /home/ava/Ava_Main /home/ava/CloudBooks /home/ava/seatwise /home/ava/tradeSignal /home/ava/WATTS /home/ava/cheatSheets /home/ava/3D_Printing /home/ava/Prompt_Engineering; do
   echo "=== $(basename $p) ==="
   node "$p/.ava/dal.mjs" status --brief 2>&1 || echo "NO DAL"
 done
@@ -476,11 +485,12 @@ curl -s -X POST http://localhost:4173/api/docs/sync-prompts \
 ```
 <!-- /PE-ECOSYSTEM-ONLY -->
 
-**Delete legacy `.prompts/` location:**
+**Delete legacy `.prompts/` locations:**
 
 ```bash
-# Only after confirming .prompts/ at root has all files
-rm -r <project>/documentation/.prompts/
+# Only after confirming .claude/.prompts/ has all files
+rm -r <project>/documentation/.prompts/   # remove legacy location
+rm -r <project>/.prompts/                 # remove legacy root location
 ```
 
 **Protections:** Never touch brain.db content, CLAUDE.md, settings.local.json, or custom skills/agents.

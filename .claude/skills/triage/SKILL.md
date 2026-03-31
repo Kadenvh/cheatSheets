@@ -15,7 +15,7 @@ Read state from every project in the ecosystem — health beacons, vault session
 
 ## Instructions
 
-Follow the protocol below. For the full detailed version, read `.prompts/triage.md`.
+Follow the protocol below. For the full detailed version, read `.claude/.prompts/triage.md`.
 
 ### Protocol:
    - **Read health beacons** → `~/.pe-health/*.json` for machine-readable status per project
@@ -55,4 +55,11 @@ node .ava/dal.mjs ecosystem notes
 for p in PE Ava_Main McQueenyML CloudBooks; do
   ls -t "/home/ava/Obsidian/Ava/$p/sessions/"*.md 2>/dev/null | head -1
 done
+
+## Error Handling
+
+If any step fails (command errors, file not found, brain.db unreachable):
+1. Record the failure: `node .ava/dal.mjs action record "triage: <what failed>" --type investigation --outcome failure`
+2. Do NOT continue silently — report the error to the user with what failed, the error message, and suggested fix.
+3. If brain.db is unreachable, note the failure in the session summary for closeout.
 ```

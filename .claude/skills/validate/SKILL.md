@@ -17,7 +17,7 @@ Unified project validation: documentation consistency, template deployment verif
 ## Instructions
 
 1. Load the validate prompt:
-   - Read `.prompts/validate.md` (relative to project root)
+   - Read `.claude/.prompts/validate.md` (relative to project root)
 2. Follow its protocol — runs 4 validation domains by default:
    - **Domain 1: Documentation Consistency** — version/date sync, routing compliance, duplication, completeness, orphans, brain.db alignment
    - **Domain 2: Template Deployment** — prompts, skills, hooks, agents, settings, DAL state
@@ -35,11 +35,23 @@ Unified project validation: documentation consistency, template deployment verif
 
 ## Inline Fallback (if prompt file not found)
 
-If `.prompts/validate.md` cannot be located:
+If `.claude/.prompts/validate.md` cannot be located:
 
 1. **Docs check.** Read CLAUDE.md, PROJECT_ROADMAP.md, IMPLEMENTATION_PLAN.md. Verify versions match, dates match, no content in wrong files, no duplication, all required sections present.
-2. **Template check.** Verify `.prompts/` has expected files, `.claude/skills/` has skill dirs with SKILL.md, `.claude/hooks/` has hook scripts, settings.json parses.
+2. **Template check.** Verify `.claude/.prompts/` has expected files, `.claude/skills/` has skill dirs with SKILL.md, `.claude/hooks/` has hook scripts, settings.json parses.
 3. **CLAUDE.md check.** Verify sub-projects have CLAUDE.md with version, rules, build commands. Check staleness and content boundaries. READMEs are secondary (human-facing).
 4. **Skill check.** Verify each `.claude/skills/*/SKILL.md` has valid frontmatter, matching prompt, required sections, correct invocation rules, accurate counts.
 5. **DAL check** (if `.ava/brain.db` exists). Run `dal.mjs status` and `dal.mjs verify`. Flag unpopulated databases.
 6. Report each check as PASS/FAIL with specific fix instructions.
+
+## Error Handling
+
+If any step fails (command errors, file not found, brain.db unreachable):
+1. Record the failure: `node .ava/dal.mjs action record "validate: <what failed>" --type maintenance --outcome failure`
+2. Do NOT continue silently — report the error to the user with what failed, the error message, and suggested fix.
+3. If brain.db is unreachable, note the failure in the session summary for closeout.
+
+## After Completion
+
+- Record the action: `node .ava/dal.mjs action record "validate: <summary>" --type maintenance --outcome success`
+- If this work changed CLAUDE.md rules or key commands, update CLAUDE.md

@@ -16,7 +16,7 @@ Define, generate, and verify tests for this project.
 
 ## Instructions
 
-Follow the protocol below. For the full detailed version, read `.prompts/testing.md`.
+Follow the protocol below. For the full detailed version, read `.claude/.prompts/testing.md`.
 ### Protocol:
    - **Strategy** → Analyze codebase, classify testable surface, recommend framework, produce test plan
    - **Generation** → Write tests by priority, follow Arrange-Act-Assert, verify all pass
@@ -45,6 +45,13 @@ Detailed steps:
 - **Flaky tests are worse than no tests.** Fix or delete, never ignore.
 - **Test behavior, not implementation.** Tests should survive refactors.
 - **Run all tests before finishing.** Never leave with a red suite.
+
+## Error Handling
+
+If any step fails (command errors, file not found, brain.db unreachable):
+1. Record the failure: `node .ava/dal.mjs action record "testing: <what failed>" --type testing --outcome failure`
+2. Do NOT continue silently — report the error to the user with what failed, the error message, and suggested fix.
+3. If brain.db is unreachable, note the failure in the session summary for closeout.
 
 ## After Completion
 

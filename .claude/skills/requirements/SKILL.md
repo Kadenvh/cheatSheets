@@ -16,7 +16,7 @@ Produce structured, testable requirements from briefs, stakeholder requests, or 
 
 ## Instructions
 
-Follow the protocol below. For the full detailed version, read `.prompts/requirements.md`.
+Follow the protocol below. For the full detailed version, read `.claude/.prompts/requirements.md`.
 
 ### Protocol
    - Determine input (discovery brief, stakeholder request, existing feature, bug)
@@ -42,3 +42,15 @@ Detailed steps:
 4. **Non-functional.** Performance (response time), security (auth, encryption), accessibility (WCAG level), compatibility (browsers, devices). All with measurable thresholds.
 5. **Organize.** Overview → assumptions → functional requirements → non-functional → out of scope → open questions → dependencies.
 6. **Validate.** Every requirement testable. No vague language. Error states covered. Developer could implement without asking questions.
+
+## Error Handling
+
+If any step fails (command errors, file not found, brain.db unreachable):
+1. Record the failure: `node .ava/dal.mjs action record "requirements: <what failed>" --type investigation --outcome failure`
+2. Do NOT continue silently — report the error to the user with what failed, the error message, and suggested fix.
+3. If brain.db is unreachable, note the failure in the session summary for closeout.
+
+## After Completion
+
+- Record the action: `node .ava/dal.mjs action record "requirements: <summary>" --type investigation --outcome success`
+- If this work changed CLAUDE.md rules or key commands, update CLAUDE.md

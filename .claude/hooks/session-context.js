@@ -47,8 +47,7 @@ if (stashCount && parseInt(stashCount) > 0) context.push("Stashes: " + stashCoun
 
 // Closeout reminder
 const closeoutPaths = [
-  path.join(projectDir, "documentation", ".prompts", "closeout.md"),
-  path.join(projectDir, ".prompts", "closeout.md"),
+  path.join(projectDir, ".claude", ".prompts", "closeout.md"),
 ];
 for (const p of closeoutPaths) {
   if (fs.existsSync(p)) {
@@ -58,6 +57,17 @@ for (const p of closeoutPaths) {
     );
     break;
   }
+}
+
+// System overview reminder — ensures agents know the full toolbox exists
+const sysOverviewPath = path.join(projectDir, "SYSTEM-OVERVIEW.md");
+if (fs.existsSync(sysOverviewPath)) {
+  context.push(
+    "SYSTEM-OVERVIEW.md exists at project root. " +
+    "Read it to understand your full toolbox: skills, hooks, brain.db commands, " +
+    "knowledge layers, session lifecycle, and file layout. " +
+    "CLAUDE.md tells you what to do. SYSTEM-OVERVIEW.md tells you what exists and how to use it."
+  );
 }
 
 // DAL context injection (role-aware)
@@ -195,6 +205,16 @@ if (fs.existsSync(dalMjsPath)) {
   } catch {
     // Health emission failed — not blocking session start
   }
+}
+
+// Syncthing health check — warn if not running (template distribution depends on it)
+try {
+  execSync("pgrep -x syncthing", { encoding: "utf8", timeout: 2000 });
+} catch {
+  context.push(
+    "WARNING: Syncthing is NOT running. Template distribution, Obsidian vault sync, " +
+    "and health beacons depend on it. Run: systemctl --user restart syncthing"
+  );
 }
 
 // Template drift detection + auto-pull (Phase 7A+7B)

@@ -15,8 +15,6 @@ const DOC_FILES = hasBrainDb
   ? ["CLAUDE.md"]
   : [
       "CLAUDE.md",
-      path.join("documentation", "PROJECT_ROADMAP.md"),
-      path.join("documentation", "IMPLEMENTATION_PLAN.md"),
       "PROJECT_ROADMAP.md",
       "IMPLEMENTATION_PLAN.md",
     ];

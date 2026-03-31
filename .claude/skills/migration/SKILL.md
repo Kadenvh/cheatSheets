@@ -16,7 +16,7 @@ Plan and execute migrations with zero data loss and clear rollback paths.
 
 ## Instructions
 
-Follow the protocol below. For the full detailed version, read `.prompts/migration.md`.
+Follow the protocol below. For the full detailed version, read `.claude/.prompts/migration.md`.
 
 ### Protocol
    - Determine migration type (schema, data, API, infrastructure, dependency, config)
@@ -43,3 +43,15 @@ Detailed steps:
 4. **Rollback plan.** Define: what triggers rollback, how to reverse, how long rollback takes, what data is at risk.
 5. **Execute.** Backup first. Run migration. Monitor progress. Validate at checkpoints (1%, 10%, 100%). If errors exceed threshold, rollback immediately.
 6. **Validate.** Row counts match. No null values where expected. Data integrity checks pass. Application behavior verified. Monitor for 24 hours.
+
+## Error Handling
+
+If any step fails (command errors, file not found, brain.db unreachable):
+1. Record the failure: `node .ava/dal.mjs action record "migration: <what failed>" --type schema_evolution --outcome failure`
+2. Do NOT continue silently — report the error to the user with what failed, the error message, and suggested fix.
+3. If brain.db is unreachable, note the failure in the session summary for closeout.
+
+## After Completion
+
+- Record the action: `node .ava/dal.mjs action record "migration: <summary>" --type schema_evolution --outcome success`
+- If this work changed CLAUDE.md rules or key commands, update CLAUDE.md

@@ -35,12 +35,12 @@ const BLOCKED = [
 // OpenClaw orchestrator files — belong to the orchestrating agent, not Claude Code
 // Only applied outside .claude/ paths (Claude Code's own auto-memory lives there)
 const OPENCLAW_BLOCKED = [
-  /\/agents\.md$/i,                 // OpenClaw agent config
-  /\/heartbeat\.md$/i,              // OpenClaw heartbeat config
-  /\/identity\.md$/i,               // OpenClaw agent identity
-  /\/soul\.md$/i,                   // OpenClaw agent soul/personality
-  /\/tools\.md$/i,                  // OpenClaw tool notes
-  /\/user\.md$/i,                   // OpenClaw user profile
+  /agents\.md$/i,                   // OpenClaw agent config
+  /heartbeat\.md$/i,                // OpenClaw heartbeat config
+  /identity\.md$/i,                 // OpenClaw agent identity
+  /soul\.md$/i,                     // OpenClaw agent soul/personality
+  /tools\.md$/i,                    // OpenClaw tool notes
+  /user\.md$/i,                     // OpenClaw user profile
   /\/memory\//,                     // OpenClaw memory/ directory (daily logs)
 ];
 

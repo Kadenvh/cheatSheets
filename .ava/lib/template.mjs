@@ -32,7 +32,7 @@ function categorize(relativePath) {
   if (relativePath.startsWith(".claude/skills/")) return "skill";
   if (relativePath.startsWith(".claude/hooks/")) return "hook";
   if (relativePath.startsWith(".claude/agents/")) return "agent";
-  if (relativePath.startsWith(".prompts/")) return "prompt";
+  if (relativePath.startsWith(".claude/.prompts/")) return "prompt";
   return "config";
 }
 
@@ -109,11 +109,26 @@ function hookTargetPath(relativePath, esm) {
   return relativePath.replace(/\.js$/, ".cjs");
 }
 
+// Transform settings.json hook command paths for ESM projects (.js → .cjs)
+function transformSettingsForEsm(content) {
+  return content.replace(/(\/hooks\/[\w-]+)\.js/g, '$1.cjs');
+}
+
+// Transform require("./log-util") to require("./log-util.cjs") in hook files for ESM projects
+function transformHookRequiresForEsm(content) {
+  return content.replace(/require\(["']\.\/log-util["']\)/g, 'require("./log-util.cjs")');
+}
+
+function esmChecksum(content) {
+  return crypto.createHash("sha256").update(content).digest("hex").slice(0, 12);
+}
+
 export function diff(targetPath, { sourceDir } = {}) {
   if (!fs.existsSync(targetPath)) {
     throw new Error(`Target project not found: ${targetPath}`);
   }
 
+  const templateDir = resolveTemplateDir(sourceDir);
   const entries = manifest(sourceDir);
   const esm = isEsmProject(targetPath);
   const results = [];
@@ -126,10 +141,19 @@ export function diff(targetPath, { sourceDir } = {}) {
       results.push({ ...entry, mappedPath, status: "MISSING" });
     } else {
       const targetChecksum = sha256(targetFile);
+      // For ESM projects, compare against the ESM-transformed version
+      let expectedChecksum = entry.checksum;
+      if (esm && entry.relativePath === ".claude/settings.json") {
+        const raw = fs.readFileSync(path.join(templateDir, entry.relativePath), "utf8");
+        expectedChecksum = esmChecksum(transformSettingsForEsm(raw));
+      } else if (esm && entry.relativePath.startsWith(".claude/hooks/") && entry.relativePath.endsWith(".js")) {
+        const raw = fs.readFileSync(path.join(templateDir, entry.relativePath), "utf8");
+        expectedChecksum = esmChecksum(transformHookRequiresForEsm(raw));
+      }
       results.push({
         ...entry,
         mappedPath,
-        status: targetChecksum === entry.checksum ? "MATCH" : "STALE",
+        status: targetChecksum === expectedChecksum ? "MATCH" : "STALE",
         targetChecksum,
       });
     }
@@ -185,12 +209,12 @@ export function diff(targetPath, { sourceDir } = {}) {
   const templatePrompts = new Set(
     entries.filter(e => e.category === "prompt").map(e => path.basename(e.relativePath))
   );
-  const targetPromptsDir = path.join(targetPath, ".prompts");
+  const targetPromptsDir = path.join(targetPath, ".claude", ".prompts");
   if (fs.existsSync(targetPromptsDir)) {
     for (const f of fs.readdirSync(targetPromptsDir)) {
       try { if (!fs.statSync(path.join(targetPromptsDir, f)).isFile()) continue; } catch { continue; }
       if (!templatePrompts.has(f)) {
-        results.push({ relativePath: `.prompts/${f}`, mappedPath: `.prompts/${f}`, category: "prompt", status: "EXTRA", checksum: null });
+        results.push({ relativePath: `.claude/.prompts/${f}`, mappedPath: `.claude/.prompts/${f}`, category: "prompt", status: "EXTRA", checksum: null });
       }
     }
   }
@@ -230,6 +254,14 @@ export function sync(targetPath, { dal = false, prune = false, dryRun = false, s
 
       if (fs.statSync(src).isDirectory()) {
         copyDirSync(src, dst);
+      } else if (esm && entry.relativePath === ".claude/settings.json") {
+        // ESM projects: transform hook .js refs to .cjs in settings.json
+        const content = fs.readFileSync(src, "utf8");
+        fs.writeFileSync(dst, transformSettingsForEsm(content));
+      } else if (esm && entry.relativePath.startsWith(".claude/hooks/") && entry.relativePath.endsWith(".js")) {
+        // ESM projects: rewrite require("./log-util") to require("./log-util.cjs")
+        const content = fs.readFileSync(src, "utf8");
+        fs.writeFileSync(dst, transformHookRequiresForEsm(content));
       } else {
         fs.copyFileSync(src, dst);
       }
@@ -354,6 +386,14 @@ export function pull(sourceDir, { dal = false, dryRun = false, prune = false } =
 
       if (fs.statSync(src).isDirectory()) {
         copyDirSync(src, dst);
+      } else if (esm && entry.relativePath === ".claude/settings.json") {
+        // ESM projects: transform hook .js refs to .cjs in settings.json
+        const content = fs.readFileSync(src, "utf8");
+        fs.writeFileSync(dst, transformSettingsForEsm(content));
+      } else if (esm && entry.relativePath.startsWith(".claude/hooks/") && entry.relativePath.endsWith(".js")) {
+        // ESM projects: rewrite require("./log-util") to require("./log-util.cjs")
+        const content = fs.readFileSync(src, "utf8");
+        fs.writeFileSync(dst, transformHookRequiresForEsm(content));
       } else {
         fs.copyFileSync(src, dst);
       }

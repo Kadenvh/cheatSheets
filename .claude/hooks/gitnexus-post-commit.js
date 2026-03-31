@@ -41,13 +41,19 @@ try {
   // meta.json unreadable — run without embeddings
 }
 
-// Run npx gitnexus analyze in background (detached, non-blocking)
-const args = ["gitnexus", "analyze"];
+// Run npx gitnexus analyze in background, then strip auto-injected CLAUDE.md markers
+const analyzeArgs = ["gitnexus", "analyze"];
 if (useEmbeddings) {
-  args.push("--embeddings");
+  analyzeArgs.push("--embeddings");
 }
 
-const child = spawn("npx", args, {
+const claudeMd = path.join(projectDir, "CLAUDE.md").replace(/'/g, "'\\''");
+const stripScript = [
+  `npx ${analyzeArgs.join(" ")}`,
+  `node -e "const fs=require('fs'),p='${claudeMd}';if(fs.existsSync(p)){const c=fs.readFileSync(p,'utf8'),s=c.replace(/\\n*<!-- gitnexus:start -->[\\s\\S]*?<!-- gitnexus:end -->\\n*/g,'\\n');if(s!==c)fs.writeFileSync(p,s)}"`,
+].join(" && ");
+
+const child = spawn("sh", ["-c", stripScript], {
   cwd: projectDir,
   detached: true,
   stdio: "ignore",

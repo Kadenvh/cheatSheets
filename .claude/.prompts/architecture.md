@@ -176,7 +176,7 @@ Use this format for any significant technical decision:
 - **Record the context, not just the answer.** Future readers need to understand *why*, not just *what*.
 - **Include rejected options.** They prevent the same discussion from happening again.
 - **ADRs are immutable once accepted.** If a decision changes, create a new ADR that supersedes the old one.
-- **Store ADRs in `documentation/decisions/` or `documentation/adr/`.** They're part of the project's institutional memory.
+- **Store ADRs in brain.db via `node .ava/dal.mjs decision add` or in `.claude/plans/`.** They're part of the project's institutional memory.
 
 ---
 
@@ -262,9 +262,9 @@ Only parallelize when inputs are independent. Sequential work (e.g., defining in
 2. Follow the corresponding section
 3. Spawn sub-agents for independent research tasks where applicable (Section 6)
 4. Produce the specified deliverable
-5. If designing: store design doc in `documentation/plans/`
-6. If writing ADR: store in `documentation/decisions/` (create if needed)
+5. If designing: store design doc in `.claude/plans/`
+6. If writing ADR: store in brain.db via `decision add` or `.claude/plans/` (create if needed)
 7. If reviewing: summarize findings with prioritized recommendations
-8. If producing diagrams: write Mermaid to `documentation/visualization/`
+8. If producing diagrams: write Mermaid to the Obsidian vault or `.claude/plans/`
 
 Architecture is the set of decisions that are expensive to change. Make them carefully, document them thoroughly.

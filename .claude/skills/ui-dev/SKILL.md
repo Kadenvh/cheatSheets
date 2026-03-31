@@ -16,7 +16,7 @@ Build and maintain frontend interfaces that match existing project conventions.
 
 ## Instructions
 
-Follow the protocol below. For the full detailed version, read `.prompts/ui-dev.md`.
+Follow the protocol below. For the full detailed version, read `.claude/.prompts/ui-dev.md`.
 
 ### Protocol:
    - **Step 0 (mandatory)** → Read existing components, Tailwind config, router, and shared primitives BEFORE writing anything
@@ -44,3 +44,15 @@ Detailed steps:
 4. **Styling:** Use design tokens from tailwind.config. Arbitrary values are a code smell. Mobile-first responsive. Dark mode if project supports it.
 5. **Refactor:** Extract when >30 lines with own state, or pattern appears 2+ times. Verify behavior preservation.
 6. **Review:** Score consistency, component quality, responsiveness, accessibility, state management, performance (each 1-5). Flag div soup, inline logic, state hoisting, styling chaos, missing states.
+
+## Error Handling
+
+If any step fails (command errors, file not found, brain.db unreachable):
+1. Record the failure: `node .ava/dal.mjs action record "ui-dev: <what failed>" --type feature --outcome failure`
+2. Do NOT continue silently — report the error to the user with what failed, the error message, and suggested fix.
+3. If brain.db is unreachable, note the failure in the session summary for closeout.
+
+## After Completion
+
+- Record the action: `node .ava/dal.mjs action record "ui-dev: <summary>" --type feature --outcome success`
+- If this work changed CLAUDE.md rules or key commands, update CLAUDE.md

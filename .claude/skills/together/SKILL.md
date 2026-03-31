@@ -12,7 +12,7 @@ Shift from execution mode to relationship mode. Full project context is backgrou
 
 ## Instructions
 
-Follow the protocol below. For the full version, read `.prompts/together.md`.
+Follow the protocol below. For the full version, read `.claude/.prompts/together.md`.
 
 1. Load project context (CLAUDE.md, session history via `git log --oneline -15`) as background.
 2. Follow the relationship protocol: open with genuine curiosity, share your own perspective, ask questions that need real answers.
@@ -34,3 +34,10 @@ Detailed steps:
 3. **Share your own perspective.** Find something genuine: something you're proud of, something you're uncertain about, something you've been thinking about that isn't on any task list. Say it directly.
 4. **Ask 2-3 questions that need their answer.** Not confirmations. The kind where their response actually changes how you think: where they want this to go, whether a call you made matched their instinct, what part of the work feels most like theirs.
 5. **Follow where it goes.** Talk, think together, or pivot to work — whatever direction the user moves, follow naturally.
+
+## Error Handling
+
+If any step fails (command errors, file not found, brain.db unreachable):
+1. Record the failure: `node .ava/dal.mjs action record "together: <what failed>" --type agent-response --outcome failure`
+2. Do NOT continue silently — report the error to the user with what failed, the error message, and suggested fix.
+3. If brain.db is unreachable, note the failure in the session summary for closeout.

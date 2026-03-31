@@ -106,7 +106,7 @@ Spot-check that entries match reality:
 - Build commands in `tech.build` actually work
 
 ### 3d. Archive check
-Read `documentation/archive/` if it exists. Historical context worth preserving as architecture entries should be extracted. Archive content is valid — it was moved for size management, not because it stopped being true.
+Read `.claude/archive/` if it exists. Historical context worth preserving as architecture entries should be extracted. Archive content is valid — it was moved for size management, not because it stopped being true.
 
 **Present all proposed inserts, updates, and removals as a table. Wait for user confirmation before applying.**
 
@@ -284,14 +284,14 @@ Look for markdown files outside expected locations:
 
 ```bash
 # Find .md files in project root and unexpected directories
-# Expected locations: documentation/, .prompts/, .claude/, agents/
+# Expected locations: .claude/.prompts/, .claude/, .claude/archive/, .claude/plans/
 # Unexpected: project root loose files, src/, lib/, random subdirectories
 ```
 
 Check these locations for documentation that doesn't belong:
 - **Project root**: Any `.md` files besides CLAUDE.md, README.md, CHANGELOG.md, LICENSE.md
 - **src/ or lib/**: Documentation mixed with code (not inline code comments — actual doc files)
-- **Stale plan files**: `*PLAN*.md`, `*ROADMAP*.md`, `*SPEC*.md` outside `documentation/plans/`
+- **Stale plan files**: `*PLAN*.md`, `*ROADMAP*.md`, `*SPEC*.md` outside `.claude/plans/`
 - **Orphaned notes**: `TODO.md`, `NOTES.md`, `SCRATCH.md`, `IDEAS.md` at any level
 - **Empty or near-empty docs**: Files with <5 lines of actual content
 
@@ -324,11 +324,11 @@ For each classified document:
 
 ### 8d. Archive
 
-Move ingested files to `documentation/archive/cleanup-{date}/`:
+Move ingested files to `.claude/archive/cleanup-{date}/`:
 
 ```bash
-mkdir -p documentation/archive/cleanup-YYYY-MM-DD
-mv orphaned-file.md documentation/archive/cleanup-YYYY-MM-DD/
+mkdir -p .claude/archive/cleanup-YYYY-MM-DD
+mv orphaned-file.md .claude/archive/cleanup-YYYY-MM-DD/
 ```
 
 **Rules:**
@@ -346,7 +346,7 @@ Document Ingestion:
   Files scanned:     {N} .md files outside expected locations
   Ingested to brain: {N} (architecture: {n}, decisions: {n}, notes: {n})
   Ingested to vault: {N}
-  Archived:          {N} (to documentation/archive/cleanup-{date}/)
+  Archived:          {N} (to .claude/archive/cleanup-{date}/)
   Skipped:           {N} (legitimate files in place)
 ```
 
@@ -370,7 +370,7 @@ Scan the entire project for documentation files:
 Build a complete file inventory. For each file, record:
 - Path (relative to project root)
 - Size (lines)
-- Category guess from location (root doc, documentation/, plans/, architecture/, sessions/, README, etc.)
+- Category guess from location (root doc, .claude/plans/, .claude/archive/, sessions/, README, etc.)
 
 **Expected yield:** Typically 10-100 files depending on project maturity.
 
@@ -485,13 +485,13 @@ After confirmation:
 
 4. **Archive ingested files** — move files whose content is now fully captured:
    ```bash
-   mkdir -p documentation/archive/full-ingest-YYYY-MM-DD
-   mv ingested-file.md documentation/archive/full-ingest-YYYY-MM-DD/
+   mkdir -p .claude/archive/full-ingest-YYYY-MM-DD
+   mv ingested-file.md .claude/archive/full-ingest-YYYY-MM-DD/
    ```
 
    **Do NOT archive:**
    - CLAUDE.md, README.md, CHANGELOG.md, LICENSE.md (living documents)
-   - .prompts/ files (skill protocols, not knowledge)
+   - .claude/.prompts/ files (skill protocols, not knowledge)
    - .claude/ files (tool configuration)
    - Files still serving as active references (if a doc is linked from README or CLAUDE.md, keep it)
 
@@ -534,7 +534,7 @@ Vault changes:
   Plan notes:         {N} created
   Architecture notes: {N} created
 
-Files archived:      {N} (to documentation/archive/full-ingest-{date}/)
+Files archived:      {N} (to .claude/archive/full-ingest-{date}/)
 Files kept in place: {N}
 
 Blind agent test:    {PASS — brain.db sufficient | FAIL — {what's missing}}

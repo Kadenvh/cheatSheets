@@ -63,17 +63,17 @@ Flag content that appears in multiple files beyond brief cross-references.
 
 ## DOMAIN 2: TEMPLATE DEPLOYMENT
 
-Run this after deploying `.claude/` and `.prompts/` to a new project, or periodically to check drift.
+Run this after deploying `.claude/` (including `.claude/.prompts/`) to a new project, or periodically to check drift.
 
 ### 2.1 Prompt Templates
-Verify expected prompts exist in `.prompts/` (project root):
+Verify expected prompts exist in `.claude/.prompts/`:
 - Core lifecycle: init.md, closeout.md, cleanup.md, explore.md, together.md
 - Quality: validate.md, code-review.md, debugging.md, refactor.md
 - Design: architecture.md, requirements.md, testing.md, migration.md
 - Situational: triage.md, ui-dev.md, supabase.md, plan-validator.md
 - Reference: system-reference.md, dal-doctor.md
 - Data: agent-qa.md, METRICS.md
-- **Legacy check:** If `documentation/.prompts/` exists, flag as WARNING — stale legacy location.
+- **Legacy check:** If a legacy `documentation/.prompts/` or root `.prompts/` exists, flag as WARNING — stale legacy location.
 
 ### 2.2 Skills Directory
 - `.claude/skills/` exists with skill directories, each containing `SKILL.md`
@@ -100,7 +100,7 @@ Verify hook scripts exist in `.claude/hooks/`:
 - `.claude/agents/` directory exists with agent `.md` files
 
 ### 2.6 CLAUDE.md Placement
-- `CLAUDE.md` exists at project root (not inside `documentation/`)
+- `CLAUDE.md` exists at project root
 
 ### 2.7 DAL State (if `.ava/` exists)
 - `.ava/dal.mjs` and `.ava/brain.db` exist
@@ -109,8 +109,8 @@ Verify hook scripts exist in `.claude/hooks/`:
 - If identity has UNSET values: flag "DAL deployed but unpopulated — run /cleanup"
 
 ### 2.8 File Mode (if no `.ava/brain.db`)
-- `PROJECT_ROADMAP.md` exists (project root or `documentation/`)
-- `IMPLEMENTATION_PLAN.md` exists (project root or `documentation/`)
+- `PROJECT_ROADMAP.md` exists at project root
+- `IMPLEMENTATION_PLAN.md` exists at project root
 
 ---
 
@@ -218,8 +218,8 @@ For each directory in `.claude/skills/`:
 - Example: `skills/validate/SKILL.md` must have `name: validate`
 
 ### 4.3 Prompt Linkage
-- Each skill's `## Instructions` section references a `.prompts/{name}.md` file
-- That file must exist in `.prompts/` and be non-empty (>10 bytes)
+- Each skill's `## Instructions` section references a `.claude/.prompts/{name}.md` file
+- That file must exist in `.claude/.prompts/` and be non-empty (>10 bytes)
 - **Orphan detection:**
   - Skills with no matching prompt AND no substantive inline content (<500 bytes after frontmatter): WARN
   - Prompts with no referencing skill: INFO (some are reference docs)

@@ -16,7 +16,7 @@ Audit project plans and design documents for completeness, identify gaps and unk
 ## Instructions
 
 1. Load the plan-validator prompt:
-   - Read `.prompts/plan-validator.md` (relative to project root)
+   - Read `.claude/.prompts/plan-validator.md` (relative to project root)
 2. Follow its protocol — discovers plans, runs completeness checks, classifies gaps, optionally delegates research.
 
 ## Modes
@@ -35,9 +35,16 @@ Audit project plans and design documents for completeness, identify gaps and unk
 
 ## Inline Fallback (if prompt file not found)
 
-If `.prompts/plan-validator.md` cannot be located:
+If `.claude/.prompts/plan-validator.md` cannot be located:
 
-1. **Discover plans.** Glob `documentation/plans/*.md` and any vault paths. List what was found.
+1. **Discover plans.** Glob `.claude/plans/*.md` and any vault paths. List what was found.
 2. **Check each plan.** For each file: does it have a problem statement? Technical approach? Risks section? Next actions?
 3. **Classify gaps.** Group missing elements into: technical unknowns, dependency unknowns, design unknowns, missing evidence.
 4. **Report.** PASS (all checks pass), PARTIAL (has problem + approach but missing secondary), FAIL (missing problem statement or technical approach).
+
+## Error Handling
+
+If any step fails (command errors, file not found, brain.db unreachable):
+1. Record the failure: `node .ava/dal.mjs action record "plan-validator: <what failed>" --type investigation --outcome failure`
+2. Do NOT continue silently — report the error to the user with what failed, the error message, and suggested fix.
+3. If brain.db is unreachable, note the failure in the session summary for closeout.

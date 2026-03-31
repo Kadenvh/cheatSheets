@@ -4,6 +4,20 @@ Perform end-of-session documentation updates and synchronize project prompts wit
 
 ---
 
+### Minimal Closeout (when time is short)
+
+If the session must end quickly, execute these steps in priority order — stop wherever you must:
+
+1. **Record actions to brain.db** — `node .ava/dal.mjs action record` for each significant action (2 min)
+2. **Record decisions** — `node .ava/dal.mjs decision add` for any decisions made (1 min)
+3. **Close the session** — `node .ava/dal.mjs session close --summary "what happened"` (30 sec)
+4. **Generate handoff** — `node .ava/dal.mjs handoff generate "summary"` (30 sec) — auto-detects session ID, files, decisions
+5. **Commit work** — stage specific files and commit (1 min)
+
+Steps 1-3 are critical (brain.db state). Steps 4-5 are important but recoverable. Everything in Parts A-G below is the full protocol — use it when you have time.
+
+---
+
 ## PART A: CAPTURE SESSION STATE
 
 ### Step 1: Inventory Changes (Do This First)
@@ -209,6 +223,17 @@ Record what you did, measure outcomes, capture feedback. This data feeds the lea
 
 **Do not skip this part.** The loop only works if every session contributes data. Even routine sessions should record actions and metrics. The next agent reads this at init to adjust its approach.
 
+### Verify Traces Were Recorded
+
+Session traces should have been recorded during work (see init.md Section 9). If you didn't record any, add them now — retrace the key steps of the session:
+
+```bash
+node .ava/dal.mjs trace add "summary of key step 1"
+node .ava/dal.mjs trace add "summary of key step 2"
+```
+
+Traces are auto-collected into the handoff YAML. Without them, the next agent only gets a summary — no step-by-step record of what happened.
+
 ### Record Actions
 
 For each significant action this session — **including failures and abandoned attempts**:
@@ -281,10 +306,26 @@ node .ava/dal.mjs vault-export session "concise summary"
 
 Skip vault export for trivial sessions (typo fixes, single-note closes, failed/abandoned sessions).
 
+**Vault folder schema:** The vault project folder should contain ONLY `sessions/`, `architecture/`, `plans/`, `schemas/`, and `VAULT_GUIDE.md`. Do NOT copy project files (code, configs, node_modules, .git, .ava, .claude) into the vault. The vault is for curated knowledge, not project replication.
+
 After vault export, sync to ChromaDB if the embedding service is running:
 ```bash
 node .ava/dal.mjs vault sync {ProjectSlug} 2>/dev/null || true
 ```
+
+### Close the DAL Session
+
+All brain.db recording is complete (knowledge, actions, metrics, handoff). Formally close the session:
+
+```bash
+node .ava/dal.mjs session close --summary "1-2 sentence session summary"
+```
+
+**Critical:** Pass `--summary` with a meaningful description. Without it, the session record has a NULL summary and the next agent gets no context about what happened.
+
+This must happen AFTER all brain.db writes (Parts A-2 through A-4) and BEFORE the final commit (Part G). A session left open is a lifecycle leak — init opens it, closeout must close it.
+
+**If no session is open:** This means `/session-init` didn't start one, or the session was already closed. Do NOT call `session close` without an open session — it creates a phantom record with start_time == end_time. Instead, start one now with `session start "late-start: ..."`, record your knowledge, then close it.
 
 ---
 
@@ -329,6 +370,7 @@ Each piece of information belongs in exactly one file. Use this guide:
 - [ ] Add new issues to "Known Issues" or "Blockers"
 - [ ] Refresh "Handoff Notes" for next session (also write to brain.db: `node .ava/dal.mjs note add "note text" --category handoff`)
 - [ ] Include any "silent decisions" or deviations documented during the session
+- [ ] Update `.claude/plans/` if any active plans were completed or modified during this session
 
 ---
 
@@ -395,7 +437,7 @@ Sub-projects (directories with their own package.json, brain.db, or significant 
 
 ### Step 7: Confirm Prompts Are Present
 
-The `.prompts/` directory should contain the 21 canonical prompts. Verify the core set exists:
+The `.claude/.prompts/` directory should contain the 21 canonical prompts. Verify the core set exists:
 
 - [ ] `init.md` — session initialization (orient, read docs, verify state)
 - [ ] `closeout.md` — this file (end-of-session documentation updates)
@@ -483,10 +525,10 @@ If Part A-2 was skipped or incomplete, go back and do it now. **Closeout without
 After updating documentation, check if any core docs have exceeded advisory thresholds:
 
 - **CLAUDE.md > 300 lines or 16KB** → Flag for the user. Consider moving detailed reference to spoke docs or annexes.
-- **IMPLEMENTATION_PLAN.md > 400 lines** (if file exists) → Archive older sessions (keep last 3-5). Move detail to `documentation/archive/SESSION_ARCHIVE.md`. Leave a one-line summary and reference in the live doc.
-- **PROJECT_ROADMAP.md > 400 lines** (if file exists) → Move deep-dive sections to `documentation/decisions/` or `documentation/archive/`.
+- **IMPLEMENTATION_PLAN.md > 400 lines** (if file exists) → Archive older sessions (keep last 3-5). Move detail to the Obsidian vault. Leave a one-line summary and reference in the live doc.
+- **PROJECT_ROADMAP.md > 400 lines** (if file exists) → Move deep-dive sections to brain.db via `decision add` or `.claude/archive/`.
 
-If archiving is needed, ensure the live document retains a reference (e.g., "See `documentation/archive/` for sessions 1-20"). **Archived content must remain discoverable.**
+If archiving is needed, ensure the live document retains a reference (e.g., "See `.claude/archive/` for sessions 1-20"). **Archived content must remain discoverable.**
 
 If no thresholds are exceeded, skip this step.
 
@@ -523,9 +565,11 @@ If no thresholds are exceeded, skip this step.
 After all documentation updates and verification are complete:
 
 ```bash
-git add -A
+git add <specific-files>   # Stage only the files you changed — never git add -A
 git commit -m "docs: session closeout v{X.Y.Z} — {1-line summary of session work}"
 ```
+
+> **Do NOT use `git add -A` or `git add .`** — these can stage sensitive files (.env, .ava/brain.db, credentials). Always stage specific files by name.
 
 If a remote is configured and you have push access:
 
