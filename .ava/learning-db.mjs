@@ -30,6 +30,12 @@ export function getLearningDb() {
     const schemaPath = join(__dirname, "learning-schema.sql");
     const schema = readFileSync(schemaPath, "utf8");
     _db.exec(schema);
+  } else {
+    // Migrations for existing DBs
+    const cols = _db.pragma("table_info(curriculum_lessons)").map(c => c.name);
+    if (!cols.includes("doc_pages")) {
+      _db.exec("ALTER TABLE curriculum_lessons ADD COLUMN doc_pages TEXT");
+    }
   }
 
   return _db;

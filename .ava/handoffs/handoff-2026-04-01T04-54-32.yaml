@@ -1,0 +1,18 @@
+session_id: "unknown"
+timestamp: "2026-04-01T04:54:32.581Z"
+version: "7.6.0"
+summary: |
+  Session 11 v7.6.0: PDF Tutorial Viewer — iframe-based PDF rendering in ContentPanel [Tutorial] tab with page range navigation. Raw file endpoint, doc_pages schema migration, 34 lesson page ranges seeded.
+files_modified:
+  - ".ava/brain.db"
+  - ".ava/handoffs/handoff-2026-04-01T03-57-55.yaml"
+  - ".ava/learning-db.mjs"
+  - ".ava/learning-schema.sql"
+  - ".claude/hooks/hook-log.jsonl"
+  - "CLAUDE.md"
+decisions_made: []
+blockers: []
+next_actions: []
+errors: []
+traces: []
+open_notes: []
