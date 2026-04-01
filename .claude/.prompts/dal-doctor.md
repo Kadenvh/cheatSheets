@@ -333,8 +333,8 @@ VAULT_PATH=$(node <project>/.ava/dal.mjs identity get vault.path 2>/dev/null || 
 # Check project vault folder exists
 ls "$VAULT_PATH/{ProjectName}/" 2>/dev/null
 
-# Expected subdirectories: sessions/ at minimum
-for subdir in sessions architecture plans schemas; do
+# Expected subdirectories: sessions/ at minimum, architecture/ and archive/ recommended
+for subdir in sessions architecture archive; do
   [ -d "$VAULT_PATH/{ProjectName}/$subdir" ] || echo "MISSING: $subdir/"
 done
 ```

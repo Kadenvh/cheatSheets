@@ -28,7 +28,7 @@ Projects may have these document layers. Each has a specific purpose and owner:
 | `.claude/plans/*.md` | Active analysis, remediation plans, kickstart prompts | Agent | Investigation/planning sessions |
 | `IMPLEMENTATION_PLAN.md` (root) | Active work state (file mode) / historical reference (brain.db mode) | Agent at closeout | Every session (file mode) |
 | `PROJECT_ROADMAP.md` (root) | Vision + history (file mode) / historical reference (brain.db mode) | Agent at milestones | Version milestones |
-| Obsidian vault | Persistent knowledge: session summaries, architecture notes, plans, schemas. Canonical folders: `sessions/`, `architecture/`, `plans/`, `schemas/`, `VAULT_GUIDE.md` — NO project files (code, configs, node_modules) | Agent at closeout (conditional export) | Sessions with decisions, version changes, or significant features |
+| Obsidian vault | Curated narrative: session summaries, architecture decisions. Canonical folders: `sessions/`, `architecture/`, `archive/`, `VAULT_GUIDE.md` — NO project files, plans, schemas, or working documents | Agent at closeout (conditional export) | Sessions with decisions, version changes, or significant features |
 
 **Agents should improve these documents proactively.** If you discover stale content, incorrect annotations, or missing audit notes in OVERVIEW.md, FileStructure.md, or plans/ — update them as part of your work. Don't wait for explicit instruction. These are living documents, not static artifacts.
 

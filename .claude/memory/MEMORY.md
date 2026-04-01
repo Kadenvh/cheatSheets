@@ -1,0 +1,1 @@
+- [Don't push Ava_Main](feedback_ava_main_push.md) — push spoke repos freely, but Ava_Main requires explicit permission

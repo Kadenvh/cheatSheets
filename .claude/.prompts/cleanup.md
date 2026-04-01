@@ -177,7 +177,87 @@ node .ava/dal.mjs arch list
 
 Target: identity has 5-7 core rows, architecture entries all have appropriate scopes, no stale or contradictory entries.
 
-### 4e. Vault Maintenance (if Obsidian vault exists)
+### 4e. Architecture Audit -- Context Budget
+
+The session-context hook injects arch entries into every session. More entries = more tokens consumed before the agent does any work. Bloated arch tables degrade agent performance across the entire project lifecycle.
+
+**Step 1 -- Measure current budget:**
+
+```bash
+# Context injection size (bytes + lines)
+node .ava/dal.mjs context 2>&1 | wc -c
+node .ava/dal.mjs context 2>&1 | wc -l
+
+# Arch entry count by scope
+node .ava/dal.mjs arch list --scope convention 2>&1 | wc -l
+node .ava/dal.mjs arch list --scope project 2>&1 | wc -l
+```
+
+**Targets:** Total context injection under 25KB / 200 lines. Architecture entries under 200 total. Convention entries under 40. If any target is exceeded, pruning is required.
+
+**Step 2 -- Identify pruning candidates:**
+
+For each architecture entry, classify as one of:
+
+| Classification | Action | Example |
+|---|---|---|
+| **Derivable from code** | REMOVE -- agent can read the code | File paths, function signatures, import patterns |
+| **Derivable from CLAUDE.md** | REMOVE -- already auto-loaded | Rules that duplicate CLAUDE.md content |
+| **Derivable from package.json / config** | REMOVE -- agent can inspect | Dependency versions, script commands |
+| **Stale reference** | REMOVE -- references files/symbols that no longer exist | Grep for the key's subject; if not found, it's stale |
+| **Behavioral rule (not in code)** | KEEP -- agent can't derive this | "Don't use X because Y happened" |
+| **Cross-cutting convention** | KEEP -- saves agent time | Patterns affecting multiple files |
+| **Active project state** | KEEP -- not inspectable | Integration points, external service configs |
+
+**Pruning heuristic:** If the agent could figure it out by reading 1-2 files, it doesn't need an arch entry. Arch entries exist for knowledge that is expensive to rediscover or impossible to derive from code.
+
+**Step 3 -- Validate references (for entries being kept):**
+
+For each KEEP entry, spot-check that the thing it describes still exists:
+```bash
+# If entry references a file path -- does it exist?
+# If entry references a function/component name -- grep for it
+# If entry references an endpoint -- check route files
+```
+
+Entries referencing things that no longer exist are stale regardless of classification.
+
+**Step 4 -- Present pruning plan:**
+
+```
+Architecture Audit
+==================
+Current:    {N} entries ({convention}: {n}, {project}: {n})
+Context:    {size}KB / {lines} lines
+Budget:     {OVER|UNDER} target (25KB / 200 lines)
+
+Pruning candidates:
+  Derivable from code:       {N} entries
+  Duplicates CLAUDE.md:      {N} entries
+  Stale references:          {N} entries
+  Total to remove:           {N} entries
+
+Post-prune estimate: {N} entries, ~{size}KB
+
+{list each candidate with key, reason, and classification}
+```
+
+**Wait for user confirmation before removing entries.**
+
+**Step 5 -- Execute and verify:**
+
+```bash
+# Remove confirmed entries
+node .ava/dal.mjs arch remove "key-name"
+
+# Re-measure
+node .ava/dal.mjs context 2>&1 | wc -c
+node .ava/dal.mjs context 2>&1 | wc -l
+```
+
+Report the before/after delta in the coverage report.
+
+### 4f. Vault Maintenance (if Obsidian vault exists)
 
 Resolve vault path:
 1. brain.db: `node .ava/dal.mjs identity get vault.path`

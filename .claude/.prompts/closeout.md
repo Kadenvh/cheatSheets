@@ -306,7 +306,7 @@ node .ava/dal.mjs vault-export session "concise summary"
 
 Skip vault export for trivial sessions (typo fixes, single-note closes, failed/abandoned sessions).
 
-**Vault folder schema:** The vault project folder should contain ONLY `sessions/`, `architecture/`, `plans/`, `schemas/`, and `VAULT_GUIDE.md`. Do NOT copy project files (code, configs, node_modules, .git, .ava, .claude) into the vault. The vault is for curated knowledge, not project replication.
+**Vault folder schema:** The vault project folder should contain ONLY `sessions/`, `architecture/`, `archive/`, `VAULT_GUIDE.md`, and optionally `END-GOAL.md`. Plans live in `.claude/plans/` in the project, NOT the vault. Do NOT copy project files, schemas, or working documents into the vault. The vault is for curated narrative context only.
 
 After vault export, sync to ChromaDB if the embedding service is running:
 ```bash

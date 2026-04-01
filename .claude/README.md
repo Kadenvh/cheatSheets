@@ -1,6 +1,6 @@
 # .claude Template — Automation Layer
 
-**Version:** 5.12.0 | **Updated:** 2026-03-30
+**Version:** 5.16.0 | **Updated:** 2026-03-31
 
 This folder is the Claude Code automation layer. It ships alongside `.prompts/` as part of the PE template. Copy to your project root — Claude Code only detects `.claude/` at root level.
 
@@ -22,7 +22,7 @@ This folder is the Claude Code automation layer. It ships alongside `.prompts/` 
 │   ├── stop-closeout-check.js   # Stop: warn if docs stale >120 minutes
 │   ├── completion-check.js      # Stop: check for partial-outcome actions
 │   └── log-util.js              # Shared logging utility
-├── skills/ (19)           # Slash commands, each reads from .prompts/
+├── skills/ (20)           # Slash commands, each reads from .prompts/
 │   └── (see skills/README.md for full inventory)
 └── agents/ (1)            # Claude Code subagents
     └── closeout-worker.md       # Autonomous session closeout

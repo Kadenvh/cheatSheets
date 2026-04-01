@@ -73,7 +73,7 @@ A properly configured project looks like this:
 | **brain.db** | Decisions (why), architecture (how), identity (who), sessions (when), notes (what's next), traces (breadcrumbs), learning loop (performance) | Prose, narratives, code, project data | DAL CLI during work + closeout |
 | **`.claude/memory/`** | Working observations, patterns noticed, user preferences, debug notes | Decisions, architecture, anything structured enough for brain.db | AutoMemory (automatic) |
 | **`.claude/plans/`** | Active kickstart files, analysis plans, remediation plans | Completed plans (archive or delete) | Closeout (creates kickstart for next session) |
-| **Obsidian vault** | Session summaries, architecture notes, plans, schemas — curated knowledge | Project files, code, configs, node_modules, .git, .ava, .claude | vault-export at closeout (conditional) |
+| **Obsidian vault** | Session narratives, architecture decisions — curated context | Project files, code, configs, plans, schemas, .git, .ava, .claude | vault-export at closeout (conditional) |
 
 ### Obsidian Vault Schema (if vault exists)
 
@@ -82,13 +82,15 @@ The vault folder for this project should contain ONLY:
 ```
 ~/Obsidian/Ava/{ProjectSlug}/
 ├── sessions/        # Session summary notes (from vault-export)
-├── architecture/    # Architecture notes
-├── plans/           # Plans and roadmaps
-├── schemas/         # Data schema documentation
-└── VAULT_GUIDE.md   # Project-specific vault governance
+├── architecture/    # Architecture decisions and patterns
+├── archive/         # Archived content from project cleanup
+├── VAULT_GUIDE.md   # Project vault governance
+└── END-GOAL.md      # Project north star (optional)
 ```
 
-**NO project files** should exist in the vault folder — no code, no configs, no node_modules, no .git, no .ava, no .claude. If you find project files in the vault, the Syncthing share is misconfigured or a previous agent dumped files there incorrectly. Flag it to the user.
+**NOT in vault:** Plans live in `.claude/plans/` in the project. Schemas and working docs live in the project folder. brain.db stores structured state. The vault is for curated narrative context only.
+
+**NO project files** should exist in the vault folder — no code, no configs, no node_modules, no .git, no .ava, no .claude.
 
 ### Template Deployment Model
 
@@ -202,15 +204,7 @@ ls -t "$VAULT_PATH/$PROJECT_SLUG/sessions/"*.md 2>/dev/null | head -1
 
 Read it. This gives you the previous session's summary, decisions made, files modified, and next actions — richer context than the brain.db session summary alone.
 
-**Step 3: Check for active plans:**
-
-```bash
-ls "$VAULT_PATH/$PROJECT_SLUG/plans/"*.md 2>/dev/null
-```
-
-Read any with `status: active` in their frontmatter. These are living plans that may inform the current session's priorities.
-
-**Step 4: Read the latest handoff** (if YAML handoffs exist):
+**Step 3: Read the latest handoff** (if YAML handoffs exist):
 
 ```bash
 node .ava/dal.mjs handoff latest

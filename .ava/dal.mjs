@@ -631,7 +631,8 @@ async function cmdContext() {
   const { flags } = parseFlags(1);
   const role = flags.role || "general";
   const scope = flags.scope || null;
-  console.log(generateContext({ role, scope }));
+  const brief = flags.brief !== undefined;
+  console.log(generateContext({ role, scope, brief }));
 }
 
 // ─── Status ───────────────────────────────────────────────────────────────────

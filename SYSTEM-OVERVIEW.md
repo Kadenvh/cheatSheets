@@ -61,6 +61,7 @@ Invoke with `/skill-name`. Each has a SKILL.md at `.claude/skills/{name}/SKILL.m
 | `/frontier-research` | Deep technology research. Standard/deep/ultra modes. |
 | `/ui-dev` | Frontend: components, pages, styling in React + Tailwind. |
 | `/supabase` | Schema design, RLS, auth, edge functions, storage. |
+| `/criticism` | Adversarial strategic analysis. Find what's broken, fragile, or misaligned. |
 | `documentation-awareness` | Passive (not invocable). Enforces content boundaries automatically. |
 
 ### Hooks (fire automatically)
@@ -110,12 +111,12 @@ node .ava/dal.mjs arch list
 node .ava/dal.mjs arch list --scope convention
 
 # Decisions (architectural choices with rationale)
-node .ava/dal.mjs decision add "title" --rationale "why" --alternatives "what else" --status active
+node .ava/dal.mjs decision add --title "T" --context "C" --chosen "O" --rationale "R"
 
 # Notes (task queue)
 node .ava/dal.mjs note add "description" --category improvement|issue|bug|idea|handoff
 node .ava/dal.mjs note list            # Open notes
-node .ava/dal.mjs note resolve <id>    # Mark done
+node .ava/dal.mjs note complete <id>   # Mark done
 
 # Sessions
 node .ava/dal.mjs session start "description"
@@ -128,7 +129,7 @@ node .ava/dal.mjs trace add "investigating: found X"
 node .ava/dal.mjs action record "description" --type feature|bugfix|maintenance|deployment --outcome success|failure|partial
 
 # Metrics (track progress)
-node .ava/dal.mjs metric set "key" --value <number>
+node .ava/dal.mjs metric record <key> --value <number>
 
 # Learning loop (review past performance)
 node .ava/dal.mjs loop summary
@@ -141,7 +142,7 @@ node .ava/dal.mjs handoff latest
 # Template management
 node .ava/dal.mjs template pull          # Fetch template updates
 node .ava/dal.mjs template pull --dal    # Also update DAL runtime
-node .ava/dal.mjs template diff          # Show what's changed
+node .ava/dal.mjs template pull --dry-run  # Show what would change
 node .ava/dal.mjs template manifest      # List all deployable files
 
 # Vault
@@ -273,14 +274,14 @@ Trivial sessions (minor fixes, maintenance only) skip vault export.
 
 ```
 ~/Obsidian/Ava/{ProjectSlug}/
-  sessions/       # Session summary notes
+  sessions/       # Session summary notes (from vault-export)
   architecture/   # Architecture decisions and patterns
-  plans/          # Strategic plans
-  schemas/        # Data schemas
-  archive/        # Archived content
-  END-GOAL.md     # Project north star (optional)
+  archive/        # Archived content from project cleanup
   VAULT_GUIDE.md  # Project vault governance
+  END-GOAL.md     # Project north star (optional)
 ```
+
+**NOT in vault:** Plans live in `.claude/plans/` in the project. Schemas, data docs, and other working documents live in the project folder. brain.db stores decisions, architecture knowledge, and task queue. The vault is for curated narrative context only.
 
 ### Rules
 
@@ -288,6 +289,7 @@ Trivial sessions (minor fixes, maintenance only) skip vault export.
 - Session notes are exported via `dal.mjs vault-export session`.
 - brain.db is active memory (current state). Vault is knowledge web (persistent, curated).
 - NO project files in the vault - no code, configs, node_modules, .git, .ava, .claude.
+- NO plans or schemas in the vault - those live in the project directory.
 
 ---
 

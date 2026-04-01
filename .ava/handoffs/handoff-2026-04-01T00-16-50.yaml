@@ -1,0 +1,36 @@
+session_id: "unknown"
+timestamp: "2026-04-01T00:16:50.496Z"
+version: "7.5.0"
+summary: |
+  Session 9 v7.5.0: Learning system reset (91→4 concepts), curriculum layer (learning.db + 8 API routes + CoursesPanel UI), ELEGOO Mega 2560 seeded (34 lessons, 5 tiers). Separate learning.db architecture decision. Reconcile-on-read progress sync.
+files_modified:
+  - ".ava/brain.db"
+  - ".ava/dal.mjs"
+  - ".ava/lib/context.mjs"
+  - ".ava/lib/documents.mjs"
+  - ".ava/lib/knowledge_base.mjs"
+  - ".ava/lib/pipeline.mjs"
+  - ".ava/lib/plans.mjs"
+  - ".ava/lib/prompts.mjs"
+  - ".claude/.prompts/cleanup.md"
+  - ".claude/.prompts/closeout.md"
+  - ".claude/.prompts/dal-doctor.md"
+  - ".claude/.prompts/init.md"
+  - ".claude/README.md"
+  - ".claude/hooks/hook-log.jsonl"
+  - ".claude/skills/documentation-awareness/SKILL.md"
+  - ".gitignore"
+  - "CLAUDE.md"
+  - "HEARTBEAT.md"
+  - "IDENTITY.md"
+  - "SYSTEM-OVERVIEW.md"
+decisions_made: []
+blockers: []
+next_actions:
+  - "[handoff] [handoff] Hardware learning path: 3 reference concepts in archive/elegoo-mega-kit/ (arduino-fundamentals, elec"
+  - "[handoff] [handoff] Curriculum UI needs verification: Vite rebuild changed chunk hashes, server restart needed to serve "
+errors: []
+traces: []
+open_notes:
+  - "[handoff] [handoff] Hardware learning path: 3 reference concepts in archive/elegoo-mega-kit/ (arduino-fundamentals, elec"
+  - "[handoff] [handoff] Curriculum UI needs verification: Vite rebuild changed chunk hashes, server restart needed to serve "

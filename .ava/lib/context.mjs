@@ -7,7 +7,7 @@ import { requireDb } from "./db.mjs";
  * Roles: "general" (default — full architecture + pipeline) or "dev" (task-focused).
  * Scope: controls which architecture entries are injected.
  */
-export function generateContext({ role = "general", scope = null } = {}) {
+export function generateContext({ role = "general", scope = null, brief = false } = {}) {
   const db = requireDb();
   const lines = [];
 
@@ -16,9 +16,15 @@ export function generateContext({ role = "general", scope = null } = {}) {
   if (identity.length > 0) {
     lines.push("**Identity:**");
     for (const row of identity) {
-      lines.push(`- \`${row.key}\`: ${row.value}`);
+      const val = brief && row.value.length > 100 ? row.value.slice(0, 100) + "..." : row.value;
+      lines.push(`- \`${row.key}\`: ${val}`);
     }
     lines.push("");
+  }
+
+  // ─── Brief mode: identity + notes + last session only ──────────────────
+  if (brief) {
+    return lines.join("\n") + _briefContext(db);
   }
 
   // ─── Role-specific context ─────────────────────────────────────────────
@@ -26,6 +32,35 @@ export function generateContext({ role = "general", scope = null } = {}) {
     return lines.join("\n") + _devContext(db, scope);
   }
   return lines.join("\n") + _generalContext(db, scope);
+}
+
+function _briefContext(db) {
+  const lines = [];
+
+  // Open notes only
+  const notes = db.prepare(
+    "SELECT id, category, text FROM notes WHERE completed = 0 ORDER BY category, created_at"
+  ).all();
+  if (notes.length > 0) {
+    lines.push(`**Open Notes (${notes.length}):**`);
+    for (const n of notes) {
+      const text = n.text.length > 100 ? n.text.slice(0, 100) + "..." : n.text;
+      lines.push(`- [${n.category}] ${text}`);
+    }
+    lines.push("");
+  }
+
+  // Last session
+  const lastSession = db.prepare(
+    "SELECT start_time, summary, exit_reason FROM sessions ORDER BY start_time DESC LIMIT 1"
+  ).get();
+  if (lastSession) {
+    const reason = lastSession.exit_reason || "open";
+    lines.push(`**Last Session:** ${lastSession.start_time} — "${lastSession.summary || "No summary"}" (${reason} exit)`);
+    lines.push("");
+  }
+
+  return lines.join("\n");
 }
 
 function _generalContext(db, requestedScope) {
@@ -52,7 +87,9 @@ function _generalContext(db, requestedScope) {
     for (const [scopeName, rows] of Object.entries(grouped)) {
       lines.push(`**Architecture (${scopeName}, ${rows.length}):**`);
       for (const row of rows) {
-        lines.push(`- \`${row.key}\`: ${row.value}`);
+        // Truncate to 80 chars — agents use `arch get <key>` for full values
+        const summary = row.value.length > 80 ? row.value.slice(0, 80) + "..." : row.value;
+        lines.push(`- \`${row.key}\`: ${summary}`);
       }
       lines.push("");
     }
@@ -151,7 +188,8 @@ function _devContext(db, requestedScope) {
   if (archRows.length > 0) {
     lines.push(`**Architecture (${archRows.length}):**`);
     for (const row of archRows) {
-      lines.push(`- \`${row.key}\`: ${row.value}`);
+      const summary = row.value.length > 80 ? row.value.slice(0, 80) + "..." : row.value;
+      lines.push(`- \`${row.key}\`: ${summary}`);
     }
     lines.push("");
   }

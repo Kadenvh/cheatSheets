@@ -1,6 +1,6 @@
 # Knowledge System
 
-**Version:** 7.4.0 | **Status:** Obsidian-First (Pipeline Operational) | **Updated:** 2026-03-31
+**Version:** 7.5.0 | **Status:** Obsidian-First (Pipeline Operational) | **Updated:** 2026-04-01
 
 ## Parent Documentation
 
@@ -23,6 +23,7 @@ Three layers, clear boundaries:
 | **Content** | Obsidian vault (`vault/`) | Note text, organization, wiki-link graph, exercise hints |
 | **Scheduling** | brain.db (`.ava/brain.db`) | Concepts, mastery levels, FSRS state, reviews, streaks, prerequisites |
 | **Search** | ChromaDB (`:8001`) | Embeddings, vector search, chunked content |
+| **Curriculum** | learning.db (`.ava/learning.db`) | Course structure, lesson sequences, enrollment, progress |
 
 ### Data Flow
 
@@ -84,12 +85,15 @@ node .ava/dal.mjs vault sync CheatSheets 2>/dev/null || true
 ├── Cheatsheet_Generation_Prompt.md    ← Reference template spec
 ├── README.md                          ← Project intro
 ├── vault/                             ← Obsidian vault (content layer)
-│   ├── Concepts/                      ← One .md per concept (91 notes)
+│   ├── Concepts/                      ← One .md per concept (4 notes)
 │   ├── Templates/                     ← Obsidian note templates
 │   │   └── Cheatsheet.md
 │   └── .obsidian/                     ← Obsidian config
-├── .ava/                              ← brain.db (scheduling layer)
-│   ├── brain.db
+├── .ava/                              ← brain.db (scheduling) + learning.db (curriculum)
+│   ├── brain.db                       ← PE-managed scheduling layer
+│   ├── learning.db                    ← Project-local curriculum engine (gitignored)
+│   ├── learning-schema.sql            ← Curriculum schema + ELEGOO seed data
+│   ├── learning-db.mjs                ← learning.db access module
 │   ├── dal.mjs
 │   ├── lib/
 │   └── migrations/
@@ -101,8 +105,7 @@ node .ava/dal.mjs vault sync CheatSheets 2>/dev/null || true
 │   ├── demo/                          ← Spark (exercise generation)
 │   ├── tutor/                         ← Socratic teaching
 │   └── architect/                     ← Curriculum planning
-├── archive/                           ← Superseded plans + ELEGOO reference kit
-└── [agent identity files]             ← SOUL.md, IDENTITY.md, etc.
+└── archive/                           ← Superseded plans + ELEGOO reference kit
 ```
 
 ---

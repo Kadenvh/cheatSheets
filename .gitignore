@@ -5,6 +5,11 @@
 .openclaw/workspace-state.json
 knowledge-agents/*/.openclaw/
 
+# Learning database (project-local curriculum state)
+.ava/learning.db
+.ava/learning.db-shm
+.ava/learning.db-wal
+
 # Obsidian workspace (user-specific, not config)
 openClaw_Vault/.obsidian/workspace.json
 
