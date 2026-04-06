@@ -28,29 +28,19 @@ scp user@remote-host:"/path/to/project/.ava/brain.db" /tmp/remote-brain.db
 sqlite3 /tmp/remote-brain.db "SELECT MAX(version) FROM schema_version;"
 ```
 
-<!-- PE-ECOSYSTEM-ONLY: The following section contains PE/Ava ecosystem-specific configuration.
-     Downstream projects should customize these values for their own environment. -->
-**PE ecosystem device topology:**
+**Device topology example:**
 
 | Project | Location | Access |
 |---------|----------|--------|
-| Ava_Main, CloudBooks, seatwise, tradeSignal, WATTS, PE, cheatSheets, 3D_Printing | Local `/home/ava/` | Direct filesystem |
-| McQueenyML | Frank `C:\McQueenyML` | SCP via `Kaden@100.78.176.121` |
-| adze-cad | Zoe `C:\adze-cad` | SCP via `Kaden@100.90.215.74` |
+| Local projects | Local filesystem | Direct access |
+| Remote projects | Remote machines | SSH via `user@hostname` |
 
 ```bash
-# PE ecosystem SSH examples
-ssh kaden@frank "cd C:\\McQueenyML && node .ava/dal.mjs health"
-ssh kaden@zoe "cd C:\\adze-cad && node .ava/dal.mjs health"
-ssh kaden@frank "cd C:\\McQueenyML && node .ava/dal.mjs verify"
-scp kaden@frank:"C:/McQueenyML/.ava/brain.db" /tmp/ava-remote-brain-mcq.db
+# Remote project examples (customize for your environment)
+ssh user@remote-host "cd /path/to/project && node .ava/dal.mjs health"
+ssh user@remote-host "cd /path/to/project && node .ava/dal.mjs verify"
+scp user@remote-host:"/path/to/project/.ava/brain.db" /tmp/remote-brain.db
 ```
-
-**Syncthing shares (automatic transport):**
-- `pe-template`: PE/template/ → `C:\PE-Template` on Frank/Zoe (sendonly)
-- `pe-health`: `~/.pe-health/` bidirectional (health beacon collection)
-- `mcqueenyml`: Full project replication Frank ↔ Ava
-<!-- /PE-ECOSYSTEM-ONLY -->
 
 ### Step 0b: Check DAL runtime
 
@@ -162,11 +152,7 @@ node <project>/.ava/dal.mjs identity get template.auto_pull
 
 **If `template.source` is not set:** Configure it based on where the PE template is accessible from this device.
 
-<!-- PE-ECOSYSTEM-ONLY: The following section contains PE/Ava ecosystem-specific configuration.
-     Downstream projects should customize these values for their own environment. -->
-- Ava (local projects): `/home/ava/Prompt_Engineering/template`
-- Frank/Zoe (Syncthing mirror): `C:\PE-Template`
-<!-- /PE-ECOSYSTEM-ONLY -->
+Set `template.source` to the path where PE template files are accessible on this device.
 
 **If `project.name` is UNNAMED or missing:** Set it from CLAUDE.md or directory name.
 
@@ -419,19 +405,13 @@ if [ -f .ava/siblings.json ]; then
 fi
 ```
 
-<!-- PE-ECOSYSTEM-ONLY: The following section contains PE/Ava ecosystem-specific configuration.
-     Downstream projects should customize these values for their own environment. -->
 ```bash
-# PE ecosystem hardcoded paths
-for p in /home/ava/Ava_Main /home/ava/CloudBooks /home/ava/seatwise /home/ava/tradeSignal /home/ava/WATTS /home/ava/cheatSheets /home/ava/3D_Printing /home/ava/Prompt_Engineering; do
+# Iterate over known project paths (customize for your environment)
+for p in /path/to/project-a /path/to/project-b; do
   echo "=== $(basename $p) ==="
   node "$p/.ava/dal.mjs" status --brief 2>&1 || echo "NO DAL"
 done
-
-# Ava_Main Documentation tab API
-curl -s http://localhost:4173/api/dal/ecosystem | python3 -m json.tool
 ```
-<!-- /PE-ECOSYSTEM-ONLY -->
 
 - Schema version behind PE canonical -> WARNING
 - brain.db missing -> INFO
@@ -472,18 +452,12 @@ node <PE_PATH>/.ava/dal.mjs template sync <project>
 node <project>/.ava/dal.mjs template pull
 ```
 
-<!-- PE-ECOSYSTEM-ONLY: The following section contains PE/Ava ecosystem-specific configuration.
-     Downstream projects should customize these values for their own environment. -->
 ```bash
-# Via Ava_Main Documentation tab API (auto-handles remote projects)
+# If a hub API exists for template deployment:
 curl -s -X POST http://localhost:4173/api/docs/sync-templates \
   -H 'Content-Type: application/json' \
-  -d '{"projectPath": "/home/ava/<project>"}'
-curl -s -X POST http://localhost:4173/api/docs/sync-prompts \
-  -H 'Content-Type: application/json' \
-  -d '{"projectPath": "/home/ava/<project>"}'
+  -d '{"projectPath": "<project-path>"}'
 ```
-<!-- /PE-ECOSYSTEM-ONLY -->
 
 **Delete legacy `.prompts/` locations:**
 
@@ -542,16 +516,12 @@ When asked for ecosystem-wide check, use `node .ava/dal.mjs health --json` per p
 
 Produce summary table, then detail findings per YELLOW/RED project. Offer to remediate.
 
-<!-- PE-ECOSYSTEM-ONLY: The following section contains PE/Ava ecosystem-specific configuration.
-     Downstream projects should customize these values for their own environment. -->
 ```bash
-# Ava_Main Documentation tab APIs (PE ecosystem only)
+# If hub ecosystem APIs are available:
 curl -s http://localhost:4173/api/dal/ecosystem
 curl -s http://localhost:4173/api/docs/template-drift
-curl -s http://localhost:4173/api/docs/prompt-drift
 curl -s http://localhost:4173/api/docs/project-status
 ```
-<!-- /PE-ECOSYSTEM-ONLY -->
 
 ---
 

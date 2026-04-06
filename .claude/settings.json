@@ -36,7 +36,8 @@
       "Bash(python3:*)",
       "Bash(timeout:*)",
       "WebFetch(domain:localhost)"
-    ]
+    ],
+    "defaultMode": "auto"
   },
   "hooks": {
     "PreToolUse": [
@@ -47,6 +48,12 @@
             "type": "command",
             "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/block-protected-files.js\"",
             "statusMessage": "Checking file protections..."
+          },
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/gitnexus-impact-check.js\"",
+            "timeout": 15,
+            "statusMessage": "Running impact analysis..."
           }
         ]
       },

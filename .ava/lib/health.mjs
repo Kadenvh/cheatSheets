@@ -33,8 +33,8 @@ export function generateHealth({ template, verify } = {}) {
   // Project name: identity > directory name
   report.project = readIdentity(db, "project.name") || path.basename(PROJECT_DIR);
 
-  // Template version: identity > VERSION file
-  report.template_version = readIdentity(db, "template.version") || readVersionFile();
+  // Template version: VERSION file is truth, brain.db is fallback
+  report.template_version = readVersionFile() || readIdentity(db, "template.version");
 
   // Schema version
   if (db) {
@@ -108,7 +108,13 @@ export function printHealth(report) {
     const s = report.stats;
     console.log(`  Sessions:   ${s.sessions ?? "—"}`);
     console.log(`  Open notes: ${s.open_notes ?? "—"}`);
-    console.log(`  Actions:    ${s.actions_total ?? "—"} (${s.success_rate ?? "—"}% success)`);
+    const parts = [];
+    if (s.actions_success) parts.push(`${s.actions_success} success`);
+    if (s.actions_failure) parts.push(`${s.actions_failure} failure`);
+    if (s.actions_pending) parts.push(`${s.actions_pending} pending`);
+    if (s.actions_partial) parts.push(`${s.actions_partial} partial`);
+    const breakdown = parts.length > 0 ? parts.join(", ") : "no data";
+    console.log(`  Actions:    ${s.actions_total ?? "—"} (${breakdown})`);
     if (s.last_session) {
       console.log(`  Last session: ${s.last_session}`);
     }
@@ -201,11 +207,13 @@ function gatherStats(db) {
   } catch { stats.last_session = null; }
   try {
     stats.actions_total = db.prepare("SELECT COUNT(*) as c FROM agent_actions").get().c;
-    const success = db.prepare("SELECT COUNT(*) as c FROM agent_actions WHERE outcome = 'success'").get().c;
-    stats.success_rate = stats.actions_total > 0
-      ? Math.round((success / stats.actions_total) * 100)
-      : null;
-  } catch { stats.actions_total = null; stats.success_rate = null; }
+    stats.actions_success = db.prepare("SELECT COUNT(*) as c FROM agent_actions WHERE outcome = 'success'").get().c;
+    stats.actions_failure = db.prepare("SELECT COUNT(*) as c FROM agent_actions WHERE outcome = 'failure'").get().c;
+    stats.actions_partial = db.prepare("SELECT COUNT(*) as c FROM agent_actions WHERE outcome = 'partial'").get().c;
+    stats.actions_pending = db.prepare("SELECT COUNT(*) as c FROM agent_actions WHERE outcome = 'pending'").get().c;
+    // pe-v6 honesty layer: success_rate removed. Self-reported 100% success
+    // is what you get when no one records failure, not when nothing fails.
+  } catch { stats.actions_total = null; }
   return stats;
 }
 

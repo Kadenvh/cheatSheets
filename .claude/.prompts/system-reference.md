@@ -1,6 +1,6 @@
 # Agent System Reference
 
-**For:** PE Documentation Framework v5.15.0 | **Schema:** v12 | **Updated:** 2026-03-30
+**For:** PE Documentation Framework v5.16.0 | **Schema:** v13 | **Updated:** 2026-04-05
 
 This is the single reference document for understanding the full agent memory and documentation system. Any agent — Claude or otherwise — should be able to read this file and understand how the system works.
 
@@ -8,12 +8,12 @@ This is the single reference document for understanding the full agent memory an
 
 ## Quick Start
 
-- **brain.db** at `.ava/brain.db` — SQLite database, schema v12, 10 tables. Active memory cache for session continuity.
+- **brain.db** at `.ava/brain.db` — SQLite database, schema v13, 10 tables. Active memory cache for session continuity.
 - **Prompts** at `.claude/.prompts/*.md` — protocol files for skills. Canonical location: `.claude/.prompts/`. NOT any legacy `documentation/.prompts/` or root `.prompts/` location (should be deleted if found).
 - **Skills** invoked via `/skill-name` slash commands. Definitions in `.claude/skills/*/SKILL.md`.
 - **Hooks** in `.claude/hooks/*.js` — auto-fire on tool use and session events. 9 hooks deployed.
 - **Vault** — persistent knowledge web (Layer 2). Optional. Resolve path: brain.db `vault.path` > `$OBSIDIAN_VAULT` > `~/Obsidian/Ava/{ProjectName}/`.
-- **CLAUDE.md** at project root — critical rules, auto-loaded by Claude Code. Keep under 5KB.
+- **CLAUDE.md** at project root — critical rules, auto-loaded by Claude Code. Keep focused: rules and commands only.
 - **Full project state:** `node .ava/dal.mjs context` — generates the context payload injected at session start.
 
 ---
@@ -279,7 +279,7 @@ CLAUDE.md is auto-loaded by Claude Code when entering a project directory. It sh
 - Version history beyond current — `PROJECT_ROADMAP.md`
 - Task checklists — brain.db `notes` table or `IMPLEMENTATION_PLAN.md`
 
-**Target size:** 80-300 lines, under 5KB. When CLAUDE.md exceeds this, content should migrate to brain.db or spoke docs.
+**Target size:** 80-300 lines. Keep CLAUDE.md focused on rules, commands, and DO/DON'T. When it grows beyond this, reference content should migrate to SYSTEM-OVERVIEW.md or brain.db.
 
 ---
 
@@ -356,11 +356,11 @@ PE (Prompt Engineering) is the canonical source for the template. `template/` de
 
 | Project | Role | Schema |
 |---------|------|--------|
-| PE | Canonical template source | v12 |
+| PE | Canonical template source | v13 |
 | Ava_Main | Primary downstream, hub | v13 (local extensions) |
-| McQueenyML | Downstream (Frank, remote) | v15 (local extensions) |
-| CloudBooks, seatwise, tradeSignal, WATTS | Downstream | v12 |
-| adze-cad | Downstream (Zoe, remote) | v12 |
+| McQueenyML | Downstream (Frank, remote, custom-curated) | v15 (local extensions) |
+| CloudBooks, seatwise, tradeSignal, cheatSheets, 3D_Printing, adze-cad | Downstream | v13 |
+| WATTS | Downstream | v12 (migration pending) |
 
 **Deployment flow:** PE template to downstream projects via `dal.mjs template sync` or manual copy. Remote projects (Frank, Zoe) via SCP.
 

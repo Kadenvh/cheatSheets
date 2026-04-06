@@ -23,15 +23,27 @@ Audit project plans and design documents for completeness, identify gaps and unk
 
 - **`/plan-validator`** — Audit all reachable plans, report only
 - **`/plan-validator --research`** — Audit + spawn agents per gap category
+- **`/plan-validator --curate`** — Audit + check cross-references + identify stale plans + surface plans relevant to current work
 - **`/plan-validator <path>`** — Audit a specific plan file
 - **`/plan-validator --vault`** — Include Obsidian vault plans
 
 ## Key Rules
 
-- **Read-only.** Never modify plan files. Report findings only.
+- **Read-only by default.** Never modify plan files without `--curate` flag. Report findings only.
 - **Classify gaps.** Don't just list what's missing — categorize as technical, dependency, design, or evidence gaps.
+- **Cross-reference validation.** Check that plans reference each other where dependencies exist. Flag orphaned plans with no cross-refs.
+- **Staleness detection.** Flag plans not updated in 5+ sessions. All plans in `.claude/plans/` should be active — stale plans should be archived.
 - **Agent fallback.** When Agent tool is unavailable, research inline sequentially. Note this in the output.
 - **Vault path resolution.** Use brain.db identity (`vault.path`) first, then environment, then platform defaults.
+
+## Plan Conventions
+
+Plans in `.claude/plans/` should follow this structure:
+- **Header:** Title, created date, status (Active/Curating/Stabilized/Reference), updated date, dependencies
+- **Known Items:** Checkboxed list of work items, grouped by source/phase
+- **Open Questions:** Unresolved design decisions
+- **Sessions Contributing:** Which sessions touched this plan and what they added
+- **Cross-References:** Links to related plans, brain.db entries, vault docs, research entries
 
 ## Inline Fallback (if prompt file not found)
 

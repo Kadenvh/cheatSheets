@@ -85,7 +85,11 @@ Step 1 captured what you *consciously* did. This step scans the full conversatio
 - Are durable enough to matter next session (don't store dead-end debugging attempts)
 - Aren't already captured in Step 1's explicit inventory
 
-**Portfolio identity maintenance:** If this session shipped a major feature, changed key metrics (endpoint count, table count, downstream project count), or added significant tech stack components, update the `product.*` identity entries (`product.summary`, `product.key-metrics`, `product.tech-highlights`). These feed portfolio sync endpoints — stale metrics undermine external presentation.
+**Portfolio identity maintenance:** If this session shipped a major feature, changed key metrics, or added significant capabilities:
+1. Update `product.*` identity entries (`product.summary`, `product.key-metrics`, `product.tech-highlights`)
+2. Update `portfolio.keyMetric` — one compelling line for the portfolio card (use `/portfolio-generation` prompt for quality output). Prefer quantified outcomes over version numbers.
+3. Update `portfolio.description` — 2-5 sentence technical summary for the portfolio card (use `/portfolio-generation` prompt). Only update if the project's story materially changed.
+These feed the portfolio sync endpoint (`POST /api/profile/portfolio/sync`) which propagates to vhtech.me and all export formats. Stale metrics undermine external presentation.
 
 **For each extracted fact, produce:**
 ```
@@ -236,6 +240,12 @@ Traces are auto-collected into the handoff YAML. Without them, the next agent on
 
 ### Record Actions
 
+**BEFORE recording any action, answer this question:**
+
+> Did anything this session fail, get abandoned, change approach mid-attempt, or only partially land?
+> If yes, record those FIRST with `--outcome failure` or `--outcome partial`.
+> A learning loop with 0 failures is broken — it means nobody is recording them, not that nothing failed.
+
 For each significant action this session — **including failures and abandoned attempts**:
 
 ```bash
@@ -244,7 +254,7 @@ node .ava/dal.mjs action record "description" --type <type> --target "file/compo
 
 Action types: `bugfix`, `feature`, `refactor`, `deployment`, `schema_evolution`, `consolidation`, `investigation`, `maintenance`
 
-**Honesty check:** If every action this session is `success`, pause and review. Did anything fail or get abandoned mid-attempt? Did you change approach after something didn't work? Those are `failure` or `partial` outcomes that should be recorded. A learning loop that only sees success cannot learn from failure.
+**Honesty gate:** If every action you are about to record is `success`, stop. Review the conversation for: changed approaches, retried commands, user corrections, abandoned paths, scope cuts. Each of these is a `failure` or `partial` outcome that should be recorded honestly. Only after this review should you proceed with `success` for actions that genuinely succeeded without issues.
 
 ### Record Metrics
 
@@ -313,6 +323,20 @@ After vault export, sync to ChromaDB if the embedding service is running:
 node .ava/dal.mjs vault sync {ProjectSlug} 2>/dev/null || true
 ```
 
+### Update Active Plans
+
+Review `.claude/plans/` — if this session's work touched any plan's domain, update that plan:
+
+1. **Check each plan** — did this session advance, inform, or change any plan's known items?
+2. **Update "Sessions Contributing"** — add this session number and what it contributed
+3. **Update "Known Items"** — check off completed items, add new items discovered
+4. **Update "Open Questions"** — add new questions, resolve answered ones
+5. **Update the "Updated" date** in the plan header
+
+Plans are living documents curated across sessions. Every session that touches a plan's domain should leave it more current than it found it. If a plan hasn't been updated in 5+ sessions, either it's complete (archive it) or it's being neglected (flag it).
+
+**Session summaries** (like `session-131-summary.md`) are closeout artifacts, not plans. They belong as brain.db session records + handoff YAML + vault export (if qualified). Don't accumulate session logs in `.claude/plans/`.
+
 ### Close the DAL Session
 
 All brain.db recording is complete (knowledge, actions, metrics, handoff). Formally close the session:
@@ -320,6 +344,13 @@ All brain.db recording is complete (knowledge, actions, metrics, handoff). Forma
 ```bash
 node .ava/dal.mjs session close --summary "1-2 sentence session summary"
 ```
+
+### Contribution Attribution Check
+
+Before committing, check the repo's attribution policy:
+- **Default:** Include `Co-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>` trailer
+- **Per-repo override:** If the repo or client requires suppressed attribution, omit the trailer but always record agent involvement in brain.db (`action record`)
+- Internal provenance is always preserved regardless of public attribution
 
 **Critical:** Pass `--summary` with a meaningful description. Without it, the session record has a NULL summary and the next agent gets no context about what happened.
 

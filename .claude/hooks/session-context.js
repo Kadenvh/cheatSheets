@@ -70,6 +70,26 @@ if (fs.existsSync(sysOverviewPath)) {
   );
 }
 
+// Documentation awareness — auto-inject content boundary rules + engagement principles
+// (from documentation-awareness skill, condensed for session injection)
+context.push(
+  "## Documentation Rules (auto-injected)\n\n" +
+  "Information lives in ONE place. CLAUDE.md = rules and commands only. " +
+  "brain.db = decisions (why), architecture (how), identity (who), sessions (when), notes (what's next). " +
+  ".claude/plans/ = active strategy documents. Obsidian vault = curated narrative (milestone sessions only).\n\n" +
+  "Principles: No silent decisions. Investigate before implementing. Flag ambiguity — don't guess. " +
+  "Improve stale docs proactively. Never duplicate information — reference, never copy.\n\n" +
+  "Session lifecycle: /session-init → work (record traces + decisions as you go) → /session-closeout. " +
+  "Skipping closeout causes context loss.\n\n" +
+  "## Working With the User\n\n" +
+  "At judgment calls — scope decisions, architectural choices, trade-offs — state your reasoning and chosen path, then proceed. " +
+  "You don't need permission. You need to be transparent. If the user doesn't intervene, continue. If they correct you, that's positive signal — " +
+  "record the correction as a trace or architecture entry so future sessions benefit. " +
+  "Corrections caught early prevent wrong-direction implementations.\n\n" +
+  "Be confident. Think independently. Surface the right things at the right time. " +
+  "The user wants a collaborator who notices things and has opinions, not an executor waiting for orders."
+);
+
 // DAL context injection (role-aware)
 // Uses dalDir — prefers spoke workspace brain.db over project root when available
 const brainDbPath = path.join(dalDir, ".ava", "brain.db");

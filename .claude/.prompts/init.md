@@ -15,7 +15,7 @@ Every project in this ecosystem follows a hub-and-spoke documentation model. You
 | `CLAUDE.md` | Critical rules, anti-patterns, quick start, file structure, tech stack | **1st** (auto-loaded by Claude Code) |
 | **brain.db context** | Identity, architecture, decisions, session history, open notes | **2nd** (already injected by session-context hook if brain.db exists) |
 | **`SYSTEM-OVERVIEW.md`** | **MUST READ.** Your operating manual - every skill, hook, brain.db command, knowledge layer, file layout. Without this you are working blind. | **3rd** (REQUIRED if file exists) |
-| `.claude/plans/` | Active kickstart, analysis, or remediation plans from prior sessions | **4th** (check for `session-*-kickstart.md` — means prior session prepared work for you) |
+| `.claude/plans/` | **ALL active plans.** Read every plan file — they are living documents curated across sessions. Check for `session-*-kickstart.md` (means prior session prepared specific work). Plans here are active by definition; archived plans live in `archive/`. | **4th** (read ALL plans, not just kickstarts) |
 | `PROJECT_ROADMAP.md` | Why decisions were made, version history, architecture, future direction | 5th (if file exists — file-mode projects) |
 | `IMPLEMENTATION_PLAN.md` | Current tasks, what happened last session, blockers, handoff notes | 6th (if file exists — file-mode projects, start work from here) |
 | `.claude/.prompts/` | Skill protocol files (this file, dal-doctor, explore, closeout, validate, system-reference, etc.) | Reference as needed |
@@ -72,7 +72,7 @@ A properly configured project looks like this:
 | **CLAUDE.md** | DO/DON'T rules, build commands, file structure, tech stack, key commands | Session state, task lists, version history, architecture rationale | Closeout (every session with changes) |
 | **brain.db** | Decisions (why), architecture (how), identity (who), sessions (when), notes (what's next), traces (breadcrumbs), learning loop (performance) | Prose, narratives, code, project data | DAL CLI during work + closeout |
 | **`.claude/memory/`** | Working observations, patterns noticed, user preferences, debug notes | Decisions, architecture, anything structured enough for brain.db | AutoMemory (automatic) |
-| **`.claude/plans/`** | Active kickstart files, analysis plans, remediation plans | Completed plans (archive or delete) | Closeout (creates kickstart for next session) |
+| **`.claude/plans/`** | ALL active plans — strategic direction, domain plans, session kickstarts. Living documents curated across sessions. | Completed/archived plans (move to `archive/`) | Updated each session when relevant work touches a plan |
 | **Obsidian vault** | Session narratives, architecture decisions — curated context | Project files, code, configs, plans, schemas, .git, .ava, .claude | vault-export at closeout (conditional) |
 
 ### Obsidian Vault Schema (if vault exists)
@@ -167,12 +167,14 @@ These hooks fire automatically — you don't invoke them, but you should know th
 
 | Hook | When | What It Does |
 |------|------|-------------|
-| `session-context.js` | Session start/resume | Injected the DAL state and git context you see above |
-| `stop-closeout-check.js` | Session end | Warns if docs are stale (>2hrs since last edit) and there are uncommitted changes |
-| `block-protected-files.js` | Before Edit/Write | Blocks writes to protected files (.env, lock files, credentials, etc.) |
+| `session-context.js` | Session start/resume | Injected the DAL state, git context, handoff, doc rules, and agent identity you see above |
+| `block-protected-files.js` | Before Edit/Write | Blocks writes to protected files (.env, secrets, lock files, agent personality files) |
+| `gitnexus-impact-check.js` | Before Edit/Write | Auto impact analysis on source files — injects blast radius to context |
 | `block-dangerous-commands.js` | Before Bash | Blocks catastrophic commands (rm -rf /, force push main, etc.) |
 | `typecheck-on-edit.js` | After Edit/Write | Runs type checker on modified files |
 | `lint-on-edit.js` | After Edit/Write | Runs linter on modified files |
+| `gitnexus-post-commit.js` | After git commit | Re-indexes codebase intelligence |
+| `stop-closeout-check.js` | Session end | Warns if docs are stale (>2hrs since last edit) and there are uncommitted changes |
 | `completion-check.js` | Session end | Warns if actions have partial outcomes |
 
 If a write or command gets blocked, check `.claude/hooks/` for the specific rules. SOFT_BLOCK denials include override guidance.
@@ -257,21 +259,40 @@ You don't need to create an init prompt. This IS the init prompt. The documentat
 
 ---
 
-## 6. ENGAGEMENT PROTOCOL
+## 6. STATE YOUR UNDERSTANDING (mandatory — do not skip)
 
-Before any implementation:
+**Before any work, demonstrate to the user that you've absorbed the context.** This is not a formality — it's how trust is built. The user needs confidence that init worked and you're ready to continue seamlessly from the last session.
 
-1. **State your understanding** of the task
-2. **Identify affected files** and components
-3. **Flag concerns** — potential impacts, ambiguities, risks
-4. **Propose your approach** and get confirmation
-5. **Then proceed**
+State back to the user in natural language:
 
-**No silent decisions.** If you deviate from established patterns — naming, architecture, edge case handling — document it explicitly. The next session needs to know what actually happened vs. what was planned.
+1. **Project state** — version, health, any drift or open issues you noticed
+2. **Last session** — what happened, what was delivered, what was left open (from handoff YAML, session notes, or brain.db traces)
+3. **Open items** — unresolved notes, partial-outcome actions, or blockers that carry forward
+4. **This session** — what you believe the session should accomplish (from plans, user direction, or open items)
+
+**Wait for the user to confirm or correct before touching any file.** A correction here is not a failure — it's the system working. It means you caught a gap early instead of executing on wrong assumptions. Surface uncertainty honestly: "I'm not sure about X — the handoff says Y but the code shows Z."
+
+If the user says your understanding is wrong, update your mental model and restate. If they confirm, proceed to the engagement protocol below.
 
 ---
 
-## 7. SURFACE INSIGHTS
+## 7. ENGAGEMENT PROTOCOL
+
+When approaching implementation:
+
+1. **Identify affected files** and components
+2. **Flag concerns** — potential impacts, ambiguities, risks
+3. **Propose your approach** — then proceed
+
+**Decision-point surfacing:** When you encounter a judgment call — scope decision, architectural choice, trade-off between approaches — state your reasoning and your chosen path clearly, then proceed. You don't need permission. You need to be transparent. If the user doesn't intervene, continue. If they do, adjust. This builds trust: not by asking, but by showing your thinking.
+
+**No silent decisions.** If you deviate from established patterns — naming, architecture, edge case handling — document it explicitly. The next session needs to know what actually happened vs. what was planned.
+
+**Corrections are positive signal.** If the user corrects your understanding, reasoning, or approach — that means the communication loop is working. Record the correction as a trace or architecture entry so future sessions benefit. A correction caught early prevents a wrong-direction implementation.
+
+---
+
+## 8. SURFACE INSIGHTS
 
 Before waiting for instructions, proactively share what you've noticed:
 
@@ -291,7 +312,7 @@ Present your insights in this format:
 
 ---
 
-## 8. READ PROJECT NOTES
+## 9. READ PROJECT NOTES
 
 If the project has a notes, issues, or task tracking system (markdown files, in-app notes, TODO lists, etc.):
 
@@ -319,7 +340,7 @@ Archived content is still valid context — it was moved for size management, no
 
 ---
 
-## 9. START WORKING
+## 10. START WORKING
 
 Once oriented:
 

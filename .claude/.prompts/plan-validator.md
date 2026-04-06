@@ -102,6 +102,41 @@ After all agents return:
 
 ---
 
+## 4b. CURATION AUDIT (--curate mode)
+
+> **Only when `--curate` flag is set.** Runs after completeness checks. Checks plan ecosystem health.
+
+### 4b.1 Cross-Reference Validation
+For each plan, check its Cross-References section:
+- Do referenced plans exist in `.claude/plans/`?
+- Do referenced brain.db entries exist? (`node .ava/dal.mjs arch get <key>`)
+- Are there dependency relationships that should exist but aren't documented?
+- Flag plans with zero cross-references as "orphaned" — they may need linking.
+
+### 4b.2 Staleness Detection
+For each plan, check the "Updated" date in the header:
+- **Stale (5+ sessions old):** Flag for review — either archive or update
+- **Active but untouched:** Compare plan domain against recent brain.db actions — was work done in this domain without updating the plan?
+- **Missing "Sessions Contributing":** Flag — no audit trail of which sessions curated this plan
+
+### 4b.3 Convention Compliance
+Check each plan against the plan structure convention (from SYSTEM-OVERVIEW.md):
+- Has header with Created, Status, Updated, Depends on?
+- Has Known Items section with checkboxes?
+- Has Open Questions section?
+- Has Sessions Contributing table?
+- Has Cross-References section?
+- Status is one of: Active, Curating, Stabilized?
+
+### 4b.4 Ecosystem Coherence
+Check the plan set as a whole:
+- Are there domain gaps? (e.g., active work areas with no corresponding plan)
+- Are there redundant plans covering the same domain?
+- Does the primary direction document (ava-direction.md or equivalent) index all plans?
+- Are archived plans properly moved out of `.claude/plans/`?
+
+---
+
 ## 5. OUTPUT FORMAT
 
 ```
@@ -147,4 +182,24 @@ For each researched gap:
 1. {Highest priority gap to resolve}
 2. {Next priority}
 3. ...
+
+### Curation Report (if --curate)
+
+**Cross-References:**
+- {n} plans with valid cross-refs
+- {n} orphaned plans (no cross-refs)
+- {n} broken references
+
+**Staleness:**
+- {list of plans not updated in 5+ sessions}
+- {list of plans whose domain had recent work but plan wasn't updated}
+
+**Convention Compliance:**
+| Plan | Header | Known Items | Open Qs | Sessions | Cross-Refs | Status |
+|------|--------|-------------|---------|----------|------------|--------|
+
+**Ecosystem:**
+- Coverage gaps: {domains without plans}
+- Redundancies: {overlapping plans}
+- Direction index: {up to date / missing plans}
 ```

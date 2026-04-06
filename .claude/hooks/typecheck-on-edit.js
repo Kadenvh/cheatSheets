@@ -64,6 +64,8 @@ try {
     .split("\n")
     .slice(0, 20)
     .join("\n");
-  process.stderr.write(errors);
-  process.exit(2);
+  // Advisory only — exit 0 so agents can make incremental edits.
+  // Exit 2 caused agents to avoid partial edits entirely.
+  process.stderr.write("[typecheck] " + errors);
+  process.exit(0);
 }

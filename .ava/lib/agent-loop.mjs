@@ -3,15 +3,11 @@ import { requireDb } from "./db.mjs";
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-const OUTCOME_TO_RATING = { success: "helpful", failure: "harmful", partial: "neutral" };
-
-function insertImplicitFeedback(db, actionId, outcome) {
-  const rating = OUTCOME_TO_RATING[outcome];
-  if (!rating) return;
-  db.prepare(
-    "INSERT INTO agent_feedback (action_id, rating, source, detail) VALUES (?, ?, 'self', ?)"
-  ).run(actionId, rating, `Implicit from outcome: ${outcome}`);
-}
+// DEPRECATED (pe-v6 honesty layer): self-feedback has zero information content.
+// Agent grading its own work (128 "helpful" / 2 "neutral") is noise, not signal.
+// Table retained for history; no new rows written. See pe-v6.md signal quality #2.
+// const OUTCOME_TO_RATING = { success: "helpful", failure: "harmful", partial: "neutral" };
+function insertImplicitFeedback(/* db, actionId, outcome */) { /* deprecated — noop */ }
 
 // ─── Actions ─────────────────────────────────────────────────────────────────
 

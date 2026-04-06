@@ -19,7 +19,7 @@ export function verifySchema() {
 
   const requiredTables = [
     "schema_version", "identity", "architecture", "sessions", "decisions",
-    "notes", "agent_actions", "agent_metrics", "agent_feedback"
+    "notes", "session_traces", "agent_actions", "agent_metrics", "agent_feedback"
   ];
   const existing = db.prepare(
     "SELECT name FROM sqlite_master WHERE type='table'"

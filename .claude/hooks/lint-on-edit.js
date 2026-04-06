@@ -71,6 +71,9 @@ try {
     .split("\n")
     .slice(0, 15)
     .join("\n");
-  process.stderr.write(errors);
-  process.exit(2);
+  // Advisory only — exit 0 so agents can make incremental edits.
+  // Exit 2 caused agents to think partial edits were failures and
+  // rewrite entire files in one shot, defeating Edit's purpose.
+  process.stderr.write("[lint] " + errors);
+  process.exit(0);
 }

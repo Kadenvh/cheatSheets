@@ -128,7 +128,7 @@ node .ava/dal.mjs identity list
 | Key | What to Extract | Guidance |
 |-----|----------------|----------|
 | `product.summary` | 2-3 sentence external-facing project description | What this project IS and what it does, written for someone outside the team |
-| `product.key-metrics` | Structured metrics suitable for portfolio display | e.g., "308 API endpoints", "10-table schema v12" — quantifiable achievements |
+| `product.key-metrics` | Structured metrics suitable for portfolio display | e.g., "308 API endpoints", "10-table schema v13" — quantifiable achievements |
 | `product.tech-highlights` | Curated tech stack for external presentation | Not the full internal stack — just what's impressive or relevant to showcase |
 
 These are identity rows (not architecture) because they describe *what the project is* to the outside world. If missing, extract from CLAUDE.md, README.md, and codebase inspection. If present, verify they reflect current reality — stale metrics are worse than missing ones.

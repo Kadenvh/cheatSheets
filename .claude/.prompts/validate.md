@@ -121,7 +121,7 @@ CLAUDE.md is the auto-loaded knowledge file agents read every session. Ensure CL
 ### 3.1 Audit Phase
 - Project root MUST have CLAUDE.md (already checked in Domain 2)
 - Sub-projects / spokes (directories with their own package.json, brain.db, or significant scope) SHOULD have their own CLAUDE.md with domain-specific rules
-- Check: is each CLAUDE.md under 5KB? (larger means it's accumulating content that belongs in brain.db)
+- Check: is CLAUDE.md focused on rules and commands? (reference content, tool guidance, and architecture belong in SYSTEM-OVERVIEW.md or brain.db, not CLAUDE.md)
 - Check: does each CLAUDE.md have version, critical rules, and build/run commands?
 
 ### 3.2 Staleness Check

@@ -34,7 +34,7 @@ Read context in this order:
 1. **CLAUDE.md** (project root) — critical rules, always auto-loaded
 2. **brain.db context** — already injected by session-context hook if brain.db exists. **If brain.db does NOT exist, run `/dal-doctor` to set up the full system.** Do not fall back to file-only mode.
 3. **SYSTEM-OVERVIEW.md** (project root) — **MUST READ.** Your operating manual: every skill, hook, brain.db command, knowledge layer, and file layout. Without this you are working blind.
-4. **Plans** — check `.claude/plans/` for any active kickstart, analysis, or remediation plans from prior sessions
+4. **Plans** — read ALL files in `.claude/plans/`. These are living strategy documents curated across sessions. Everything here is active by definition.
 5. **Obsidian vault** — recent session notes, active plans, latest YAML handoff (if vault exists)
 
 Report ready state: current version, active blockers, insights/concerns noticed, questions, and recommended priorities.
@@ -56,7 +56,7 @@ Detailed steps (always follow these):
 
 1. **Find docs.** Look for `CLAUDE.md` and `SYSTEM-OVERVIEW.md` at project root.
 2. **Read in order.** CLAUDE.md first (rules), then SYSTEM-OVERVIEW.md (your full toolbox - skills, hooks, brain.db commands, knowledge layers). If `PROJECT_ROADMAP.md` or `IMPLEMENTATION_PLAN.md` exist (file-mode projects), read them too.
-3. **Check plans.** If `.claude/plans/` has files, read them - they contain active execution plans. A kickstart file (`session-*-kickstart.md`) means the prior session prepared specific work for you.
+3. **Read ALL plans.** Read every file in `.claude/plans/` — they are living strategy documents curated across sessions. All plans here are active by definition (archived plans live in `archive/`). A kickstart file (`session-*-kickstart.md`) means the prior session prepared specific work for you.
 4. **Verify state.** Check that version numbers match across all docs. Check for stale dates (>7 days without updates). Check for blockers in IMPLEMENTATION_PLAN.
 5. **Surface insights.** Before waiting for instructions: list inconsistencies or concerns, recommend 2-3 improvements, ask questions that affect approach, offer criticism of anything that looks wrong.
 6. **Read project notes** (if any exist — `notes/`, `TODO.md`, `NOTES.md`, brain.db notes via `dal.mjs note list`). Categorize items, flag anything already resolved, merge into session plan.
