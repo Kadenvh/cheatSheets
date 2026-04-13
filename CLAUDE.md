@@ -8,7 +8,8 @@ Spoke component of Project Ava. Hub docs at `Ava_Main/CLAUDE.md`.
 
 | Document | Location |
 |----------|----------|
-| Learning System Plan | `LEARNING_SYSTEM_PLAN.md` (this directory) |
+| Learning System Plan | `plans/learning-system.md` |
+| Resilience Plan | `plans/resilience.md` |
 | Project-Wide Rules | `Ava_Main/CLAUDE.md` |
 | Hub Roadmap | `Ava_Main/documentation/PROJECT_ROADMAP.md` § Knowledge System |
 
@@ -82,7 +83,9 @@ This writes `sessions/session-{N}.md` at the project root. PE-framework vault ex
 ```
 /home/ava/cheatSheets/
 ├── CLAUDE.md                          ← This file
-├── LEARNING_SYSTEM_PLAN.md            ← Comprehensive plan (supersedes all prior plans)
+├── plans/
+│   ├── learning-system.md             ← Canonical learning system plan (Phase 3)
+│   └── resilience.md                  ← External-service fallback plan
 ├── Cheatsheet_Generation_Prompt.md    ← Reference template spec
 ├── README.md                          ← Project intro
 ├── vault/                             ← Obsidian vault (content layer)

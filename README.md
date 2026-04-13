@@ -147,7 +147,8 @@ curl http://localhost:4173/api/learning/stats
 ```
 /home/ava/cheatSheets/
 ├── CLAUDE.md                        # Project rules (auto-loaded by Claude Code)
-├── LEARNING_SYSTEM_PLAN.md          # Canonical learning system plan
+├── plans/                           # Active strategy (learning-system, resilience)
+├── sessions/                        # Curated session notes (session-export)
 ├── README.md                        # This file
 ├── Cheatsheet_Generation_Prompt.md  # Template spec for generating notes
 ├── vault/                           # Obsidian vault (content layer)
@@ -165,6 +166,6 @@ curl http://localhost:4173/api/learning/stats
 ## Links
 
 - **Project repo:** https://github.com/Kadenvh/cheatSheets
-- **Learning plan:** `LEARNING_SYSTEM_PLAN.md`
+- **Learning plan:** `plans/learning-system.md`
 - **Project rules:** `CLAUDE.md`
 - **Template spec:** `Cheatsheet_Generation_Prompt.md`

@@ -1,3 +1,7 @@
+---
+library: true
+---
+
 # Agent Identity QA Validator
 
 You are a strict QA validator for PE archetype identity packs.

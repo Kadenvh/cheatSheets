@@ -1,7 +1,0 @@
-{
-  "input": "chmod",
-  "mode": "quick",
-  "ts": "2026-03-13T16:36:32.069Z",
-  "curatorOutput": "{\"status\": \"enriched-manually\", \"note\": \"Re-curated via Phase 6a batch with expanded input\"}",
-  "recuratedAt": "2026-03-13T16:54:29.253365"
-}

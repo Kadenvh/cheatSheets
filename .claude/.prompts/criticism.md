@@ -1,3 +1,7 @@
+---
+library: true
+---
+
 # Criticism — Adversarial Strategic Review
 
 Deep adversarial analysis of the project. Unlike /explore (divergent) or /cleanup (reconciliation), /criticism actively looks for what's broken, fragile, missing, misaligned, or wasted.

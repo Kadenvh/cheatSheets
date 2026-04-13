@@ -1,8 +1,8 @@
-# Learning System Plan (Canonical)
+# Learning System
 
-**Version:** 2.1
-**Updated:** 2026-03-30
-**Status:** Active — Phase 3 (content expansion)  
+**Created:** 2026-03-20 | **Status:** Active | **Updated:** 2026-04-13 (Session 15)
+**Version:** 2.2 | **Phase:** 3 (content + review-exercises + resilience)
+**Depends on:** resilience.md (external-service fallback affects review UX)
 **Supersedes:** `knowledge-learning-plan.md`, `CHEATSHEETS_PLAN.md`, legacy split-plan docs
 
 ---
@@ -88,6 +88,15 @@ The system should make learning durable, reviewable, and searchable with minimal
 - Compass suggestion quality pass
 - Streak visualization polish
 - Q&A response parsing fix (raw JSON wrapper visible)
+- **Review card exercises** (note `r1xt05q8lim`): wire `exercise_hints` frontmatter (recall/understanding/application) to Review tab buttons; generate via Spark agent when missing
+- **External-service resilience:** see `resilience.md` — `/api/learning/status` + `/api/system/health` currently hang when ChromaDB is down, degrading the Learn/Review surface
+
+### Completed since last plan update (2026-03-30 → 2026-04-13)
+- v7.5.0: curriculum layer (learning.db, ELEGOO Mega 2560, 34 lessons)
+- v7.5.1: ContentPanel code viewer (syntax-highlighted .ino)
+- v7.6.0: PDF tutorial viewer (iframe + `#page=N`)
+- v7.7.0: lesson completion flow + auto-plan
+- Session 14: Ava_Main learning data audit, 9 orphaned tables dropped, e2e curriculum auto-plan verified
 
 ---
 
@@ -114,3 +123,28 @@ The system should make learning durable, reviewable, and searchable with minimal
 
 - This is the **single canonical plan** for CheatSheets learning-system work.
 - Historical rationale and implementation detail should live in decisions/architecture/session records, not in parallel competing plan files.
+
+## Open Questions
+
+- Should `exercise_hints` be required frontmatter going forward, or continue as recommended-only with Spark filling gaps?
+- Streak visualization — daily strict vs rolling 7-day?
+
+## Sessions Contributing
+
+| Session | Contribution |
+|---------|-------------|
+| 3 (2026-03-30) | Migrated 61 concepts + 1935 reviews, restored learning backend |
+| 5 (2026-03-30) | Batch 1: 6 learning-methods notes |
+| 7 (2026-03-30) | Batch 2: 6 Linux notes, UI audit fixes |
+| 11 (2026-04-01) | v7.5.0 curriculum layer + learning.db |
+| 12 (2026-04-04) | v7.5.1 code viewer |
+| 13 (2026-04-05) | v7.6.0 PDF tutorial viewer |
+| 14 (2026-04-06) | Ava_Main data audit, e2e curriculum auto-plan verified |
+
+## Cross-References
+
+- `plans/resilience.md` — external-service timeout/fallback
+- brain.db decision #5 — separate learning.db for curriculum layer
+- brain.db decision #6 — iframe PDF viewer over pdfjs-dist
+- `CLAUDE.md` — architecture layers + critical rules
+- `.ava/learning-schema.sql` — curriculum seed (ELEGOO)
