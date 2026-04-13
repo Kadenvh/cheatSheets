@@ -16,6 +16,7 @@ const filePath = (input.tool_input?.file_path || "")
 const BLOCKED = [
   /\.env($|\.)/,                    // .env, .env.local, .env.production
   /\.git\//,                        // .git internals
+  /(^|\/)\.ava\/brain\.db$/,        // DAL active memory
   /credentials\.(json|yaml|yml)$/,  // credential files
   /secrets?\.(json|yaml|yml)$/,     // secret files
   /package-lock\.json$/,            // npm lock

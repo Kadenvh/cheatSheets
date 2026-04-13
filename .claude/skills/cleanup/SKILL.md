@@ -1,6 +1,6 @@
 ---
 name: cleanup
-description: "Reconcile brain.db against docs, ingest documentation into brain.db/vault, archive originals. Use --full-ingest to read EVERY doc file and ensure brain.db captures all project knowledge."
+description: "Structural hygiene and targeted continuity repair. Enforce where-things-live rules, trim stale storage, and keep DAL lean. Use --full-ingest only for legacy migrations."
 allowed-tools:
   - Read
   - Edit
@@ -11,79 +11,84 @@ allowed-tools:
   - Agent
 ---
 
-# Cleanup — DAL Reconciliation & Document Ingestion
+# Cleanup — Structural Hygiene & DAL Reconciliation
 
-Comprehensive reconciliation of brain.db against project documentation, plus ingestion of scattered docs into the right knowledge systems. Handles first-run hydration (empty brain.db), ongoing maintenance (drift/gaps), coverage enforcement, and document archival.
+Enforce the "one place per question" rule across the project. Consolidate redundant storage locations, trim stale continuity data, audit optional memory files, and eliminate archive sprawl.
 
-**Two modes:**
-- **Default** (`/cleanup`) — reconcile brain.db against known docs + scan for orphans
-- **Full ingest** (`/cleanup --full-ingest`) — read EVERY .md/.txt in the project, compare against brain.db, ingest all missing knowledge, push to vault. Use when brain.db is out of sync with documentation.
+**Three modes:**
+- **Default** (`/cleanup`) — structural enforcement + lean continuity audit + orphan scan
+- **Full ingest** (`/cleanup --full-ingest`) — legacy migration mode only; read existing prose, extract durable value, and migrate it into the right canonical homes
+- **Structural only** (`/cleanup --structure`) — skip DAL reconciliation, focus on filesystem consolidation
 
 ## Instructions
 
 Follow the protocol below. For the full detailed version, read `.claude/.prompts/cleanup.md`.
 
-### Default Protocol
-   - Verify DAL prerequisites and detect mode (first-run vs ongoing)
-   - Required identity extraction (project.name, version, vision, stack, build)
-   - Required architecture extraction (system design patterns from codebase/docs)
-   - Compare and reconcile (brain.db ↔ docs ↔ codebase)
-   - Architecture, decision, session, and note health checks
-   - Scan for orphaned docs → classify → ingest → archive
+### Phase 1: Structural Enforcement (always runs first)
+   - **Where-things-live audit** — verify content is in the canonical location per the rules below
+   - **Plans placement check** — `plans/` is at the project root, not under `.claude/`. Flag any plans found under `.claude/plans/` (v7 violation).
+   - **Archive consolidation** — extract first, then keep superseded plans in `plans/archive/` with receipts
+   - **Memory file audit** — `.claude/memory/` is optional compatibility space for lean observations, not a shadow documentation tree
+   - **Root cleanup** — eliminate orphaned files at project root
+
+### Phase 2: Lean DAL Audit (default + full-ingest)
+   - Verify DAL prerequisites, detect mode (first-run vs ongoing)
+   - Extract/verify minimal identity (project name/version/vision only when genuinely load-bearing) from CLAUDE.md
+   - Compare and reconcile continuity state (brain.db ↔ CLAUDE.md ↔ plans ↔ handoff)
+   - Prune or demote legacy architecture/learning-loop rows that do not justify themselves
+   - Decision, session, note, and handoff health checks
    - Coverage report (PASS/FAIL)
 
-### Full Ingest Protocol (`--full-ingest`)
-   - Discover ALL .md/.txt files in the project (exclude node_modules, .git, dist, vendor)
-   - Read current brain.db state (identity, architecture, decisions, notes)
-   - Read each document → extract knowledge → compare against brain.db
-   - Classify each knowledge item: COVERED (already in brain.db), STALE (needs update), MISSING (needs insertion)
-   - Present full ingestion plan with proposed brain.db inserts/updates + vault notes + archives
-   - Wait for confirmation → execute → verify with "blind agent" test
-   - Use sub-agents for parallel file reading when >10 files
+### Phase 3: Full Ingest (--full-ingest only)
+   - Discover legacy `.md`/`.txt` documents
+   - Read each → extract durable value → route to the right canonical home
+   - Classify: COVERED, STALE, MISSING
+   - Present plan → confirm → execute → verify with a continuity-first resume check
+
+## Where Things Live — Canonical Rules
+
+These rules are the structural enforcement target. Cleanup MUST flag violations.
+
+| Content Type | ONE Canonical Location | Violations to Flag |
+|---|---|---|
+| Active strategy/plans | `plans/` (project root) | Plans under `.claude/plans/`, root `archive/`, anywhere else |
+| Superseded plans worth keeping | `plans/archive/` (project root) + receipt | Root `archive/`, `.claude/archive/`, nested cleanup dirs |
+| Curated session notes | `sessions/` (project root) | Session logs in `plans/`, root, archive/ |
+| Continuity state | brain.db (`sessions`, `notes`, `decisions`, minimal `identity`) + `.ava/handoffs/` | Broad code-structure dumps, stale prose blobs, duplicate status docs |
+| Working observations | `.claude/memory/` only if still useful | Memory files that mirror brain.db, plans, or docs |
+| Rules/commands | `CLAUDE.md` | Duplicated in SYSTEM-OVERVIEW.md or memory |
+| System reference | `SYSTEM-OVERVIEW.md` | Duplicated in plans or memory |
+| Code structure | GitNexus or live code inspection | FileStructure snapshots, route maps, symbol inventories, broad `architecture` rows |
+| Archived cleanup residue | DELETE (not re-archive) | Timestamped cleanup-YYYY-MM-DD/ dirs |
+| Obsidian vault folder for this project | RETIRED (v7) | Vault folder still exists — migrate `sessions/`, `END-GOAL.md` to project root and remove |
 
 ## Key Rules
 
-- **Coverage is mandatory.** brain.db identity MUST have: project.name, project.version, project.vision, tech.stack. "Clean" with missing identity = FAIL.
-- **Docs are truth, brain.db is the cache.** When they contradict, docs win.
-- **Don't invent knowledge.** Only insert what's explicitly in docs or verifiable in codebase.
-- **Dry-run first.** User confirms inserts, deletions, and file moves.
-- **Decisions matter most.** Architecture decisions prevent the next agent from relitigating settled questions.
-- **Clean folders, precise context.** Orphaned documentation fragments context. Ingest the knowledge, archive the file.
-- **Blind agent test.** After full ingest, a new agent with only brain.db context should be productive without reading any docs. If not, the ingest is incomplete.
+- **One place per question.** Content in the wrong location is a bug, not a convenience.
+- **Extract first, archive second.** Moving clutter to a new archive dir creates more clutter.
+- **DAL is continuity, not encyclopedia.** Keep what helps session restart; demote the rest.
+- **Dry-run first.** Present all moves/deletes/inserts before executing. User confirms.
+- **Memory is optional compatibility, not canon.** If it is canonical, it does not belong in `memory/`.
+- **Plans live at project root.** Active plans live in `plans/` exclusively, never under `.claude/`.
+- **Root archive/ is legacy.** Content should be in `plans/archive/` or deleted. Do not create new root `archive/` entries.
+- **Obsidian vault is retired.** v7 removed the vault layer. Any vault folder for this project should be migrated to project root and removed.
 
-## Full Protocol
+## Execution Notes
 
-Detailed steps:
-
-1. **Check DAL.** `node .ava/dal.mjs status`. If fails, stop.
-
-2. **Detect mode.** If `--full-ingest` flag: go to Section 8F in the prompt. Otherwise continue below.
-
-3. **Extract identity.** Read CLAUDE.md → extract: `project.name`, `project.version`, `tech.stack`, `tech.build`. Read ROADMAP or brain.db decisions → extract: `project.vision`.
-   ```bash
-   node .ava/dal.mjs identity set "project.name" --value "..."
-   ```
-
-4. **Extract architecture.** Read codebase for system patterns, conventions, deployment topology.
-   ```bash
-   node .ava/dal.mjs arch set "key" --value "..." --scope project
-   ```
-   Scopes: `project` (system design), `ecosystem` (cross-project), `infrastructure` (ops), `convention` (working style).
-
-5. **Extract decisions.** Every architectural choice → `node .ava/dal.mjs decision add ...`.
-
-6. **Scan for orphaned docs.** Find .md files outside expected locations (.claude/). Classify: brain.db candidate, vault candidate, redundant, or legitimate. Ingest distilled knowledge, archive originals to `.claude/archive/cleanup-{date}/`.
-
-7. **Coverage report.** List each required identity entry as present/MISSING. Count architecture entries by scope. Report decisions. Include document ingestion results. VERDICT: PASS only if all required identity present AND no unprocessed orphans.
+- **Always use absolute paths** for DAL commands — shell CWD can drift after archive moves
+- **Verify moves** — `ls -la` the destination after every `mv` to confirm the file landed
+- **GitNexus reindex** — after deleting/moving files that affect code structure, the codebase index goes stale. Run `npx gitnexus analyze` or note for post-commit hook
+- **Read before deleting** — for unique files, always read first to extract value
+- **Full ingest is exceptional** — use it for legacy migration or first-run hydration, not as routine maintenance
 
 ## Error Handling
 
 If any step fails (command errors, file not found, brain.db unreachable):
-1. Record the failure: `node .ava/dal.mjs action record "cleanup: <what failed>" --type maintenance --outcome failure`
-2. Do NOT continue silently — report the error to the user with what failed, the error message, and suggested fix.
-3. If brain.db is unreachable, note the failure in the session summary for closeout.
+1. Record the issue as a note or include it in the handoff/closeout summary. Use `agent_actions` only if the project still relies on that legacy surface.
+2. Report to user with error message and suggested fix.
+3. If brain.db is unreachable, note for closeout.
 
 ## After Completion
 
-- Record the action: `node .ava/dal.mjs action record "cleanup: <summary>" --type maintenance --outcome success`
-- If this work changed CLAUDE.md rules or key commands, update CLAUDE.md
+- If this project still uses `agent_actions`, record the cleanup result there. Otherwise rely on notes + handoff continuity.
+- If CLAUDE.md rules or key commands changed, update CLAUDE.md

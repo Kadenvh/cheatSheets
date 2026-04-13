@@ -1,6 +1,6 @@
 # Agent System Reference
 
-**For:** PE Documentation Framework v5.16.0 | **Schema:** v13 | **Updated:** 2026-04-05
+**For:** PE Documentation Framework v7.0.0-rc1 | **Schema:** v13 | **Updated:** 2026-04-13
 
 This is the single reference document for understanding the full agent memory and documentation system. Any agent — Claude or otherwise — should be able to read this file and understand how the system works.
 
@@ -9,12 +9,13 @@ This is the single reference document for understanding the full agent memory an
 ## Quick Start
 
 - **brain.db** at `.ava/brain.db` — SQLite database, schema v13, 10 tables. Active memory cache for session continuity.
-- **Prompts** at `.claude/.prompts/*.md` — protocol files for skills. Canonical location: `.claude/.prompts/`. NOT any legacy `documentation/.prompts/` or root `.prompts/` location (should be deleted if found).
+- **Prompts** at `.claude/.prompts/*.md` — protocol and support files. Canonical location: `.claude/.prompts/`. NOT any legacy `documentation/.prompts/` or root `.prompts/` location (should be deleted if found).
 - **Skills** invoked via `/skill-name` slash commands. Definitions in `.claude/skills/*/SKILL.md`.
-- **Hooks** in `.claude/hooks/*.js` — auto-fire on tool use and session events. 9 hooks deployed.
-- **Vault** — persistent knowledge web (Layer 2). Optional. Resolve path: brain.db `vault.path` > `$OBSIDIAN_VAULT` > `~/Obsidian/Ava/{ProjectName}/`.
+- **Hooks** in `.claude/hooks/*.js` — auto-fire on tool use and session events. Run `ls template/.claude/hooks/` for the live inventory; counts drift, queries don't.
+- **Plans** at project-root `plans/` — active strategy documents, one canonical plan preferred (validator warns at 2+, fails at 4+). Superseded plans move to `plans/archive/<event>/` with receipt.
+- **Sessions** at project-root `sessions/` — curated structured session notes written by `session-export` at closeout. Schema: `session-{N}.md` with Summary, Decisions, Files Changed, Notes Opened/Closed, Continuity → Next Session, Cross-Refs.
 - **CLAUDE.md** at project root — critical rules, auto-loaded by Claude Code. Keep focused: rules and commands only.
-- **Full project state:** `node .ava/dal.mjs context` — generates the context payload injected at session start.
+- **Continuity brief:** `node .ava/dal.mjs continuity brief` — synthesized resume state (identity, open session, handoff, notes, plans, decisions, contradictions, recommended next step). Primary session-start surface.
 
 ---
 
@@ -68,7 +69,7 @@ brain.db is an SQLite database at `.ava/brain.db`. It stores active memory — w
 ```bash
 # Session lifecycle
 node .ava/dal.mjs session start "description"     # Start tracked session
-node .ava/dal.mjs session close                    # Close with summary
+node .ava/dal.mjs session close --summary "what happened"  # Close with summary
 node .ava/dal.mjs status                           # DB health, schema, size
 node .ava/dal.mjs context                          # Full state payload
 node .ava/dal.mjs context --role dev               # Dev-focused context
@@ -102,8 +103,9 @@ node .ava/dal.mjs migrate                           # Run pending migrations
 node .ava/dal.mjs template manifest                 # List deployable files + checksums
 node .ava/dal.mjs template diff <path>              # Compare target vs template
 node .ava/dal.mjs template sync <path>              # Copy missing/stale
-node .ava/dal.mjs template sync <path> --dal        # Also sync DAL runtime
 ```
+
+Template deployment handles the deployable `.claude` and documentation surface. DAL runtime provisioning is handled separately through `/dal-doctor`.
 
 ---
 
@@ -115,8 +117,7 @@ Markdown files containing detailed protocols that skills read at invocation time
 
 Each prompt file is a standalone protocol: oriented toward a specific workflow (init, closeout, debugging, etc.) with step-by-step instructions an agent can follow.
 
-Current inventory (22 active):
-`init.md`, `closeout.md`, `cleanup.md`, `dal-doctor.md`, `system-reference.md` (this file), `explore.md` (includes discovery mode), `validate.md` (includes docs/setup/readme checks), `architecture.md`, `code-review.md`, `debugging.md`, `frontier-research.md`, `requirements.md`, `testing.md`, `refactor.md`, `migration.md`, `together.md`, `agent-qa.md`, `METRICS.md`, `plan-validator.md`, `supabase.md`, `triage.md`, `ui-dev.md`
+Current inventory is the shipped directory contents, not a hard-coded count. Run `ls template/.claude/.prompts/` for the live list.
 
 ### `.claude/skills/` — Slash Command Definitions
 
@@ -133,13 +134,16 @@ Hooks fire automatically on Claude Code events. They are `.js` files (CommonJS v
 
 | Hook | Event | Purpose |
 |------|-------|---------|
-| `session-context.js` | SessionStart, SessionResume | Injects brain.db context + git status + REMINDER about `/session-closeout` |
-| `block-protected-files.js` | PreEdit, PreWrite | Blocks writes to protected files (.env, lock files, credentials, secrets, etc.) |
+| `session-context.js` | SessionStart, SessionResume | Injects git context, brain.db context, latest handoff, and session reminders |
+| `block-protected-files.js` | PreEdit, PreWrite | Blocks writes to `.env`, lock files, credentials, secrets, and selected protected files. Do not assume it protects `brain.db`. |
 | `block-dangerous-commands.js` | PreBash | Blocks catastrophic commands (rm -rf /, force push main, etc.) |
+| `gitnexus-impact-check.js` | PreEdit, PreWrite | Injects edit blast-radius context for indexed codebases |
 | `typecheck-on-edit.js` | PostEdit, PostWrite | Runs type checker on modified files (if tsconfig exists) |
 | `lint-on-edit.js` | PostEdit, PostWrite | Runs linter on modified files (if eslint/prettier configured) |
+| `gitnexus-post-commit.js` | PostBash (`git commit`) | Re-indexes code intelligence after commits |
 | `stop-closeout-check.js` | Stop | Warns if docs stale >120min and uncommitted changes exist |
 | `completion-check.js` | Stop | Warns about partial-outcome actions in the learning loop |
+| `log-util.js` | Utility | Shared hook logging helper, not an event hook |
 
 Hooks are configured in `.claude/settings.json` under the `hooks` key. Each entry maps an event type to a command.
 
@@ -166,55 +170,52 @@ Agent definitions for autonomous sub-agents. Each agent has a directory with ide
 
 ---
 
-## Obsidian Vault — Four-Layer Knowledge Architecture
+## Knowledge Architecture (v7)
 
-### The Four Layers
+v7 retired the Obsidian vault layer. Knowledge now lives in three surfaces, each with a single purpose:
 
-| Layer | Tool | Purpose | Status |
-|-------|------|---------|--------|
-| 1 | brain.db | Active memory cache — current session context | Deployed |
-| 2 | Obsidian vault | Knowledge web — persistent notes with wiki-links | Deployed |
-| 3 | ChromaDB | RAG retrieval — semantic search over vault | Deferred (until 50+ vault notes) |
-| 4 | GitHub Projects | Execution tracking — issues, milestones, kanban | Planned |
+| Layer | Tool | Purpose | Scope |
+|-------|------|---------|-------|
+| 1 | brain.db | Active memory cache — identity, decisions, sessions, notes, traces, handoffs | Project-local (`.ava/brain.db`) |
+| 2 | Project-root `plans/` + `sessions/` | Narrative context — active strategy plans and structured session notes | Project-local, GitNexus-indexed |
+| 3 | GitNexus | Code intelligence — symbol graph, call relationships, impact analysis | Ecosystem-wide index |
 
-### Vault Structure
+GitHub Projects (execution tracking) remains planned but is not part of the v7 knowledge surface.
 
-Single vault per ecosystem. Resolve path: brain.db `vault.path` > `$OBSIDIAN_VAULT` > `~/Obsidian/Ava/`. One folder per project.
+### Project-Root Layout
 
 ```
-~/Obsidian/Ava/   (or resolved vault path)
-├── _templates/              # Note templates (session, decision, plan, schema, architecture)
-├── _inbox/                  # Unsorted notes
-├── PE/                      # Prompt Engineering
-│   ├── sessions/            # Session summaries
-│   ├── architecture/        # Architecture decisions & overviews
-│   ├── plans/               # Active plans
-│   ├── schemas/             # Schema documentation
-│   └── VAULT_GUIDE.md       # Project-specific vault guide
-├── Ava_Main/
-├── TradeSignal/
-├── CloudBooks/
-└── ...                      # One folder per project
+{Project}/
+├── .ava/brain.db          # Active memory (sessions, decisions, notes, identity, traces)
+├── .ava/handoffs/*.yaml   # Auto-pruned to 20; emitted at closeout
+├── plans/                 # Active strategy (one canonical plan preferred)
+│   └── archive/           # Superseded plans with ARCHIVE_RECEIPT.md
+├── sessions/session-{N}.md  # Curated session notes (written by session-export)
+├── CLAUDE.md              # Rules, auto-loaded
+├── SYSTEM-OVERVIEW.md     # Operating manual (optional)
+└── README.md              # Human entry
 ```
 
-### Note Templates (YAML Frontmatter)
+### Session Note Schema
 
-Every vault note has frontmatter:
-```yaml
----
-type: session|decision|plan|schema|architecture
-project: pe|ava-main|tradesignal|cloudbooks|...
-status: completed|active|superseded
-date: YYYY-MM-DD
-tags: [tag1, tag2]
----
+Every file at `sessions/session-{N}.md` uses a fixed schema for GitNexus indexing:
+```
+# Session {N} — {title}
+**date:** YYYY-MM-DD  **version:** X.Y.Z  **session_id:** ...  **exit:** normal
+
+## Summary
+## Decisions
+## Files Changed
+## Notes Opened / Closed
+## Continuity → Next Session
+## Cross-Refs
 ```
 
 ### Bridges
 
-- **Closeout to Vault:** `/session-closeout` exports session summary, decisions, and file changes as a vault session note.
-- **Vault to ChromaDB:** Future. `vault-sync` will embed vault notes for semantic retrieval.
-- **brain.db and Vault:** brain.db is the fast cache; vault is the persistent record. When something graduates from "active concern" to "reference knowledge," it moves to the vault.
+- **Closeout to sessions/:** `/session-closeout` runs `dal.mjs session-export session "..."` when the session produced durable narrative or architectural value. Trivial sessions skip. Auto-fires via Stop hook.
+- **brain.db and plans/:** brain.db holds "what's live right now" (open notes, active decisions, current session). `plans/` holds "the active strategy we're executing against." `plans/archive/` with receipts holds "the strategy we used to have, with pointers to where its live content ended up."
+- **Cross-references:** session notes link back to the plan, decisions, and handoff that shaped them; archive receipts link forward to where extracted content landed.
 
 ---
 
@@ -240,21 +241,22 @@ Work
       |
       v
 /session-closeout
-  Persists state: update docs, write vault notes, generate YAML
-  handoff, record final actions/metrics, close session.
+  Persists state: update docs, export session note to sessions/,
+  generate handoff YAML, close session.
       |
       v
 Stop
   stop-closeout-check.js: warns if docs stale >120min
+  session-export-on-close.js: auto-fires session-export if not already exported
   completion-check.js: warns about partial-outcome actions
 ```
 
 ### How Pieces Interact
 
-1. **Hooks inject brain.db context** — agent starts every session with full project state
+1. **Hooks inject brain.db context** — agent starts every session with the continuity brief (identity, handoff, notes, plans, contradictions)
 2. **Skills read `.claude/.prompts/`** — protocols are in markdown files, skills are thin wrappers
-3. **Agent records to brain.db** — identity, architecture, decisions, actions, metrics during work
-4. **Closeout writes vault notes** — session summaries, decisions persist beyond brain.db
+3. **Agent records to brain.db** — identity, decisions, notes, traces during work
+4. **Closeout writes session note to sessions/** — when the session warrants durable narrative context; auto-fires on Stop if not done manually
 5. **Handoff YAML** — structured session state for the next session to pick up
 6. **`/cleanup` reconciles** — reads codebase docs, fills brain.db gaps, detects drift
 
@@ -276,8 +278,8 @@ CLAUDE.md is auto-loaded by Claude Code when entering a project directory. It sh
 - Architecture decisions — brain.db `decisions` table
 - Session state — brain.db `sessions` table
 - Endpoint lists or feature inventories — codebase is truth
-- Version history beyond current — `PROJECT_ROADMAP.md`
-- Task checklists — brain.db `notes` table or `IMPLEMENTATION_PLAN.md`
+- Long-form historical narrative beyond the current operating rules — sessions/, plans/archive/, or brain.db decisions
+- Task checklists — brain.db `notes` table
 
 **Target size:** 80-300 lines. Keep CLAUDE.md focused on rules, commands, and DO/DON'T. When it grows beyond this, reference content should migrate to SYSTEM-OVERVIEW.md or brain.db.
 
@@ -285,7 +287,7 @@ CLAUDE.md is auto-loaded by Claude Code when entering a project directory. It sh
 
 ## Documentation Creation Templates
 
-When bootstrapping a new project's documentation system, create three files. These templates provide the scaffold — adapt them to the specific project.
+When bootstrapping a new project's documentation system, create the core operating docs and hydrate brain.db. These templates provide the scaffold — adapt them to the specific project.
 
 ### CLAUDE.md Template
 
@@ -329,13 +331,13 @@ When bootstrapping a new project's documentation system, create three files. The
 
 **Quality check:** Read ONLY your CLAUDE.md. Can you avoid every critical mistake in this project? If not, the DO NOT section is incomplete.
 
-### PROJECT_ROADMAP.md Template
+### SYSTEM-OVERVIEW.md Template
 
-Place at project root. Contains: project vision, version history table, architecture overview, tech stack with rationale, future roadmap, alternatives considered.
+Place at project root. Contains: knowledge layers, storage rules, operating principles, toolbox, DAL command reference, plan lifecycle, session-export contract, and error protocol.
 
-### IMPLEMENTATION_PLAN.md Template
+### brain.db Bootstrap
 
-Place at project root. Contains: current status, task checklists, known issues/blockers, debugging notes, files modified, handoff notes for next session.
+Create `.ava/brain.db` via `/dal-doctor`, then hydrate core identity, architecture, decisions, notes, and session continuity state through DAL commands. Do not recreate `PROJECT_ROADMAP.md` or `IMPLEMENTATION_PLAN.md`; those are retired.
 
 ### Routing Rule
 
@@ -343,8 +345,8 @@ Place at project root. Contains: current status, task checklists, known issues/b
 |----------|----------|
 | "What must I never do?" | CLAUDE.md |
 | "How do I run/build this?" | CLAUDE.md |
-| "Why was this decision made?" | PROJECT_ROADMAP.md |
-| "What should I do next?" | IMPLEMENTATION_PLAN.md |
+| "Why was this decision made?" | brain.db decisions |
+| "What should I do next?" | brain.db notes + active plans |
 
 Information lives in ONE place. Other documents reference, never duplicate.
 

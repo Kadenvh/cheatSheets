@@ -66,13 +66,14 @@ Wiki-links in notes (`[[Linux CLI]]`) are parsed as prerequisite edges during va
 - Use the Cheatsheet template in `vault/Templates/` for new notes
 - Sync vault after editing (`POST /api/learning/vault-sync`)
 
-## Vault Export
+## Session Export
 
-After significant sessions (decisions made, version changed, cross-project work), export to Obsidian vault:
+After significant sessions (decisions made, version changed, cross-project work), export a structured session note:
 ```bash
-node .ava/dal.mjs vault-export session "summary"
-node .ava/dal.mjs vault sync CheatSheets 2>/dev/null || true
+node .ava/dal.mjs session-export session "summary"
 ```
+
+This writes `sessions/session-{N}.md` at the project root. PE-framework vault export was retired in v7 — the Obsidian `vault/` here is product content (learning notes), not a continuity surface.
 
 ---
 

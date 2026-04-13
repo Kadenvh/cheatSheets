@@ -17,12 +17,12 @@ const dalDir = workspaceDir || projectDir;
 
 const context = [];
 
-function run(cmd) {
+function run(cmd, options = {}) {
   try {
     return execSync(cmd, {
-      cwd: projectDir,
+      cwd: options.cwd || projectDir,
       encoding: "utf8",
-      timeout: 5000,
+      timeout: options.timeout || 5000,
     }).trim();
   } catch {
     return null;
@@ -33,14 +33,22 @@ function run(cmd) {
 const branch = run("git branch --show-current");
 if (branch) context.push("Branch: " + branch);
 
-const status = run("git status --short");
-if (status) context.push("Uncommitted changes:\n" + status);
+const statusLines = (run("git status --short") || "")
+  .split("\n")
+  .filter(Boolean);
+if (statusLines.length > 0) {
+  const shown = statusLines.slice(0, 8).join("\n");
+  const more = statusLines.length > 8 ? `\n... +${statusLines.length - 8} more` : "";
+  context.push(`Working tree: ${statusLines.length} changed path(s)\n${shown}${more}`);
+}
 
-const log = run("git log --oneline -5");
+const log = run("git log --oneline -3");
 if (log) context.push("Recent commits:\n" + log);
 
-const unpushed = run("git log --oneline origin/" + (branch || "main") + "..HEAD 2>/dev/null");
-if (unpushed) context.push("Unpushed commits:\n" + unpushed);
+const unpushedCount = run("git rev-list --count origin/" + (branch || "main") + "..HEAD 2>/dev/null");
+if (unpushedCount && parseInt(unpushedCount, 10) > 0) {
+  context.push("Unpushed commits: " + unpushedCount.trim());
+}
 
 const stashCount = run("git stash list | wc -l");
 if (stashCount && parseInt(stashCount) > 0) context.push("Stashes: " + stashCount.trim());
@@ -70,29 +78,19 @@ if (fs.existsSync(sysOverviewPath)) {
   );
 }
 
-// Documentation awareness — auto-inject content boundary rules + engagement principles
-// (from documentation-awareness skill, condensed for session injection)
+// Engagement principles (minimal -- CLAUDE.md already covers rules)
 context.push(
-  "## Documentation Rules (auto-injected)\n\n" +
-  "Information lives in ONE place. CLAUDE.md = rules and commands only. " +
-  "brain.db = decisions (why), architecture (how), identity (who), sessions (when), notes (what's next). " +
-  ".claude/plans/ = active strategy documents. Obsidian vault = curated narrative (milestone sessions only).\n\n" +
-  "Principles: No silent decisions. Investigate before implementing. Flag ambiguity — don't guess. " +
-  "Improve stale docs proactively. Never duplicate information — reference, never copy.\n\n" +
-  "Session lifecycle: /session-init → work (record traces + decisions as you go) → /session-closeout. " +
-  "Skipping closeout causes context loss.\n\n" +
   "## Working With the User\n\n" +
-  "At judgment calls — scope decisions, architectural choices, trade-offs — state your reasoning and chosen path, then proceed. " +
-  "You don't need permission. You need to be transparent. If the user doesn't intervene, continue. If they correct you, that's positive signal — " +
-  "record the correction as a trace or architecture entry so future sessions benefit. " +
-  "Corrections caught early prevent wrong-direction implementations.\n\n" +
-  "Be confident. Think independently. Surface the right things at the right time. " +
-  "The user wants a collaborator who notices things and has opinions, not an executor waiting for orders."
+  "State your understanding before acting. Surface judgment calls as you go. " +
+  "Be confident, think independently, have opinions. " +
+  "Record corrections as traces so future sessions benefit."
 );
 
-// DAL context injection (role-aware)
-// Uses dalDir — prefers spoke workspace brain.db over project root when available
+// DAL context injection (slim: 4-question model)
+// Injects only what answers: What is this? What are constraints? What was I doing? What's next?
+// Architecture entries are queryable on demand: node .ava/dal.mjs arch list
 const brainDbPath = path.join(dalDir, ".ava", "brain.db");
+let continuityInjected = false;
 if (fs.existsSync(brainDbPath)) {
   const isSpoke = dalDir !== projectDir;
   const dalLabel = isSpoke
@@ -100,9 +98,8 @@ if (fs.existsSync(brainDbPath)) {
     : "## DAL State (auto-injected from brain.db)\n\n";
   try {
     const role = process.env.CLAUDE_AGENT_ROLE || "general";
-    const roleFlag = ` --role ${role}`;
 
-    // Agent identity injection — if role matches an agent-definitions/ directory, inject SOUL.md
+    // Agent identity injection -- if role matches an agent-definitions/ directory, inject SOUL.md
     if (role !== "general") {
       const agentDir = path.join(projectDir, "agent-definitions", role);
       const soulPath = path.join(agentDir, "SOUL.md");
@@ -117,54 +114,95 @@ if (fs.existsSync(brainDbPath)) {
       }
     }
 
-    const dalContext = execSync(
-      `node "${path.join(dalDir, ".ava", "dal.mjs")}" context${roleFlag}`,
-      { cwd: dalDir, encoding: "utf8", timeout: 10000 }
-    ).trim();
-    if (dalContext) {
-      context.push(dalLabel + dalContext);
+    const dalMjs = path.join(dalDir, ".ava", "dal.mjs");
+    const dalRun = (cmd) => {
+      try {
+        return execSync(`node "${dalMjs}" ${cmd}`, {
+          cwd: dalDir, encoding: "utf8", timeout: 8000,
+        }).trim();
+      } catch { return null; }
+    };
 
-      // Detect empty brain.db — deployed but never populated
-      const statusOutput = execSync(
-        `node "${path.join(dalDir, ".ava", "dal.mjs")}" status`,
-        { cwd: dalDir, encoding: "utf8", timeout: 5000 }
-      ).trim();
-      const identityMatch = statusOutput && statusOutput.match(/Identity:\s+(\d+)\s+entr/);
-      const sessionsMatch = statusOutput && statusOutput.match(/Sessions:\s+(\d+)\s+total/);
-      const identityCount = identityMatch ? parseInt(identityMatch[1]) : -1;
-      const sessionCount = sessionsMatch ? parseInt(sessionsMatch[1]) : -1;
-
-      if (identityCount === 0 && sessionCount === 0) {
-        context.push(
-          "WARNING: brain.db is deployed but EMPTY (0 identity entries, 0 sessions). " +
-          "The DAL provides no session continuity until populated. " +
-          "Run /cleanup to hydrate brain.db from existing project documentation."
-        );
-      } else if (identityCount > 0 && identityCount < 3) {
-        context.push(
-          "WARNING: brain.db has only " + identityCount + " identity entries — likely incomplete. " +
-          "If the context above doesn't give you enough to work without reading all docs, " +
-          "run /cleanup to reconcile brain.db against project documentation."
-        );
-      } else {
-        context.push(
-          "NOTE: DAL state loaded from brain.db. " +
-          "CLAUDE.md (auto-loaded) contains the prescriptive rules you still need. " +
-          "All other project state (decisions, architecture, handoff) is in the brain.db context above."
-        );
+    const continuityBrief = dalRun(
+      "continuity brief --max-notes 5 --max-actions 5 --max-decisions 5 --max-plans 4"
+    );
+    if (continuityBrief) {
+      context.push(dalLabel + continuityBrief);
+      continuityInjected = true;
+    } else {
+      // Fallback for projects whose local .ava has not landed continuity brief yet.
+      const coreKeys = ["project.name", "project.version", "project.vision",
+        "product.priority-stack", "state.current"];
+      const identityLines = [];
+      for (const key of coreKeys) {
+        const val = dalRun(`identity get "${key}"`);
+        if (val && !val.includes("not found")) {
+          identityLines.push(`- \`${key}\`: ${val}`);
+        }
       }
+
+      const notes = dalRun("note list");
+      const decisions = dalRun("decision list");
+      const statusOutput = dalRun("status");
+      const slim = [];
+
+      if (identityLines.length > 0) {
+        slim.push("**Identity:**\n" + identityLines.join("\n"));
+      }
+      if (notes) {
+        slim.push("**Open Notes:**\n" + notes);
+      }
+      if (decisions) {
+        const decLines = decisions.split("\n").filter(l => l.trim());
+        const header = decLines[0];
+        const active = decLines.slice(1);
+        const shown = active.slice(0, 5).join("\n");
+        const remaining = active.length > 5 ? `\n... +${active.length - 5} more (run: dal.mjs decision list)` : "";
+        slim.push(`**Recent Decisions (${active.length} active):**\n${header}\n${shown}${remaining}`);
+      }
+      if (statusOutput) {
+        const lastMatch = statusOutput.match(/Sessions:\s+\d+.*/);
+        if (lastMatch) slim.push("**" + lastMatch[0] + "**");
+      }
+
+      slim.push(
+        "**On-demand queries** (not injected -- run when needed):\n" +
+        "- `node .ava/dal.mjs arch list` -- architecture entries (conventions, project, ecosystem, infra)\n" +
+        "- `node .ava/dal.mjs arch list --scope convention` -- coding conventions only\n" +
+        "- `node .ava/dal.mjs decision list` -- all active decisions\n" +
+        "- `node .ava/dal.mjs loop summary` -- agent performance history\n" +
+        "- `node .ava/dal.mjs context` -- full 22KB context dump (old default)"
+      );
+
+      if (slim.length > 0) {
+        context.push(dalLabel + slim.join("\n\n"));
+      }
+    }
+
+    // Detect empty brain.db
+    const statusOutput = dalRun("status");
+    const identityMatch = statusOutput && statusOutput.match(/Identity:\s+(\d+)\s+entr/);
+    const sessionsMatch = statusOutput && statusOutput.match(/Sessions:\s+(\d+)\s+total/);
+    const identityCount = identityMatch ? parseInt(identityMatch[1]) : -1;
+    const sessionCount = sessionsMatch ? parseInt(sessionsMatch[1]) : -1;
+
+    if (identityCount === 0 && sessionCount === 0) {
+      context.push(
+        "WARNING: brain.db is deployed but EMPTY (0 identity entries, 0 sessions). " +
+        "Run /cleanup to hydrate brain.db from existing documentation."
+      );
     }
   } catch {
     context.push(
       "DAL: brain.db exists but context query failed. " +
-      "Run: node .ava/dal.mjs status — to diagnose."
+      "Run: node .ava/dal.mjs status -- to diagnose."
     );
   }
 }
 
-// Handoff injection — read most recent YAML handoff for session continuity
+// Handoff injection — only needed when continuity brief is unavailable
 const handoffDir = path.join(dalDir, ".ava", "handoffs");
-if (fs.existsSync(handoffDir)) {
+if (!continuityInjected && fs.existsSync(handoffDir)) {
   try {
     const files = fs.readdirSync(handoffDir)
       .filter(f => f.endsWith(".yaml"))
@@ -227,13 +265,13 @@ if (fs.existsSync(dalMjsPath)) {
   }
 }
 
-// Syncthing health check — warn if not running (template distribution depends on it)
+// Syncthing health check — warn if not running (cross-device sync to Frank/Zoe/remote spokes)
 try {
   execSync("pgrep -x syncthing", { encoding: "utf8", timeout: 2000 });
 } catch {
   context.push(
-    "WARNING: Syncthing is NOT running. Template distribution, Obsidian vault sync, " +
-    "and health beacons depend on it. Run: systemctl --user restart syncthing"
+    "WARNING: Syncthing is NOT running. Cross-device template propagation to remote " +
+    "projects and health beacons depend on it. Run: systemctl --user restart syncthing"
   );
 }
 

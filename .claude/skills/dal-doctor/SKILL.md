@@ -1,6 +1,6 @@
 ---
 name: dal-doctor
-description: "Unified system health, setup, and remediation — first-run detection, ongoing health checks, template drift, vault health, remediation"
+description: "Unified system health, setup, and remediation — first-run detection, ongoing health checks, template drift, root-storage health, remediation"
 allowed-tools:
   - Read
   - Edit
@@ -13,16 +13,16 @@ allowed-tools:
 
 # DAL Doctor — Unified System Health & Setup
 
-Comprehensive system tool that handles first-run setup, ongoing health checks, template drift detection, vault health, and remediation. Replaces the previous `/bootstrap` and `/dal-setup` skills.
+Comprehensive system tool that handles first-run setup, ongoing health checks, template drift detection, root-storage health, and remediation. Replaces the previous `/bootstrap` and `/dal-setup` skills.
 
 ## Instructions
 
 Read `.claude/.prompts/dal-doctor.md` for the full protocol. Follow its phased approach:
 
-- **Phase 0:** Detection & first-run (no DAL? create it. No CLAUDE.md? create it. No vault folder? create it.)
+- **Phase 0:** Detection & first-run (no DAL? create it. No CLAUDE.md? create it. No `plans/` or `sessions/`? create them.)
 - **Phase 1:** Schema & identity (verify, identity completeness, architecture coverage, sessions, decisions, notes)
 - **Phase 2:** Template & hook validation (prompt files, skills, hooks, settings, legacy path detection)
-- **Phase 3:** Vault health (folder structure, templates, frontmatter — conditional, skip if no vault)
+- **Phase 3:** Project-root storage health (`plans/`, `sessions/`, END-GOAL.md, legacy `.claude/plans/` detection, retired vault detection)
 - **Phase 4:** Loop & cross-project (action integrity, feedback loop, schema drift, template drift)
 - **Phase 5:** Remediation (3-tier: auto-fix / notify / permission-required)
 
@@ -56,11 +56,12 @@ node .ava/dal.mjs status
 # Template drift check + update
 node .ava/dal.mjs template pull --dry-run     # See what's changed
 node .ava/dal.mjs template pull               # Apply template updates
-node .ava/dal.mjs template pull --dal          # Also update DAL runtime
 
 # Full health report
 node .ava/dal.mjs health --json
 ```
+
+Template deployment updates the `.claude` and documentation surface. If `.ava/` is missing, stale, or broken, repair it through `/dal-doctor` as a separate step.
 
 ## Inline Fallback (if prompt file not found)
 

@@ -31,8 +31,7 @@ If the summary is incomplete, work with what you have. Do NOT ask for more infor
 ### Part A: Capture State
 
 1. Read the session summary provided to you.
-2. Determine documentation mode: if `.ava/brain.db` exists, this is **brain.db mode** (only CLAUDE.md is a file). Otherwise, **file mode** (3-doc system).
-3. Read CLAUDE.md. In file mode, also read PROJECT_ROADMAP.md and IMPLEMENTATION_PLAN.md.
+2. Read CLAUDE.md. Verify brain.db exists (`node .ava/dal.mjs status`). If not, flag and stop -- run `/dal-doctor` first.
 4. Determine version increment:
    - Bug fixes only --> Patch (1.0.0 --> 1.0.1)
    - New features or endpoints --> Minor (1.0.x --> 1.1.0)
@@ -134,32 +133,9 @@ This must happen AFTER all brain.db writes and BEFORE the final commit. If no se
 
 ### Part B: Update Documentation
 
-**Determine mode:** If `.ava/brain.db` exists and Part A-2 was executed, this is brain.db mode. Skip B1 and B2 — session knowledge is already in brain.db. Only execute B3 and B4.
+Session knowledge is in brain.db (Part A-2). Now update CLAUDE.md and working documents.
 
-If no brain.db exists (file mode), execute B1, B2, B3, and B4.
-
-#### B1: Update IMPLEMENTATION_PLAN.md (file mode only)
-
-> **brain.db mode: skip this step.** Handoff notes, tasks, and blockers were recorded in Part A-2.
-
-- Add new version section at the top of the document.
-- Mark completed tasks with `[x]`.
-- Add "Files Modified" section listing all files changed this session.
-- Update the document header (date, status).
-- Add newly discovered issues to the blockers section.
-- Refresh handoff notes for the next session with actionable context.
-
-#### B2: Update PROJECT_ROADMAP.md (file mode only)
-
-> **brain.db mode: skip this step.** Decisions and architecture are recorded as brain.db decisions and architecture entries.
-
-Only update if a milestone was reached or architectural decisions were made:
-
-- Add a row to the version history table.
-- Add a version completion section with summary.
-- Document architectural decisions with their rationale.
-
-#### B3: Update CLAUDE.md
+#### B1: Update CLAUDE.md
 
 - Update header: version, date, status. This is the FIRST thing the next agent sees.
 - Update "Recent Changes" section with a concise summary.
@@ -185,22 +161,21 @@ Check `.claude/memory/MEMORY.md` (if exists) for entries that should be promoted
 
 Annotate promoted entries with `<!-- promoted to brain.db -->`. Do NOT delete from MEMORY.md.
 
-#### B3.5: Vault Note — Conditional Export
+#### B3.5: Session Note — Conditional Export
 
-Export a vault session note if ANY of these are true:
+Export a structured session note to `sessions/` if ANY of these are true:
 - Session recorded 1+ decisions
 - Session changed project version
 - Session involved cross-project coordination
 - Session shipped a significant feature or architectural change
 
 ```bash
-node .ava/dal.mjs vault-export session "concise summary"
-node .ava/dal.mjs vault sync {ProjectSlug} 2>/dev/null || true
+node .ava/dal.mjs session-export session "concise summary"
 ```
 
-Skip vault export for trivial sessions (typo fixes, single-note closes, failed/abandoned).
+Writes `sessions/session-{N}.md` at project root with the standard schema (Summary, Decisions, Files Changed, Notes Opened/Closed, Continuity → Next Session, Cross-Refs). The Stop hook (`session-export-on-close.js`) also auto-fires this after session close; running it here explicitly just lets you pass a curated summary string.
 
-**Vault folder schema:** Only `sessions/`, `architecture/`, `plans/`, `schemas/`, `VAULT_GUIDE.md` belong in the vault project folder. Do NOT copy project files into the vault.
+Skip for trivial sessions (typo fixes, single-note closes, failed/abandoned).
 
 #### B4: Create Subfolder READMEs
 
@@ -223,12 +198,9 @@ Run these checks on your own work before returning:
 - [ ] CLAUDE.md front-loads critical rules before file structure
 - [ ] No orphaned references to removed or renamed items
 
-**File mode:**
-- [ ] Version numbers match across ALL files (CLAUDE.md, PROJECT_ROADMAP.md, IMPLEMENTATION_PLAN.md)
-- [ ] Dates are consistent (all show today's date)
-- [ ] No contradictions between files
-- [ ] Handoff notes are actionable
-- [ ] CLAUDE.md front-loads critical rules before file structure
+**Additional checks:**
+- [ ] No retired files exist at project root (PROJECT_ROADMAP.md, IMPLEMENTATION_PLAN.md, `.claude/plans/`, Obsidian vault folder)
+- [ ] Active plans are only in project-root `plans/`, not duplicated anywhere else
 - [ ] No content is duplicated across files
 
 If any self-verification check fails, fix the issue before returning.

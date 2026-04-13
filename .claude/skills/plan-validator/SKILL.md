@@ -21,35 +21,34 @@ Audit project plans and design documents for completeness, identify gaps and unk
 
 ## Modes
 
-- **`/plan-validator`** — Audit all reachable plans, report only
+- **`/plan-validator`** — Audit all active plans in `plans/`, report only
 - **`/plan-validator --research`** — Audit + spawn agents per gap category
 - **`/plan-validator --curate`** — Audit + check cross-references + identify stale plans + surface plans relevant to current work
 - **`/plan-validator <path>`** — Audit a specific plan file
-- **`/plan-validator --vault`** — Include Obsidian vault plans
 
 ## Key Rules
 
 - **Read-only by default.** Never modify plan files without `--curate` flag. Report findings only.
 - **Classify gaps.** Don't just list what's missing — categorize as technical, dependency, design, or evidence gaps.
 - **Cross-reference validation.** Check that plans reference each other where dependencies exist. Flag orphaned plans with no cross-refs.
-- **Staleness detection.** Flag plans not updated in 5+ sessions. All plans in `.claude/plans/` should be active — stale plans should be archived.
+- **Staleness detection.** Flag plans not updated in 5+ sessions. All plans in `plans/` should be active — stale plans should move to `plans/archive/<event>/` with a receipt.
+- **Consolidation pressure.** Projects should aim for a single canonical plan. If 2+ active plans exist, recommend consolidation (the Phase 4 validator warns at ≥2, fails at ≥4).
 - **Agent fallback.** When Agent tool is unavailable, research inline sequentially. Note this in the output.
-- **Vault path resolution.** Use brain.db identity (`vault.path`) first, then environment, then platform defaults.
 
 ## Plan Conventions
 
-Plans in `.claude/plans/` should follow this structure:
+Plans in `plans/` (project root) should follow this structure:
 - **Header:** Title, created date, status (Active/Curating/Stabilized/Reference), updated date, dependencies
 - **Known Items:** Checkboxed list of work items, grouped by source/phase
 - **Open Questions:** Unresolved design decisions
 - **Sessions Contributing:** Which sessions touched this plan and what they added
-- **Cross-References:** Links to related plans, brain.db entries, vault docs, research entries
+- **Cross-References:** Links to related plans, brain.db entries, sessions/ notes, research entries
 
 ## Inline Fallback (if prompt file not found)
 
 If `.claude/.prompts/plan-validator.md` cannot be located:
 
-1. **Discover plans.** Glob `.claude/plans/*.md` and any vault paths. List what was found.
+1. **Discover plans.** Glob `plans/*.md` (project root, excluding `plans/archive/`). List what was found.
 2. **Check each plan.** For each file: does it have a problem statement? Technical approach? Risks section? Next actions?
 3. **Classify gaps.** Group missing elements into: technical unknowns, dependency unknowns, design unknowns, missing evidence.
 4. **Report.** PASS (all checks pass), PARTIAL (has problem + approach but missing secondary), FAIL (missing problem statement or technical approach).

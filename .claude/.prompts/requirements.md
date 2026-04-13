@@ -187,8 +187,8 @@ Before considering the spec complete:
 
 ## 7. OUTPUT
 
-- Store requirement specs in `.claude/plans/` as `requirements-<feature-slug>.md`. (Create the directory if it doesn't exist.)
-- If the spec references architecture, link to or generate diagrams in the Obsidian vault or `.claude/plans/`.
+- Store requirement specs in `plans/` (project root) as `requirements-<feature-slug>.md`. (Create the directory if it doesn't exist.)
+- If the spec references architecture, link to or generate diagrams in the same plan file or a sibling `.md` in `plans/`.
 
 ---
 

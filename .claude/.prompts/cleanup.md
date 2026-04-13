@@ -1,684 +1,374 @@
-# Cleanup — DAL Reconciliation & Knowledge Hygiene
+# Cleanup — Structural Hygiene & Lean Continuity Repair
 
-You are performing a comprehensive reconciliation of the project's persistent state (brain.db) against its documentation and codebase. Whether brain.db is empty (first run / hydration) or full (ongoing maintenance), the job is the same: **brain.db must accurately reflect project reality.**
+You are enforcing the "one place per question" rule and repairing the system so the next session can resume cleanly without more storage sprawl.
 
-brain.db is the primary context source for every future session. The session-context hook injects brain.db contents at startup — if brain.db is incomplete, the next agent starts blind. **Every cleanup must leave brain.db in a state where the next agent can be productive without reading any docs.**
+This is TWO jobs:
+
+1. **Structural enforcement** — content must live in the canonical location, not scattered across 3+ copies
+2. **Lean DAL reconciliation** — brain.db must stay useful for continuity without turning into a second documentation tree
+
+brain.db is the continuity layer, not the whole system. Every cleanup must leave both the filesystem and the DAL in a state where the next agent can answer:
+
+1. What is this project?
+2. What was happening recently?
+3. What is still open?
+4. What should happen next?
+
+---
+
+## 0. CANONICAL RULES
+
+| Content Type | ONE Canonical Location | Notes |
+|---|---|---|
+| Active strategy/plans | `plans/` (project root) | Working strategy only |
+| Superseded plans worth keeping | `plans/archive/` (project root) | Keep only after extraction + receipt |
+| Curated session notes | `sessions/` (project root) | Written by `session-export` at closeout |
+| Design intent / invariants | `OVERVIEW.md` if it exists | No live structure snapshots |
+| Rules / commands / anti-patterns | `CLAUDE.md` | Auto-loaded rules only |
+| Continuity state | brain.db (`sessions`, `notes`, `decisions`, minimal `identity`) + `.ava/handoffs/` | Recent work, open blockers, active constraints |
+| Working observations | `.claude/memory/` only if still useful | Optional compatibility surface, never canon |
+| Code structure | GitNexus or direct code reads | Do not duplicate into docs or DAL |
+| System reference | `SYSTEM-OVERVIEW.md` | Operating manual, not task state |
+
+### Deployable vs Non-Deployable
+
+Root directory contents split into two classes:
+
+- **Deployable (`.claude/`)** — skills, hooks, `.prompts/`, agents, settings. Synced from PE template via Sync All.
+- **Non-deployable (project root)** — `plans/`, `sessions/`, `agent-definitions/`, README, CHANGELOG, CLAUDE.md. Project-specific; each project manages its own.
+
+`plans/` and `sessions/` must NOT be under `.claude/`. They are project-specific working state, not meant to deploy to other projects.
+
+### Violations To Flag
+
+| Violation | What's Wrong | Fix |
+|---|---|---|
+| Plans or sessions under `.claude/` | Conflates deployable surface with project-local state | Move to project root `plans/` or `sessions/` |
+| Root `archive/` directory | Legacy location | Extract durable value, then delete or re-home intentionally |
+| `.claude/archive/` cleanup residue | Creates accumulating clutter | Extract anything unique, then delete |
+| `project_*.md` or similar files mirroring DAL/docs | Duplicate state | Delete after verifying the canonical copy |
+| Manual file-tree or route-map docs | GitNexus can answer structure on demand | Remove or reduce to human-added interpretation only |
+| Broad `architecture` rows that restate code structure | DAL bloat | Move intent to docs if needed, otherwise delete |
+| `PROJECT_ROADMAP.md` or `IMPLEMENTATION_PLAN.md` | Retired storage | Flag and recommend deletion |
+| Obsidian vault folder for this project | Obsidian vault layer is retired | Move `sessions/` and `END-GOAL.md` to project root, delete the rest |
 
 ---
 
 ## 1. PREREQUISITES
 
-Verify the DAL is available:
+Run:
 
 ```bash
 node .ava/dal.mjs status
-```
-
-If brain.db doesn't exist or status fails, stop and report. Cleanup requires an active DAL.
-
-Check current state:
-
-```bash
 node .ava/dal.mjs identity list
-node .ava/dal.mjs arch list
-node .ava/dal.mjs decision list
-node .ava/dal.mjs session list
-```
-
-**Detect mode:** If identity = 0 AND sessions = 0, this is a **first-run hydration** — brain.db is deployed but unpopulated. Be comprehensive — extract everything. If identity > 0, this is **ongoing maintenance** — focus on drift, gaps, and completeness.
-
----
-
-## 2. REQUIRED FACT EXTRACTION
-
-Every project's brain.db MUST have these entries. Extract them from the sources listed. If an entry exists but is wrong, update it. If missing, insert it.
-
-### From CLAUDE.md (read the entire file):
-
-| Key | What to Extract | Table | Scope |
-|-----|----------------|-------|-------|
-| `project.name` | Project name from header | `identity` | — |
-| `project.identity` | First paragraph — what the project IS | `identity` | — |
-| `project.vision` | Vision/goals — why this project exists | `identity` | — |
-| `project.version` | Version from header | `architecture` | project |
-| `project.status` | Status line from header | `architecture` | project |
-| `tech.stack` | Primary language/framework/runtime | `architecture` | project |
-| `tech.build` | Build/run commands | `architecture` | project |
-| `tech.test` | Test commands and framework | `architecture` | project |
-| `project.structure` | Key directories and their purposes | `architecture` | project |
-| `rules.critical` | DO NOT rules (summarized) | `architecture` | convention |
-
-### From PROJECT_ROADMAP.md:
-
-| Key | What to Extract | Table | Scope |
-|-----|----------------|-------|-------|
-| `arch.*` | Each architectural decision (AD-*) → record as **decision**, not architecture | — | — |
-| `tech.architecture` | High-level architecture description | `architecture` | project |
-
-### From IMPLEMENTATION_PLAN.md:
-
-Current phase, blockers, and handoff context should be recorded as **notes** (the task queue), not as architecture or identity rows. Use:
-
-```bash
-node .ava/dal.mjs note add "Current phase: ..." --category handoff
-node .ava/dal.mjs note add "Blocker: ..." --category issue
-```
-
-### From other docs (SETUP.md, BUILD_SPEC.md, README.md, etc.):
-
-| Key | What to Extract | Table | Scope |
-|-----|----------------|-------|-------|
-| `env.*` | Environment setup, dependencies, prerequisites | `architecture` | infrastructure |
-| `deploy.*` | Deployment targets, procedures | `architecture` | infrastructure |
-
-### Architecture Decisions → Decision Records
-
-Every AD-* entry in PROJECT_ROADMAP.md and every significant architectural choice should be a decision record:
-
-```bash
-node .ava/dal.mjs decision add "Decision title" --context "Why it came up" --chosen "What was chosen" --rationale "Why"
-```
-
-**Do not skip this.** Decisions are the most valuable brain.db content — they prevent the next agent from relitigating settled questions.
-
----
-
-## 3. COMPARE AND RECONCILE
-
-After extraction, compare systematically:
-
-### 3a. brain.db → docs (is brain.db accurate?)
-For every entry in brain.db, verify it matches current documentation:
-- Version entries match CLAUDE.md header
-- Tech stack entries match actual dependencies
-- Architecture entries match ROADMAP
-- Identity rows are still accurate
-
-### 3b. docs → brain.db (is brain.db complete?)
-For every required entry in the schema above, verify brain.db has it:
-- Missing required entries = **FAIL** (insert them)
-- All required entries present = PASS
-
-### 3c. Codebase validation (lightweight)
-Spot-check that entries match reality:
-- File structure in `project.structure` entry matches actual directories
-- Tech stack matches package.json / Cargo.toml / *.csproj / etc.
-- Build commands in `tech.build` actually work
-
-### 3d. Archive check
-Read `.claude/archive/` if it exists. Historical context worth preserving as architecture entries should be extracted. Archive content is valid — it was moved for size management, not because it stopped being true.
-
-**Present all proposed inserts, updates, and removals as a table. Wait for user confirmation before applying.**
-
----
-
-## 4. KNOWLEDGE HEALTH
-
-### 4a. Review identity table
-
-```bash
-node .ava/dal.mjs identity list
-```
-
-- Should contain 5-10 core rows (project name, vision, mission, identity, plus portfolio entries)
-- If fewer than 3, critical identity is missing — extract from docs
-
-**Portfolio identity entries** — these are consumed by downstream portfolio sync endpoints and must be present for external-facing projects:
-
-| Key | What to Extract | Guidance |
-|-----|----------------|----------|
-| `product.summary` | 2-3 sentence external-facing project description | What this project IS and what it does, written for someone outside the team |
-| `product.key-metrics` | Structured metrics suitable for portfolio display | e.g., "308 API endpoints", "10-table schema v13" — quantifiable achievements |
-| `product.tech-highlights` | Curated tech stack for external presentation | Not the full internal stack — just what's impressive or relevant to showcase |
-
-These are identity rows (not architecture) because they describe *what the project is* to the outside world. If missing, extract from CLAUDE.md, README.md, and codebase inspection. If present, verify they reflect current reality — stale metrics are worse than missing ones.
-
-### Ecosystem Identity Entries
-
-Every project in the ecosystem should have these identity entries populated. If missing, extract from project docs, README, or ask the user:
-
-| Key | Purpose | Example |
-|-----|---------|---------|
-| `project.name` | Human-readable name | "Project Ava" |
-| `project.version` | Current version | "0.95.0" |
-| `project.vision` | One-sentence north star | "Personal AI ecosystem with graduated autonomy" |
-| `tech.stack` | Primary technologies | "Node.js, React 19, SQLite, ChromaDB" |
-| `tech.build` | How to build/run | "npm start, npx vite" |
-| `product.summary` | 2-3 sentence external description | "AI assistant platform with..." |
-| `product.key-metrics` | Portfolio-ready metrics | "308 endpoints, 92 sessions" |
-| `product.tech-highlights` | Curated external tech list | "React 19, Express 5, SQLite WAL" |
-
-### 4b. Review architecture table
-
-```bash
-node .ava/dal.mjs arch list
-```
-
-- Verify every entry has a correct scope (project/ecosystem/infrastructure/convention)
-- Remove entries that are no longer accurate or relevant
-- Check for entries that should be in identity instead (core mission/vision/name)
-
-### 4c. Scope classification
-
-| Content Pattern | Table | Scope |
-|----------------|-------|-------|
-| Mission, vision, identity, project name | `identity` | — |
-| Tech stack, build commands, project-specific architecture | `architecture` | project |
-| Cross-project patterns, shared infrastructure | `architecture` | ecosystem |
-| Servers, ports, deployment targets, environment | `architecture` | infrastructure |
-| Naming conventions, coding standards, patterns | `architecture` | convention |
-
-### 4d. Verify
-
-```bash
-node .ava/dal.mjs identity list
-node .ava/dal.mjs arch list
-```
-
-Target: identity has 5-7 core rows, architecture entries all have appropriate scopes, no stale or contradictory entries.
-
-### 4e. Architecture Audit -- Context Budget
-
-The session-context hook injects arch entries into every session. More entries = more tokens consumed before the agent does any work. Bloated arch tables degrade agent performance across the entire project lifecycle.
-
-**Step 1 -- Measure current budget:**
-
-```bash
-# Context injection size (bytes + lines)
-node .ava/dal.mjs context 2>&1 | wc -c
-node .ava/dal.mjs context 2>&1 | wc -l
-
-# Arch entry count by scope
-node .ava/dal.mjs arch list --scope convention 2>&1 | wc -l
-node .ava/dal.mjs arch list --scope project 2>&1 | wc -l
-```
-
-**Targets:** Total context injection under 25KB / 200 lines. Architecture entries under 200 total. Convention entries under 40. If any target is exceeded, pruning is required.
-
-**Step 2 -- Identify pruning candidates:**
-
-For each architecture entry, classify as one of:
-
-| Classification | Action | Example |
-|---|---|---|
-| **Derivable from code** | REMOVE -- agent can read the code | File paths, function signatures, import patterns |
-| **Derivable from CLAUDE.md** | REMOVE -- already auto-loaded | Rules that duplicate CLAUDE.md content |
-| **Derivable from package.json / config** | REMOVE -- agent can inspect | Dependency versions, script commands |
-| **Stale reference** | REMOVE -- references files/symbols that no longer exist | Grep for the key's subject; if not found, it's stale |
-| **Behavioral rule (not in code)** | KEEP -- agent can't derive this | "Don't use X because Y happened" |
-| **Cross-cutting convention** | KEEP -- saves agent time | Patterns affecting multiple files |
-| **Active project state** | KEEP -- not inspectable | Integration points, external service configs |
-
-**Pruning heuristic:** If the agent could figure it out by reading 1-2 files, it doesn't need an arch entry. Arch entries exist for knowledge that is expensive to rediscover or impossible to derive from code.
-
-**Step 3 -- Validate references (for entries being kept):**
-
-For each KEEP entry, spot-check that the thing it describes still exists:
-```bash
-# If entry references a file path -- does it exist?
-# If entry references a function/component name -- grep for it
-# If entry references an endpoint -- check route files
-```
-
-Entries referencing things that no longer exist are stale regardless of classification.
-
-**Step 4 -- Present pruning plan:**
-
-```
-Architecture Audit
-==================
-Current:    {N} entries ({convention}: {n}, {project}: {n})
-Context:    {size}KB / {lines} lines
-Budget:     {OVER|UNDER} target (25KB / 200 lines)
-
-Pruning candidates:
-  Derivable from code:       {N} entries
-  Duplicates CLAUDE.md:      {N} entries
-  Stale references:          {N} entries
-  Total to remove:           {N} entries
-
-Post-prune estimate: {N} entries, ~{size}KB
-
-{list each candidate with key, reason, and classification}
-```
-
-**Wait for user confirmation before removing entries.**
-
-**Step 5 -- Execute and verify:**
-
-```bash
-# Remove confirmed entries
-node .ava/dal.mjs arch remove "key-name"
-
-# Re-measure
-node .ava/dal.mjs context 2>&1 | wc -c
-node .ava/dal.mjs context 2>&1 | wc -l
-```
-
-Report the before/after delta in the coverage report.
-
-### 4f. Vault Maintenance (if Obsidian vault exists)
-
-Resolve vault path:
-1. brain.db: `node .ava/dal.mjs identity get vault.path`
-2. Environment: `$OBSIDIAN_VAULT`
-3. Default: `~/Obsidian/Ava/{ProjectName}/`
-
-If the project has a folder in the Obsidian vault, perform ALL of the following checks. **Do not skip any step. Do not treat existence as freshness. Read the files, compare the content.**
-
-**Step 1 - Structure check:**
-```bash
-VAULT_PATH=$(node .ava/dal.mjs identity get vault.path 2>/dev/null || echo "${OBSIDIAN_VAULT:-$HOME/Obsidian/Ava}")
-find "$VAULT_PATH/{ProjectName}/" -type f -name "*.md" | sort
-```
-Verify `VAULT_GUIDE.md` exists. If missing, flag as FAIL.
-
-**Step 2 - END-GOAL.md freshness (MANDATORY - do not skip):**
-- If END-GOAL.md is missing: flag as FAIL, recommend creating one.
-- If END-GOAL.md exists: **read the first 30 lines**. Extract the version number or status references. Compare against brain.db `project.version`. If they differ, report:
-  ```
-  [FAIL] END-GOAL.md references v{X} but brain.db is at v{Y}
-  ```
-  Update the stale version/status references in END-GOAL.md.
-
-**Step 3 - Session note coverage (MANDATORY):**
-```bash
-# Count vault session notes (VAULT_PATH resolved in Step 1 above)
-ls "$VAULT_PATH/{ProjectName}/sessions/"*.md 2>/dev/null | wc -l
-# Get latest vault session number
-ls -t "$VAULT_PATH/{ProjectName}/sessions/"*.md 2>/dev/null | head -1
-# Get latest brain.db session
-node .ava/dal.mjs session list 2>&1 | head -3
-```
-Report the gap: "Vault has sessions up to N, brain.db has sessions up to M. Gap: {M-N} sessions."
-If gap > 5 sessions on an active project, flag as WARN. Export missing significant sessions:
-```bash
-# For each significant missing session (has decisions, version change, or cross-project work):
-node .ava/dal.mjs vault-export session --session {session-uuid}
-```
-After exporting, sync to ChromaDB:
-```bash
-node .ava/dal.mjs vault sync {ProjectSlug} 2>/dev/null || true
-```
-
-**Step 4 - ChromaDB sync:**
-```bash
-node .ava/dal.mjs vault status
-```
-If ChromaDB is not deployed or the vault command is unavailable, flag as SKIP (ChromaDB not deployed -- optional layer). If deployed but returning errors or 0 doc count, flag as WARN.
-
-**Report vault checks as a block in the coverage report. "Vault: PASS/FAIL/SKIP" with details for each step.**
-
----
-
-## 5. DECISION HEALTH
-
-```bash
-node .ava/dal.mjs decision list
-```
-
-- **Still relevant?** Superseded decisions should be marked.
-- **Correctly scoped?** Too broad or too narrow → flag.
-- **Missing?** Documentation has architectural choices without matching decisions → add them.
-
----
-
-## 6. SESSION HEALTH
-
-```bash
-node .ava/dal.mjs session list
-```
-
-- Interrupted/crashed sessions in last 7 days → investigate
-- Older interrupted sessions → note as historical
-- Pattern of unclean exits → flag as systemic issue
-
----
-
-## 7. NOTE HYGIENE
-
-```bash
-node .ava/dal.mjs note list
-node .ava/dal.mjs note counts
-```
-
-- Completed notes → clear
-- Notes older than 30 days → still relevant?
-- Report by category
-
----
-
-## 8. DOCUMENT INGESTION & ARCHIVAL
-
-Scattered documentation clutters the project and fragments context. This step finds orphaned docs, extracts their knowledge into the right system, and archives the originals.
-
-**Two modes:**
-- **Default** — scan for orphaned docs in unexpected locations (Section 8a-8e)
-- **`--full-ingest`** — comprehensively read EVERY .md/.txt in the project, compare against brain.db, ingest anything missing, push to vault (Section 8F)
-
-If the user passes `--full-ingest`, skip 8a-8e and go directly to Section 8F.
-
-### 8a. Scan for Orphaned Documentation
-
-Look for markdown files outside expected locations:
-
-```bash
-# Find .md files in project root and unexpected directories
-# Expected locations: .claude/.prompts/, .claude/, .claude/archive/, .claude/plans/
-# Unexpected: project root loose files, src/, lib/, random subdirectories
-```
-
-Check these locations for documentation that doesn't belong:
-- **Project root**: Any `.md` files besides CLAUDE.md, README.md, CHANGELOG.md, LICENSE.md
-- **src/ or lib/**: Documentation mixed with code (not inline code comments — actual doc files)
-- **Stale plan files**: `*PLAN*.md`, `*ROADMAP*.md`, `*SPEC*.md` outside `.claude/plans/`
-- **Orphaned notes**: `TODO.md`, `NOTES.md`, `SCRATCH.md`, `IDEAS.md` at any level
-- **Empty or near-empty docs**: Files with <5 lines of actual content
-
-### 8b. Classify Each File
-
-For each orphaned document, determine where its content belongs:
-
-| Content Type | Destination | Example |
-|---|---|---|
-| Architecture decisions, system design | `brain.db` → architecture or decision | "We chose PostgreSQL because..." |
-| Project facts, identity, stack info | `brain.db` → identity or architecture | "This project uses Next.js 14..." |
-| Session notes, work logs, handoffs | Obsidian vault → `{project}/sessions/` | "Session 42: migrated auth..." |
-| Plans, designs, specifications | Obsidian vault → `{project}/plans/` | "Phase 2 implementation plan..." |
-| Already captured in brain.db/vault | Archive only (redundant) | Content that matches existing entries |
-| Not documentation (code, config) | Leave in place | Shell scripts, config templates |
-
-### 8c. Ingest
-
-For each classified document:
-
-1. **brain.db candidates**: Extract the key facts and insert as architecture entries, decisions, or notes. Don't copy the entire file — distill to the actionable knowledge.
-   ```bash
-   node .ava/dal.mjs arch set "key" --value "distilled fact" --scope project
-   node .ava/dal.mjs decision add --title "..." --context "..." --chosen "..." --rationale "..."
-   ```
-
-2. **Vault candidates** (if Obsidian vault exists): Move the file to the appropriate vault folder with proper frontmatter. If the vault doesn't exist, archive the file and add a brain.db note referencing where it went.
-
-3. **Redundant content**: If the knowledge is already captured, just archive.
-
-### 8d. Archive
-
-Move ingested files to `.claude/archive/cleanup-{date}/`:
-
-```bash
-mkdir -p .claude/archive/cleanup-YYYY-MM-DD
-mv orphaned-file.md .claude/archive/cleanup-YYYY-MM-DD/
-```
-
-**Rules:**
-- Never delete files outright — always archive first
-- Archive preserves the original for reference if the ingestion missed something
-- Log what was moved and why in the coverage report
-- Present the full plan (scan results + classification + proposed actions) before executing
-
-### 8e. Report
-
-Add to the coverage report:
-
-```
-Document Ingestion:
-  Files scanned:     {N} .md files outside expected locations
-  Ingested to brain: {N} (architecture: {n}, decisions: {n}, notes: {n})
-  Ingested to vault: {N}
-  Archived:          {N} (to .claude/archive/cleanup-{date}/)
-  Skipped:           {N} (legitimate files in place)
-```
-
----
-
-## 8F. FULL INGEST MODE (`--full-ingest`)
-
-> **Triggered by:** `/cleanup --full-ingest`
->
-> This mode goes beyond orphan scanning. It reads **every** documentation file in the project, compares against brain.db content, and ensures nothing is missing. Use this when brain.db and documentation are out of sync — especially after project migrations, major refactors, or when a project's brain.db was set up long after its docs were written.
-
-### 8F-1. Discovery — Find ALL Documentation
-
-Scan the entire project for documentation files:
-
-```bash
-# Find every .md and .txt file in the project
-# Exclude: node_modules/, .git/, dist/, build/, .ava/migrations/, vendor/
-```
-
-Build a complete file inventory. For each file, record:
-- Path (relative to project root)
-- Size (lines)
-- Category guess from location (root doc, .claude/plans/, .claude/archive/, sessions/, README, etc.)
-
-**Expected yield:** Typically 10-100 files depending on project maturity.
-
-### 8F-2. Read Current brain.db State
-
-Dump everything brain.db knows:
-
-```bash
-node .ava/dal.mjs identity list
-node .ava/dal.mjs arch list
 node .ava/dal.mjs decision list
 node .ava/dal.mjs note list
 ```
 
-Build a knowledge inventory: what topics, facts, decisions, and context brain.db already has.
+If brain.db is missing or status fails, stop and report. Run `/dal-doctor` first.
 
-### 8F-3. Read Each Document & Compare
+Detect mode:
 
-For each documentation file found in 8F-1, use sub-agents for parallel processing where the file count is large (>10 files):
+- identity = 0 and sessions = 0 → first-run hydration
+- otherwise → ongoing maintenance
 
-**For each file:**
+---
 
-1. **Read the file.** Extract the key knowledge it contains:
-   - Facts about the project (architecture, tech stack, conventions)
-   - Decisions made (and their rationale)
-   - Plans or specifications (current state, future direction)
-   - Session history or work logs
-   - Setup/deployment/infrastructure information
-   - Gotchas, anti-patterns, constraints
+## 2. PHASE 1 — STRUCTURAL ENFORCEMENT
 
-2. **Compare against brain.db inventory.** For each piece of knowledge:
-   - **Already captured?** → Mark as `COVERED` (no action needed)
-   - **Partially captured?** → Mark as `STALE` (brain.db has it but it's outdated or incomplete)
-   - **Not captured at all?** → Mark as `MISSING` (needs ingestion)
+Run this FIRST. Structural problems cause bad sources to be treated as canonical.
 
-3. **Classify the missing knowledge** using the same table from 8b:
+### 2a. Map All Storage Locations
 
-   | Knowledge Type | Destination | brain.db Table | Scope |
-   |---|---|---|---|
-   | Core project identity (name, vision, mission) | brain.db | `identity` | — |
-   | Tech stack, build, architecture patterns | brain.db | `architecture` | `project` |
-   | Cross-project conventions, shared patterns | brain.db | `architecture` | `convention` |
-   | Infrastructure (servers, ports, deployment) | brain.db | `architecture` | `infrastructure` |
-   | Ecosystem patterns (shared across projects) | brain.db | `architecture` | `ecosystem` |
-   | Architectural decisions with rationale | brain.db | `decisions` | — |
-   | Current blockers, handoffs, task items | brain.db | `notes` | category-based |
-   | Session histories, work logs | Obsidian vault | `sessions/` | — |
-   | Plans, specifications, designs | Obsidian vault | `plans/` | — |
-   | Architecture deep-dives, ADRs | Obsidian vault | `architecture/` | — |
+Discover what exists:
 
-### 8F-4. Present Ingestion Plan
+```bash
+ls plans/ 2>/dev/null
+ls plans/archive/ 2>/dev/null
+ls sessions/ 2>/dev/null
+ls archive/ 2>/dev/null
+ls .claude/plans/ 2>/dev/null  # should not exist post-v7 — flag if found
+ls .claude/archive/ 2>/dev/null
 
-Before making any changes, present a complete plan:
-
+ls .claude/memory/ 2>/dev/null | wc -l
+find . -maxdepth 1 -name "*.md" ! -name "CLAUDE.md" ! -name "README.md" ! -name "CHANGELOG.md" ! -name "LICENSE.md" ! -name "SYSTEM-OVERVIEW.md" ! -name "OVERVIEW.md" ! -name "END-GOAL.md" -type f
 ```
-Full Ingest Plan
+
+### 2b. Plans Placement Check
+
+`plans/` at the project root is the ONLY canonical location for active plans. If you find plans under `.claude/plans/`, they are in the wrong place — move them to `plans/`.
+
+```bash
+if [ -d .claude/plans ]; then
+  echo "VIOLATION: .claude/plans/ exists. Plans should live at plans/ (project root)."
+  ls .claude/plans/
+fi
+```
+
+Present findings before acting.
+
+### 2c. Archive Consolidation
+
+The project has only ONE deliberate archive destination: `plans/archive/` (project root) for superseded plans still worth keeping, each with an extraction receipt.
+
+Everything else should be extracted into canonical docs or DAL and then deleted.
+
+End state:
+
+- no root `archive/`
+- no timestamped cleanup dirs
+- no `.claude/archive/` cleanup residue
+- no `.claude/plans/` (moved to `plans/`)
+- superseded plans live only in `plans/archive/` with receipts
+
+### 2d. Memory File Audit
+
+`.claude/memory/` is optional compatibility space, not canon.
+
+Audit each file:
+
+| File Pattern | Likely Issue | Action |
+|---|---|---|
+| `project_*.md` | Often restates DAL, plans, or docs | Compare against canonical sources, then delete if covered |
+| `feedback_*.md` | User corrections | Keep unless obsolete |
+| `user_*.md` | Preferences / working style | Keep if still useful |
+| `reference_*.md` | External pointers | Keep if still accurate |
+| `knowledge-*.md` / `monitoring.md` | Often duplicate facts elsewhere | Extract durable value into the right canonical home, then delete |
+
+Target:
+
+- memory remains lean
+- no file mirrors DAL, plans, or rules docs
+
+### 2e. Root File Cleanup
+
+Expected root docs:
+
+- `CLAUDE.md`
+- `SYSTEM-OVERVIEW.md`
+- `README.md`
+- optional `CHANGELOG.md`, `LICENSE.md`, `OVERVIEW.md`
+
+Unexpected root docs should be classified and moved or deleted.
+
+### 2f. Structural Report
+
+Present a dry-run report before executing any changes:
+
+```text
+Structural Audit
 ================
-Files discovered:    {N} documentation files
-Knowledge items:     {N} extracted
+Legacy vault folder:      {present|absent}
+Archive residue:          {N}
+Memory files to trim:     {N}
+Root orphan docs:         {N}
 
-Status:
-  COVERED:  {N} — already in brain.db (no action)
-  STALE:    {N} — in brain.db but needs updating
-  MISSING:  {N} — not in brain.db, needs ingestion
-
-Proposed brain.db changes:
-  Identity inserts:      {N}
-  Architecture inserts:  {N} (project: {n}, convention: {n}, infrastructure: {n}, ecosystem: {n})
-  Architecture updates:  {N}
-  Decision inserts:      {N}
-  Note inserts:          {N}
-
-Proposed vault actions:
-  Session notes to create:    {N}
-  Plan notes to create:       {N}
-  Architecture notes to create: {N}
-
-Files to archive after ingestion: {N}
-  {list each file and why}
-
-Files to leave in place: {N}
-  {list each file — CLAUDE.md, README.md, etc. that stay}
+Proposed moves:           {N}
+Proposed deletes:         {N}
 ```
 
-**Wait for user confirmation before applying ANY changes.**
-
-### 8F-5. Execute Ingestion
-
-After confirmation:
-
-1. **Insert brain.db entries** — identity, architecture (with correct scopes), decisions, notes
-   ```bash
-   node .ava/dal.mjs identity set "key" --value "..."
-   node .ava/dal.mjs arch set "key" --value "..." --scope project
-   node .ava/dal.mjs decision add --title "..." --context "..." --chosen "..." --rationale "..."
-   node .ava/dal.mjs note add "..." --category handoff
-   ```
-
-2. **Update stale entries** — correct outdated values
-   ```bash
-   node .ava/dal.mjs arch set "existing.key" --value "updated value" --scope project
-   ```
-
-3. **Create vault notes** (if vault exists for this project):
-   ```bash
-   # Session notes — use vault-export (auto-generates frontmatter + enriches from brain.db):
-   node .ava/dal.mjs vault-export session --session {session-uuid}
-   # Then sync to ChromaDB:
-   node .ava/dal.mjs vault sync {ProjectSlug} 2>/dev/null || true
-   ```
-   For non-session vault notes (plans, architecture), create manually with frontmatter (type, project, date, status, tags).
-
-4. **Archive ingested files** — move files whose content is now fully captured:
-   ```bash
-   mkdir -p .claude/archive/full-ingest-YYYY-MM-DD
-   mv ingested-file.md .claude/archive/full-ingest-YYYY-MM-DD/
-   ```
-
-   **Do NOT archive:**
-   - CLAUDE.md, README.md, CHANGELOG.md, LICENSE.md (living documents)
-   - .claude/.prompts/ files (skill protocols, not knowledge)
-   - .claude/ files (tool configuration)
-   - Files still serving as active references (if a doc is linked from README or CLAUDE.md, keep it)
-
-5. **Vault export:** If the cleanup produced strategically significant knowledge, export vault notes for affected sessions:
-   ```bash
-   node .ava/dal.mjs vault-export session --session {session-uuid}
-   node .ava/dal.mjs vault sync {ProjectSlug} 2>/dev/null || true
-   ```
-
-### 8F-6. Verification
-
-After ingestion, verify completeness:
-
-```bash
-node .ava/dal.mjs identity list    # Should have 5-7 rows
-node .ava/dal.mjs arch list        # Should reflect all project knowledge
-node .ava/dal.mjs decision list    # Should have all architectural decisions
-node .ava/dal.mjs note list        # Should have current blockers/handoffs
-```
-
-**Test the "blind agent" criterion:** If a new agent started a session with ONLY the brain.db context injection (no docs), would it have enough context to be productive? If not, what's still missing?
-
-### 8F-7. Full Ingest Report
-
-```
-Full Ingest Report
-==================
-Files discovered:    {N}
-Files read:          {N}
-Knowledge extracted: {N} items
-
-brain.db changes:
-  Identity:      {inserted} inserted, {updated} updated
-  Architecture:  {inserted} inserted, {updated} updated ({by-scope breakdown})
-  Decisions:     {inserted} inserted
-  Notes:         {inserted} inserted
-
-Vault changes:
-  Session notes:      {N} created
-  Plan notes:         {N} created
-  Architecture notes: {N} created
-
-Files archived:      {N} (to .claude/archive/full-ingest-{date}/)
-Files kept in place: {N}
-
-Blind agent test:    {PASS — brain.db sufficient | FAIL — {what's missing}}
-
-VERDICT: {PASS — project knowledge fully captured |
-          PARTIAL — {N} items need manual review |
-          FAIL — critical knowledge gaps remain}
-```
+Wait for user confirmation before acting.
 
 ---
 
-## 9. COVERAGE REPORT
+## 3. PHASE 2 — LEAN DAL RECONCILIATION
 
-This is the critical output. Not just "is brain.db healthy" but "is brain.db COMPLETE enough to be useful." Include document ingestion results alongside the DAL reconciliation.
+### 3a. Required Continuity Extraction
 
+The DAL only needs enough state to restart work cleanly.
+
+Required minimum surfaces:
+
+| Surface | Requirement |
+|---|---|
+| `identity` | `project.name` and `project.version`; `project.vision` only if genuinely load-bearing |
+| `decisions` | active decisions that constrain current work |
+| `notes` | open blockers, follow-ups, next-session tasks |
+| `sessions` | recent session history |
+| `.ava/handoffs/` | latest handoff exists and is useful |
+
+Sources, in priority order:
+
+1. `CLAUDE.md`
+2. active plans
+3. latest handoff
+4. current notes and decisions
+5. codebase inspection
+
+### 3b. Compare And Reconcile
+
+brain.db → reality:
+
+- version entries match `CLAUDE.md`
+- identity rows are still accurate and minimal
+- active decisions still constrain real work
+- notes still describe real unfinished work
+- legacy `architecture` rows, if any, do not duplicate code structure GitNexus can derive
+
+reality → brain.db:
+
+- missing minimum continuity surfaces = FAIL
+- stale or redundant continuity surfaces = prune or demote
+
+### 3c. DAL Budget & Legacy Table Audit
+
+Measure the current continuity payload:
+
+```bash
+node .ava/dal.mjs context 2>&1 | wc -c
+node .ava/dal.mjs context 2>&1 | wc -l
+node .ava/dal.mjs decision list 2>&1 | wc -l
+node .ava/dal.mjs note list 2>&1 | wc -l
 ```
-DAL Reconciliation Report
-=========================
-Mode:              {first-run hydration | ongoing maintenance}
+
+Targets:
+
+- context injection <25KB / <200 lines
+- decisions and notes remain scannable
+- legacy `architecture` rows trend downward over time
+
+Pruning heuristic:
+
+- if it is derivable from code or GitNexus, remove it
+- if it belongs in `CLAUDE.md`, move it there
+- if it belongs in a plan or `OVERVIEW.md`, move it there
+- if it no longer matters for restart continuity, delete it
+
+### 3d. Decision, Note, And Session Health
+
+Run:
+
+```bash
+node .ava/dal.mjs decision list
+node .ava/dal.mjs note list
+node .ava/dal.mjs session list
+```
+
+Checks:
+
+- superseded decisions should not dominate the active path
+- duplicate or stale notes should be consolidated
+- obviously abandoned open sessions should be flagged
+
+---
+
+## 4. SESSIONS/ HYGIENE
+
+`sessions/` at the project root holds curated structured session notes written by `session-export` at closeout.
+
+### 4a. END-GOAL.md Freshness
+
+If `END-GOAL.md` exists at the project root, compare any version references against the current project version and flag drift.
+
+### 4b. Session Note Coverage
+
+Report the gap between curated session notes and DAL session count. This is informational, not a reason to stuff more state anywhere.
+
+```bash
+note_count=$(ls sessions/*.md 2>/dev/null | wc -l)
+dal_sessions=$(node .ava/dal.mjs status 2>/dev/null | grep "Sessions:" | grep -oP '\d+' | head -1)
+echo "Session notes: $note_count / DAL sessions: $dal_sessions"
+```
+
+If the gap is large, it means `session-export` is not being run at closeout — flag as a closeout discipline issue, not a cleanup target.
+
+---
+
+## 5. DOCUMENT INGESTION & ARCHIVAL
+
+### Default Mode — Orphan Scan
+
+Expected locations:
+
+- `.claude/.prompts/`
+- `plans/` (project root)
+- `sessions/` (project root)
+- `.claude/memory/`
+- `.claude/skills/*/`
+
+Unexpected:
+
+- root docs beyond the expected set
+- nested cleanup dirs
+- stray archival copies
+
+For each orphan:
+1. route it to the right canonical home
+2. extract durable value
+3. delete the redundant source
+
+### Full Ingest Mode (`--full-ingest`)
+
+Use only for legacy migrations or first-run hydration when the project has lots of prose and little usable continuity state.
+
+Discover candidate docs:
+
+```bash
+find . -type f \( -name "*.md" -o -name "*.txt" \) \
+  ! -path "*/node_modules/*" ! -path "*/.git/*" ! -path "*/dist/*" \
+  ! -path "*/.ava/migrations/*" ! -path "*/vendor/*" | sort
+```
+
+For each file:
+1. read it
+2. classify whether its durable value is already covered
+3. if missing, route the missing value into the right canonical home
+4. present the proposed changes
+5. wait for confirmation
+
+After full ingest, run a continuity-first resume check:
+
+1. read `node .ava/dal.mjs context`
+2. read the latest handoff
+3. confirm you can answer:
+   - what is this project?
+   - what was happening recently?
+   - what is still open?
+   - what should happen next?
+
+If not, cleanup did not finish.
+
+---
+
+## 6. COVERAGE REPORT
+
+```text
+Cleanup Report
+==============
+Mode:              {structural + reconciliation | full-ingest}
 Schema version:    v{N}
 Integrity:         {ok|FAILED}
 
-COVERAGE (required entries):
-  project.name:      {present|MISSING}  (identity)
-  project.identity:  {present|MISSING}  (identity)
-  project.vision:    {present|MISSING}  (identity)
-  project.version:   {present|MISSING}  (architecture)
-  tech.stack:        {present|MISSING}  (architecture)
-  tech.build:        {present|MISSING}  (architecture)
-  Coverage:          {N}/{total} required entries present
+STRUCTURAL:
+  .claude/plans/ violations: {N}
+  Archive residue:           {N}
+  Memory files trimmed:      {N}
+  Root orphan docs:          {N}
 
-Identity:          {total} rows
-Architecture:      {total} entries
-  - project:       {N}
-  - ecosystem:     {N}
-  - infrastructure:{N}
-  - convention:    {N}
+DAL:
+  Minimal identity:          {PASS|FAIL}
+  Active decisions:          {count}
+  Open notes:                {count}
+  Sessions:                  {count}
+  Handoff health:            {PASS|FAIL}
+  Legacy arch rows:          {count}
+  Context injection:         {size}KB / {lines} lines
 
-Decisions:         {total} ({active} active)
-Sessions:          {total}
-Notes:             {open} open
+VAULT:
+  VAULT_GUIDE.md:            {present|missing}
+  END-GOAL.md drift:         {PASS|WARN|SKIP}
+  Working-state duplicates:  {count}
 
-Reconciliation:
-  - Identity inserted: {N}
-  - Architecture inserted: {N}
-  - Entries updated: {N}
-  - Entries removed: {N}
-  - Decisions added: {N}
-  - Contradictions found: {N}
-  - Gaps filled: {N}
-
-VERDICT: {PASS — brain.db is complete and accurate |
-          FAIL — {N} required entries missing, {N} contradictions}
+VERDICT: {PASS | PARTIAL | FAIL}
 ```
-
-**A cleanup that reports PASS with missing required entries is a failed cleanup.**
 
 ---
 
-## 10. RULES
+## 7. RULES
 
-- **Always dry-run first.** Never delete without showing the user what will be affected.
-- **Present recommendations, don't auto-apply.** User confirms inserts, classifications, and deletions.
-- **Docs are truth, brain.db is the cache.** When they contradict, docs win.
-- **Don't invent entries.** Only insert knowledge explicitly stated in docs or verifiable in codebase.
-- **Coverage is mandatory.** A brain.db without the required entries is not "clean" — it's incomplete.
-- **Be honest.** If the brain.db is a mess, say so. "Clean bill of health" requires actual coverage.
+- **One place per question.** Content in the wrong location is a bug.
+- **Extract first, archive second.** Archive is not a trash can.
+- **Lean DAL wins.** Prefer sessions, notes, decisions, and handoffs over broad DAL accumulation.
+- **GitNexus answers structure.** Do not maintain manual structural docs by default.
+- **Dry-run first.** Present all changes before executing. User confirms.
+- **Read before deleting.** Unique files must be read before removal.

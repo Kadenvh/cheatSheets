@@ -39,7 +39,7 @@ Deep analysis of the project's architecture, decisions, direction, and assumptio
    - Stale architecture entries describing past state as current
 
    ### Lens 4: Adversarial
-   - What breaks if ChromaDB goes down? If brain.db corrupts? If OpenClaw gateway fails?
+   - What breaks if brain.db corrupts? If the GitNexus index goes stale mid-session? If template sync ships a half-broken file?
    - What assumptions are untested? What if they're wrong?
    - What would a skeptical reviewer say about the architecture?
    - Security: what's exposed that shouldn't be?

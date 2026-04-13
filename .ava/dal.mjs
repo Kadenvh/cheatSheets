@@ -54,6 +54,8 @@ async function main() {
         return await cmdLoop();
       case "context":
         return await cmdContext();
+      case "continuity":
+        return await cmdContinuity();
       case "verify":
         return await cmdVerify();
       case "status":
@@ -70,10 +72,10 @@ async function main() {
         return await cmdTemplate();
       case "health":
         return await cmdHealth();
-      case "vault":
-        return await cmdVault();
-      case "vault-export":
-        return await cmdVaultExport();
+      case "session-export":
+        return await cmdSessionExport();
+      case "consolidate":
+        return await cmdConsolidate();
       case "ecosystem":
         return await cmdEcosystem();
       case "logs":
@@ -635,6 +637,37 @@ async function cmdContext() {
   console.log(generateContext({ role, scope, brief }));
 }
 
+async function cmdContinuity() {
+  const { generateContinuityBrief, formatContinuityBrief } = await import("./lib/continuity.mjs");
+
+  if (subcommand !== "brief") {
+    console.log(
+      "Usage: dal.mjs continuity brief [--json] [--role dev|general] [--scope project|ecosystem|full] [--max-notes N] [--max-actions N] [--max-decisions N] [--max-plans N] [--include-handoff true|false] [--include-contradictions true|false]"
+    );
+    process.exit(1);
+  }
+
+  const { flags } = parseFlags(2);
+  const brief = generateContinuityBrief({
+    role: flags.role || "dev",
+    scope: flags.scope || "project",
+    maxNotes: flags["max-notes"],
+    maxActions: flags["max-actions"],
+    maxDecisions: flags["max-decisions"],
+    maxPlans: flags["max-plans"],
+    includeHandoff: flags["include-handoff"],
+    includeContradictions: flags["include-contradictions"],
+    dalVersion: DAL_VERSION,
+  });
+
+  if (flags.json === "true") {
+    console.log(JSON.stringify(brief, null, 2));
+    return;
+  }
+
+  console.log(formatContinuityBrief(brief));
+}
+
 // ─── Status ───────────────────────────────────────────────────────────────────
 
 async function cmdStatus() {
@@ -956,107 +989,23 @@ async function cmdHealth() {
   }
 }
 
-// ─── Vault (ChromaDB Layer 3) ─────────────────────────────────────────────────
+// ─── Session Export ──────────────────────────────────────────────────────────
+// Writes structured session notes to PE/sessions/ at the project root.
+// Replaced vault-export (Obsidian Layer 2) and vault-sync (ChromaDB Layer 3)
+// when the Obsidian vault was retired.
 
-async function cmdVault() {
+async function cmdSessionExport() {
+  const { handleSessionExportCommand } = await import("./lib/session-export.mjs");
   const { flags, positional } = parseFlags(2);
-
-  switch (subcommand) {
-    case "sync": {
-      const { syncVault } = await import("./lib/vault-sync.mjs");
-      const opts = {};
-      if (positional) opts.project = positional;
-      if (flags.project) opts.project = flags.project;
-      if (flags.collection) opts.collection = flags.collection;
-      if (flags.clean === "true") opts.clean = true;
-      if (flags.path) opts.vaultPath = flags.path;
-
-      console.log(`Syncing vault${opts.project ? ` (project: ${opts.project})` : " (all projects)"}...`);
-      const result = await syncVault(opts);
-
-      console.log(`\nVault Sync Complete`);
-      console.log(`  Files scanned:  ${result.files}`);
-      console.log(`  Documents:      ${result.documents}`);
-      console.log(`  Upserted:       ${result.upserted}`);
-      if (result.deleted) console.log(`  Cleaned:        ${result.deleted} old docs removed`);
-      console.log(`  Collection:     ${result.collection.name} (${result.collection.total} total)`);
-      if (result.errors) {
-        console.log(`  Errors:         ${result.errors.length}`);
-        for (const e of result.errors) {
-          console.log(`    - ${e.file}: ${e.error}`);
-        }
-      }
-      break;
-    }
-    case "query": {
-      const { searchVault } = await import("./lib/vault-sync.mjs");
-      const queryText = positional || flags.q;
-      if (!queryText) {
-        console.error("Usage: dal.mjs vault query <text> [--top_k N] [--project P]");
-        process.exit(1);
-      }
-      const opts = {};
-      if (flags.top_k) opts.topK = parseInt(flags.top_k);
-      if (flags.project) opts.project = flags.project;
-      if (flags.collection) opts.collection = flags.collection;
-
-      const results = await searchVault(queryText, opts);
-      if (!results.results || results.results.length === 0) {
-        console.log("No results found.");
-        return;
-      }
-      console.log(`Found ${results.results.length} results:\n`);
-      for (const r of results.results) {
-        const score = ((r.similarity ?? r.score ?? 0) * 100).toFixed(1);
-        const src = r.metadata?.source_file || "unknown";
-        const section = r.metadata?.section || "";
-        console.log(`  [${score}%] ${src} — ${section}`);
-        // Show first 120 chars of content
-        const preview = (r.content || r.document || "").slice(0, 120).replace(/\n/g, " ");
-        console.log(`         ${preview}...`);
-        console.log();
-      }
-      break;
-    }
-    case "status": {
-      const { checkHealth, COLLECTION } = await import("./lib/vault-sync.mjs");
-      const health = await checkHealth();
-      if (!health) {
-        console.log("Embedding service not reachable at http://127.0.0.1:8001");
-        return;
-      }
-      console.log(`Embedding Service: ${health.status}`);
-      console.log(`  Model:     ${health.model}`);
-      console.log(`  Device:    ${health.device} (GPU: ${health.gpu_available})`);
-      console.log(`  Documents: ${health.documents} (default collection)`);
-
-      // Check vault collection
-      const coll = flags.collection || COLLECTION;
-      try {
-        const res = await fetch(`http://127.0.0.1:8001/documents?limit=0&collection=${coll}`);
-        if (res.ok) {
-          const data = await res.json();
-          console.log(`  Vault:     ${data.total} docs (collection: ${coll})`);
-        }
-      } catch { /* vault collection may not exist yet */ }
-      break;
-    }
-    default:
-      console.log(`Usage: dal.mjs vault <sync|query|status>
-
-  vault sync [project] [--clean] [--collection C]  Sync vault notes to ChromaDB
-  vault query <text> [--top_k N] [--project P]     Semantic search vault
-  vault status                                      Embedding service health`);
-      process.exit(subcommand ? 1 : 0);
-  }
+  handleSessionExportCommand(subcommand, flags, positional);
 }
 
-// ─── Vault Export ────────────────────────────────────────────────────────────
+// ─── Consolidate ─────────────────────────────────────────────────────────────
 
-async function cmdVaultExport() {
-  const { handleVaultExportCommand } = await import("./lib/vault-export.mjs");
-  const { flags, positional } = parseFlags(2);
-  handleVaultExportCommand(subcommand, flags, positional);
+async function cmdConsolidate() {
+  const { handleConsolidateCommand } = await import("./lib/consolidate.mjs");
+  const { flags, positional } = parseFlags(1);
+  handleConsolidateCommand(flags, positional);
 }
 
 // ─── Ecosystem ───────────────────────────────────────────────────────────────
@@ -1166,6 +1115,7 @@ Learning Loop:
 Session Continuity:
   trace add|list|summary          Structured episodic memory (per-session traces)
   handoff generate|latest|list    YAML session handoffs for closeout/init bridge
+  continuity brief [--json]       Synthesized resume brief for session-init and continuation
 
 Template:
   template manifest [--json]      List deployable files with checksums
@@ -1180,11 +1130,12 @@ Ecosystem:
   logs summary [path] [--days N] [--all] [--json]  Hook firing analytics
   logs dead [--days N] [--json]     Detect hooks with zero activity
 
-Vault (ChromaDB Layer 3):
-  vault sync [project] [--clean]    Sync vault notes to embedding service
-  vault query <text> [--top_k N]    Semantic search across vault
-  vault status                      Embedding service health
-  vault-export session [summary]    Export session note to Obsidian vault
+Session Export:
+  session-export session [summary]  Export structured session note to PE/sessions/
+
+Consolidate:
+  consolidate <event-slug> --keep <path> --archive <p1,p2,...> [--reason <r>] [--dry-run]
+                                    Move superseded plans to plans/archive/<slug>/ with receipt
 
 Operations:
   bootstrap                       Initialize brain.db

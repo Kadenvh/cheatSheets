@@ -47,7 +47,7 @@ The one exception is `documentation-awareness`, which has `user-invocable: false
 | `frontier-research` | `/frontier-research` | Deep technology research and discovery. Standard/deep/ultra modes |
 | `together` | `/together` | Shifting from execution to relationship mode -- human-first dialogue |
 | `migration` | `/migration` | Planning data, schema, API, or infrastructure migrations with rollback safety |
-| `triage` | `/triage` | Ecosystem-wide status assessment -- health beacons, vault notes, priorities |
+| `triage` | `/triage` | Ecosystem-wide status assessment -- health beacons, project-root `sessions/` notes, priorities |
 | `plan-validator` | `/plan-validator` | Auditing plans for completeness and gaps; `--research` spawns investigation agents |
 | `ui-dev` | `/ui-dev` | Building frontend UI -- components, pages, styling in React + Tailwind |
 | `supabase` | `/supabase` | Supabase work -- schema design, RLS policies, auth, edge functions, storage |

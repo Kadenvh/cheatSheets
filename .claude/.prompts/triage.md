@@ -1,6 +1,6 @@
 # Ecosystem Triage Prompt
 
-You are performing an ecosystem-wide status assessment. Your job is to read state from every available source — health beacons, vault session notes, open notes, active plans — and produce a clear picture of what's happening across all projects, what needs attention, and what the recommended priority stack is.
+You are performing an ecosystem-wide status assessment. Your job is to read state from every available source — health beacons, session notes at each project's `sessions/`, open notes, active plans at each project's `plans/` — and produce a clear picture of what's happening across all projects, what needs attention, and what the recommended priority stack is.
 
 This is hub-main's "morning briefing." It answers: what did each project do last? what's blocked? what's stale? what should happen next?
 
@@ -42,28 +42,25 @@ done
 
 ---
 
-## 2. READ RECENT VAULT SESSION NOTES
+## 2. READ RECENT SESSION NOTES
 
-For each project with a vault folder, read the most recent session note:
+For each project, read the most recent session note from its project-root `sessions/` directory:
 
 ```bash
-# Resolve vault path: brain.db vault.path > $OBSIDIAN_VAULT > ~/Obsidian/Ava/
-VAULT_PATH=$(node .ava/dal.mjs identity get vault.path 2>/dev/null || echo "${OBSIDIAN_VAULT:-$HOME/Obsidian/Ava}")
-
-for proj in PE Ava_Main McQueenyML CloudBooks TradeSignal WATTS Seatwise Adze-CAD; do
-  latest=$(ls -t "$VAULT_PATH/$proj/sessions/"*.md 2>/dev/null | head -1)
+for proj in /home/ava/Prompt_Engineering /home/ava/Ava_Main /home/ava/CloudBooks /home/ava/tradeSignal /home/ava/WATTS /home/ava/seatwise /home/ava/adze-cad /home/ava/cheatSheets /home/ava/3D_Printing; do
+  latest=$(ls -t "$proj/sessions/"*.md 2>/dev/null | head -1)
   if [ -n "$latest" ]; then
-    echo "=== $proj: $(basename "$latest") ==="
+    echo "=== $(basename "$proj"): $(basename "$latest") ==="
   fi
 done
 ```
 
-Read each latest session note. Extract:
+Read each latest session note. Extract (they follow the standard schema — Summary, Decisions, Files Changed, Notes Opened/Closed, Continuity → Next Session, Cross-Refs):
 - Session number and title
-- Date and status
+- Date and exit reason (from the metadata header)
 - Summary (what was accomplished)
-- Key deliverables
-- Open items or handoffs mentioned
+- Key decisions and files changed
+- Next-session pointers from the Continuity section
 
 ---
 
@@ -83,17 +80,14 @@ Flag any notes older than 14 days as potentially stale.
 
 ---
 
-## 4. READ ACTIVE VAULT PLANS
+## 4. READ ACTIVE PLANS
 
 ```bash
-# VAULT_PATH resolved above in Step 2
-for proj in PE Ava_Main McQueenyML CloudBooks TradeSignal WATTS; do
-  plans=$(ls "$VAULT_PATH/$proj/plans/"*.md 2>/dev/null)
+for proj in /home/ava/Prompt_Engineering /home/ava/Ava_Main /home/ava/CloudBooks /home/ava/tradeSignal /home/ava/WATTS /home/ava/seatwise /home/ava/adze-cad /home/ava/3D_Printing; do
+  plans=$(ls "$proj/plans/"*.md 2>/dev/null)
   for plan in $plans; do
-    status=$(head -10 "$plan" | grep "status:" | sed 's/status: //')
-    if [ "$status" = "active" ]; then
-      echo "$proj: $(basename "$plan")"
-    fi
+    status=$(head -20 "$plan" | grep -i "^\*\*Status:\*\*\|^Status:" | head -1 | sed 's/[*: ]*[Ss]tatus:[*: ]*//')
+    echo "$(basename "$proj"): $(basename "$plan") [${status:-unknown}]"
   done
 done
 ```
@@ -102,6 +96,8 @@ Read each active plan. Note:
 - Completion percentage
 - Blocking dependencies
 - Next actions
+
+Projects that have more than one active plan in `plans/` are flagged by the Phase 4 validator (warn at ≥2, fail at ≥4) — worth calling out in the triage report.
 
 ---
 

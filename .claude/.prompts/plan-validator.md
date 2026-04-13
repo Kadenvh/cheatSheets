@@ -8,26 +8,18 @@ Audit project plans for structural completeness, identify gaps and unknowns, cla
 
 Locate all plan files in the project:
 
-### 1.1 Local Plans
+### 1.1 Active Plans (project root)
 ```bash
-find .claude/plans/ -name "*.md" -type f 2>/dev/null
+find plans/ -maxdepth 2 -name "*.md" -type f ! -path "*/archive/*" 2>/dev/null
 ```
-Also check for plans at project root or in `plans/` directly.
 
-### 1.2 Vault Plans (with `--vault` flag, or by default if vault path is known)
+All active plans live at project-root `plans/`. Superseded plans are under `plans/archive/<event>/` with `ARCHIVE_RECEIPT.md` — audit archives only when the user explicitly requests it.
 
-Resolve the Obsidian vault path:
-1. Check brain.db: `node .ava/dal.mjs identity get vault.path` (if brain.db exists)
-2. Check environment: `$OBSIDIAN_VAULT`
-3. Platform default: `~/Obsidian/Ava/{ProjectName}/plans/`
-
-If the vault path exists, include `.md` files from the `plans/` subfolder.
-
-### 1.3 Specific Plan (with `<path>` argument)
+### 1.2 Specific Plan (with `<path>` argument)
 If a specific file path was provided, audit only that file. Skip discovery.
 
-### 1.4 Report Discovery
-List all discovered plans with their source (local/vault), frontmatter status if present, and file size.
+### 1.3 Report Discovery
+List all discovered plans with their path, frontmatter or `**Status:**` header if present, and file size. If more than one active plan exists, note that the Phase 4 validator warns at 2+ and fails at 4+ — recommend consolidation.
 
 ---
 
@@ -143,12 +135,12 @@ Check the plan set as a whole:
 ## Plan Validation Report
 
 **Date:** {date}
-**Plans scanned:** {n} local, {m} vault
+**Plans scanned:** {n} active (plans/), {m} archived (plans/archive/)
 **Mode:** Audit / Audit+Research
 
 ### Per-Plan Results
 
-#### {Plan Title} ({source: local/vault})
+#### {Plan Title} ({path})
 - **Path:** {file path}
 - **Status:** PASS / PARTIAL / FAIL
 - **Frontmatter:** {status, priority, completion_pct — or "missing"}

@@ -1,6 +1,6 @@
 ---
 name: triage
-description: "Ecosystem-wide status assessment: read health beacons, vault notes, open notes across all projects, and recommend priorities"
+description: "Ecosystem-wide status assessment: read health beacons, project-root sessions/ notes, open notes across all projects, and recommend priorities"
 allowed-tools:
   - Read
   - Bash
@@ -11,7 +11,7 @@ allowed-tools:
 
 # Triage — Ecosystem Status & Priority Routing
 
-Read state from every project in the ecosystem — health beacons, vault session notes, open notes, active plans — and produce a prioritized status report.
+Read state from every project in the ecosystem — health beacons, session notes in each project's `sessions/`, open notes, active plans in each project's `plans/` — and produce a prioritized status report.
 
 ## Instructions
 
@@ -19,9 +19,9 @@ Follow the protocol below. For the full detailed version, read `.claude/.prompts
 
 ### Protocol:
    - **Read health beacons** → `~/.pe-health/*.json` for machine-readable status per project
-   - **Read recent vault session notes** → latest session note per project from Obsidian vault
+   - **Read recent session notes** → latest `sessions/session-{N}.md` per project (structured schema, written by session-export)
    - **Read open notes** → `ecosystem notes` or direct brain.db reads across all local projects
-   - **Read active plans** → vault plans with `status: active` frontmatter
+   - **Read active plans** → `.md` files under each project's `plans/` (excluding `archive/`); flag projects with ≥2 active plans
    - **Synthesize** → per-project status, cross-project dependencies, stale projects, priority stack
    - **Recommend** → ordered priority list with rationale
 
@@ -51,9 +51,9 @@ ls ~/.pe-health/*.json
 # Open notes across ecosystem
 node .ava/dal.mjs ecosystem notes
 
-# Recent vault sessions
-for p in PE Ava_Main McQueenyML CloudBooks; do
-  ls -t "/home/ava/Obsidian/Ava/$p/sessions/"*.md 2>/dev/null | head -1
+# Recent session notes (project-root sessions/)
+for proj in /home/ava/Prompt_Engineering /home/ava/Ava_Main /home/ava/CloudBooks /home/ava/tradeSignal /home/ava/WATTS /home/ava/seatwise /home/ava/adze-cad /home/ava/3D_Printing; do
+  ls -t "$proj/sessions/"*.md 2>/dev/null | head -1
 done
 
 ## Error Handling

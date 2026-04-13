@@ -1,6 +1,6 @@
 ---
 name: session-init
-description: "Start a development session — read docs, verify state, orient before work. Use --auto-dev for autonomous execution."
+description: "Start a development session — read rules, synthesize continuity, verify runtime health, and orient before work. Use --auto-dev for autonomous execution."
 allowed-tools:
   - Read
   - Glob
@@ -18,10 +18,10 @@ Follow the protocol below. For the full detailed version, read `.claude/.prompts
 
 ### Protocol
    - Find the documentation system
-   - Orient to the codebase
-   - Verify state (version consistency, staleness, blockers)
-   - Check Obsidian vault context (recent session notes, active plans, latest handoff)
-   - Review past performance (learning loop data — what worked, what failed)
+   - Orient to the codebase (let curiosity drive exploration via GitNexus)
+   - Verify state (version consistency, staleness, blockers, runtime health)
+   - Synthesize continuity from the injected `continuity brief` (handoff, open notes, active decisions, active plans, contradictions, recommended next step)
+   - Use GitNexus or direct code reads for structural questions
    - Understand the prompt system
    - Establish the engagement protocol
    - Surface insights (inconsistencies, improvements, questions, criticism — proactively)
@@ -32,12 +32,13 @@ Follow the protocol below. For the full detailed version, read `.claude/.prompts
 
 Read context in this order:
 1. **CLAUDE.md** (project root) — critical rules, always auto-loaded
-2. **brain.db context** — already injected by session-context hook if brain.db exists. **If brain.db does NOT exist, run `/dal-doctor` to set up the full system.** Do not fall back to file-only mode.
-3. **SYSTEM-OVERVIEW.md** (project root) — **MUST READ.** Your operating manual: every skill, hook, brain.db command, knowledge layer, and file layout. Without this you are working blind.
-4. **Plans** — read ALL files in `.claude/plans/`. These are living strategy documents curated across sessions. Everything here is active by definition.
-5. **Obsidian vault** — recent session notes, active plans, latest YAML handoff (if vault exists)
+2. **Continuity brief** — already injected by the session-context hook. Contains latest handoff, open notes, active decisions, active plans, contradictions, required confirmations, recommended next step. **If brain.db does NOT exist, run `/dal-doctor` to set up the runtime.** Do not fall back to file-only mode.
+3. **SYSTEM-OVERVIEW.md** (project root) — **MUST READ.** Your operating manual: skills, hooks, DAL boundaries, GitNexus role, knowledge layers, and file layout.
+4. **Plans** — read active files in `plans/` at the project root (exclude `archive/`). These are living strategy documents curated across sessions.
+5. **Sessions** — `sessions/` at the project root holds curated structured session notes. Skim the latest one if the handoff is ambiguous.
+6. **GitNexus / live code inspection** — use for code-structure questions, call graphs, and dependency relationships. Explore curiously rather than expecting everything to be pre-loaded.
 
-Report ready state: current version, active blockers, insights/concerns noticed, questions, and recommended priorities.
+Report ready state: current version, active blockers, continuity summary, insights/concerns noticed, questions, and recommended priorities.
 
 ## Modes
 
@@ -55,24 +56,26 @@ implementation until the user approves. (Overridden by `--auto-dev` — see Sect
 Detailed steps (always follow these):
 
 1. **Find docs.** Look for `CLAUDE.md` and `SYSTEM-OVERVIEW.md` at project root.
-2. **Read in order.** CLAUDE.md first (rules), then SYSTEM-OVERVIEW.md (your full toolbox - skills, hooks, brain.db commands, knowledge layers). If `PROJECT_ROADMAP.md` or `IMPLEMENTATION_PLAN.md` exist (file-mode projects), read them too.
-3. **Read ALL plans.** Read every file in `.claude/plans/` — they are living strategy documents curated across sessions. All plans here are active by definition (archived plans live in `archive/`). A kickstart file (`session-*-kickstart.md`) means the prior session prepared specific work for you.
-4. **Verify state.** Check that version numbers match across all docs. Check for stale dates (>7 days without updates). Check for blockers in IMPLEMENTATION_PLAN.
-5. **Surface insights.** Before waiting for instructions: list inconsistencies or concerns, recommend 2-3 improvements, ask questions that affect approach, offer criticism of anything that looks wrong.
-6. **Read project notes** (if any exist — `notes/`, `TODO.md`, `NOTES.md`, brain.db notes via `dal.mjs note list`). Categorize items, flag anything already resolved, merge into session plan.
-7. **Report ready.** State: current version, blockers, insights, questions, and recommended priorities.
-8. **Engagement rules.** Plan before implementing. Investigate what you need to implement correctly. No silent decisions. When tools fail, explain the error and next approach. Flag ambiguity rather than guessing.
+2. **Read in order.** CLAUDE.md first (rules), then SYSTEM-OVERVIEW.md (your full toolbox - skills, hooks, DAL boundaries, knowledge layers).
+3. **Read active plans.** Read every file in `plans/` (at project root) except `archive/` -- these are living strategy documents curated across sessions.
+4. **Verify continuity.** Check that version numbers match across CLAUDE.md and minimal brain.db identity. Review latest handoff, open notes, and active decisions. Check for stale dates (>7 days without updates).
+5. **Verify runtime health.** If `.ava/brain.db` exists, confirm `dal.mjs status` works and that the runtime is not obviously empty or broken. If the runtime is missing or clearly unpopulated, stop and route through `/dal-doctor`.
+6. **Use GitNexus or direct code reads for structure.** Do not expect manual file-tree docs or broad DAL architecture rows to answer "how does this code connect?"
+7. **Surface insights.** Before waiting for instructions: list inconsistencies or concerns, recommend 2-3 improvements, ask questions that affect approach, offer criticism of anything that looks wrong.
+8. **Read project notes** (if any exist — `notes/`, `TODO.md`, `NOTES.md`, brain.db notes via `dal.mjs note list`). Categorize items, flag anything already resolved, merge into session plan.
+9. **Report ready.** State: current version, last-session continuity, open blockers, insights, questions, and recommended priorities.
+10. **Engagement rules.** Plan before implementing. Investigate what you need to implement correctly. No silent decisions. When tools fail, explain the error and next approach. Flag ambiguity rather than guessing.
 
-If brain.db does not exist or is empty, run `/dal-doctor` — it handles first-run detection, full system setup, ongoing health checks, and remediation. `/dal-doctor` is the comprehensive system health skill. Do not proceed with manual file-mode workarounds.
+If brain.db does not exist or is empty, run `/dal-doctor` -- it handles first-run detection, full system setup, ongoing health checks, and remediation.
 
 ## Error Handling
 
 If any step fails (command errors, file not found, brain.db unreachable):
-1. Record the failure: `node .ava/dal.mjs action record "session-init: <what failed>" --type session-init --outcome failure`
+1. Record the failure as a note or include it in the handoff/closeout summary. Use `agent_actions` only if the project still relies on that legacy surface.
 2. Do NOT continue silently — report the error to the user with what failed, the error message, and suggested fix.
 3. If brain.db is unreachable, note the failure in the session summary for closeout.
 
 ## After Completion
 
-- Record the action: `node .ava/dal.mjs action record "session-init: <summary>" --type session-init --outcome success`
+- If this project still uses `agent_actions`, record the init result there. Otherwise rely on session summary + handoff continuity.
 - If this work changed CLAUDE.md rules or key commands, update CLAUDE.md

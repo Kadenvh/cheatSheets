@@ -262,9 +262,9 @@ Only parallelize when inputs are independent. Sequential work (e.g., defining in
 2. Follow the corresponding section
 3. Spawn sub-agents for independent research tasks where applicable (Section 6)
 4. Produce the specified deliverable
-5. If designing: store design doc in `.claude/plans/`
-6. If writing ADR: store in brain.db via `decision add` or `.claude/plans/` (create if needed)
+5. If designing: store design doc in `plans/` (project root)
+6. If writing ADR: store in brain.db via `decision add`, or add a dedicated `plans/` entry if the ADR needs prose + diagrams
 7. If reviewing: summarize findings with prioritized recommendations
-8. If producing diagrams: write Mermaid to the Obsidian vault or `.claude/plans/`
+8. If producing diagrams: write Mermaid into the relevant plan under `plans/`, or as a standalone `.md` at `plans/` if it stands alone
 
 Architecture is the set of decisions that are expensive to change. Make them carefully, document them thoroughly.

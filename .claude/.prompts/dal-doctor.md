@@ -1,10 +1,10 @@
 # DAL Doctor — Unified System Health & Setup
 
-You are a system health agent. You handle first-run setup, ongoing diagnostics, template validation, vault health, and remediation — working step by step with tiered permissions.
+You are a system health agent. You handle first-run setup, ongoing diagnostics, template validation, and remediation — working step by step with tiered permissions.
 
 **This tool replaces:** `/bootstrap` (first-run setup), `/dal-setup` (configuration), and the previous `/dal-doctor` (diagnostics only). One entry point for all system health operations.
 
-**Source of truth:** Physical files (.claude/.prompts/, .claude/skills/, .claude/hooks/, .claude/agents/, CLAUDE.md, SYSTEM-OVERVIEW.md) are truth. brain.db stores active memory (identity, architecture, decisions, sessions, notes) — NOT prompt content or file inventories.
+**Source of truth:** Physical files (.claude/.prompts/, .claude/skills/, .claude/hooks/, .claude/agents/, CLAUDE.md, SYSTEM-OVERVIEW.md) are truth for the deployable template/documentation surface. brain.db stores active memory (identity, architecture, decisions, sessions, notes) — NOT prompt content or file inventories. DAL runtime provisioning is a separate responsibility from template deployment.
 
 **System reference:** Read `SYSTEM-OVERVIEW.md` at project root first — it's the agent operating manual covering skills, hooks, brain.db commands, knowledge layers, and file layout. For deeper schema details, read `.claude/.prompts/system-reference.md`.
 
@@ -80,33 +80,26 @@ node <project>/.ava/dal.mjs status     # Verify: schema version, integrity OK
 
 If `CLAUDE.md` does not exist at the project root, the project needs documentation bootstrapping:
 
-1. Deploy the PE template first: `node .ava/dal.mjs template pull --dal` (this brings SYSTEM-OVERVIEW.md, skills, hooks, prompts, agents)
-2. Read all source files to understand the project
-3. Create `CLAUDE.md` at project root. Use the starter framework from the deployed template as a base. Must contain: version header, critical DO/DON'T rules, build/run commands, tech stack, file structure.
-4. Hydrate brain.db from CLAUDE.md: `node .ava/dal.mjs identity set "project.name" --value "..."` etc. Run `/cleanup` for comprehensive hydration.
-5. Validate: CLAUDE.md has Version header and Critical Rules. SYSTEM-OVERVIEW.md exists (deployed by template).
+1. Deploy the PE template first: `node .ava/dal.mjs template pull` (this brings SYSTEM-OVERVIEW.md, skills, hooks, prompts, agents)
+2. Provision or repair the local `.ava/` runtime if needed. Template deployment and DAL provisioning are separate steps.
+3. Read all source files to understand the project
+4. Create `CLAUDE.md` at project root. Use the project-specific scaffold or existing project conventions as a base. Do not expect template deployment to ship `CLAUDE.md`. It must contain: version header, critical DO/DON'T rules, build/run commands, tech stack, file structure.
+5. Hydrate brain.db from CLAUDE.md: `node .ava/dal.mjs identity set "project.name" --value "..."` etc. Run `/cleanup` for comprehensive hydration.
+6. Validate: CLAUDE.md has Version header and Critical Rules. SYSTEM-OVERVIEW.md exists (deployed by template).
 
 **Do NOT create PROJECT_ROADMAP.md or IMPLEMENTATION_PLAN.md** - these are legacy file-mode artifacts. brain.db stores decisions, architecture, sessions, and notes. CLAUDE.md stores rules. SYSTEM-OVERVIEW.md explains the system.
 
 **Quality check:** Read ONLY your CLAUDE.md. Can you avoid every critical mistake? If not, the DO NOT section is incomplete.
 
-### Step 0e: Check vault folder
+### Step 0e: Ensure project-root `plans/` and `sessions/`
 
-Resolve vault path:
-1. brain.db: `node .ava/dal.mjs identity get vault.path`
-2. Environment: `$OBSIDIAN_VAULT`
-3. Default: `~/Obsidian/Ava/{ProjectName}/`
-
-If the Obsidian vault exists AND this project does not have a subfolder:
+Plans and sessions live at the project root, not under `.claude/`. If missing, create them:
 
 ```bash
-# Determine vault folder name from project identity
-# Map: Prompt_Engineering -> PE, tradeSignal -> TradeSignal, etc.
-VAULT_PATH=$(node .ava/dal.mjs identity get vault.path 2>/dev/null || echo "${OBSIDIAN_VAULT:-$HOME/Obsidian/Ava}")
-mkdir -p "$VAULT_PATH/{ProjectName}"/{plans,schemas,sessions,architecture}
+mkdir -p plans plans/archive sessions
 ```
 
-Copy `VAULT_GUIDE.md` from `_templates/` if available, or create a minimal one.
+These are non-deployable project-local directories (not touched by template sync). They are where active plans live and where `session-export` writes session notes at closeout.
 
 ### Step 0f: Post-setup
 
@@ -252,7 +245,8 @@ Also check CLAUDE.md and SYSTEM-OVERVIEW.md exist and have required sections.
 - Missing prompt files vs canonical -> WARNING
 - Prompt file drift vs canonical -> INFO (may be intentional customization)
 - Legacy `documentation/.prompts/` or root `.prompts/` exists -> WARNING (legacy location, recommend deletion)
-- Legacy `documentation/` folder exists -> WARNING (eliminated v5.14.0; plans go to .claude/plans/, archives to archive/)
+- Legacy `documentation/` folder exists -> WARNING (eliminated v5.14.0; plans go to `plans/` at project root, archives to `plans/archive/`)
+- Legacy `.claude/plans/` exists -> WARNING (plans moved to project root `plans/` in v7; migrate and remove)
 - Missing CLAUDE.md -> CRITICAL
 - CLAUDE.md missing Version header -> WARNING
 - Missing SYSTEM-OVERVIEW.md -> WARNING (deploy via template pull)
@@ -306,52 +300,42 @@ node <project>/.ava/dal.mjs identity set template.auto_pull --value true
 
 ---
 
-## Phase 3: Vault Health
+## Phase 3: Project-Root Storage Health
 
-**Conditional:** Resolve vault path (1. brain.db `vault.path`, 2. `$OBSIDIAN_VAULT`, 3. `~/Obsidian/Ava/`). Skip this entire phase if no vault exists. Report INFO: "No Obsidian vault found — four-layer architecture not deployed."
+Plans and sessions live at the project root (not under `.claude/`) and are not touched by template sync. Verify they exist and are not in the wrong place.
 
-### Category 10: Vault Folder Structure
-
-```bash
-# Resolve vault path
-VAULT_PATH=$(node <project>/.ava/dal.mjs identity get vault.path 2>/dev/null || echo "${OBSIDIAN_VAULT:-$HOME/Obsidian/Ava}")
-
-# Check project vault folder exists
-ls "$VAULT_PATH/{ProjectName}/" 2>/dev/null
-
-# Expected subdirectories: sessions/ at minimum, architecture/ and archive/ recommended
-for subdir in sessions architecture archive; do
-  [ -d "$VAULT_PATH/{ProjectName}/$subdir" ] || echo "MISSING: $subdir/"
-done
-```
-
-- Project with brain.db but no vault folder -> INFO
-- Missing sessions/ subdirectory -> WARNING
-
-### Category 11: Vault Templates & Notes
+### Category 10: Project-Root Directories
 
 ```bash
-# Check vault templates exist (VAULT_PATH resolved in Category 10)
-ls "$VAULT_PATH/_templates/"*.md 2>/dev/null
-# Expected: session.md, decision.md, plan.md, schema.md, architecture.md
+# Active plans directory at project root
+ls plans/ 2>/dev/null && echo "OK: plans/ present" || echo "MISSING: plans/"
+
+# Sessions directory at project root
+ls sessions/ 2>/dev/null && echo "OK: sessions/ present" || echo "INFO: sessions/ empty or absent (session-export writes here)"
+
+# Legacy .claude/plans/ should NOT exist after v7
+if [ -d .claude/plans ]; then
+  echo "VIOLATION: .claude/plans/ exists — plans should live at plans/ (project root)"
+fi
+
+# Obsidian vault for this project should NOT exist after v7
+VAULT_PROJECT="$HOME/Obsidian/Ava/{ProjectName}"
+if [ -d "$VAULT_PROJECT" ]; then
+  echo "LEGACY: Obsidian vault folder $VAULT_PROJECT exists — v7 retired the vault layer, migrate sessions/ and END-GOAL.md to project root and remove"
+fi
 ```
 
-Check frontmatter on vault notes:
+- Missing `plans/` at project root -> WARNING (create with `mkdir -p plans/archive`)
+- `.claude/plans/` exists -> FAIL (v7 violation, plans belong at project root)
+- Vault folder exists -> WARNING (v7 retired the layer)
+
+### Category 11: END-GOAL.md Presence
 
 ```bash
-find "$VAULT_PATH/{ProjectName}" -name "*.md" -not -name "VAULT_GUIDE.md" | while read f; do
-  head -1 "$f" | grep -q "^---$" || echo "NO FRONTMATTER: $f"
-done
+[ -f END-GOAL.md ] && echo "OK: END-GOAL.md present" || echo "INFO: END-GOAL.md absent (optional)"
 ```
 
-For notes with frontmatter, verify required fields:
-- `type` must be one of: session, decision, plan, schema, architecture, research
-- `project` must be a valid project slug
-- `status` should be present
-
-- Missing vault template -> WARNING
-- Missing frontmatter -> WARNING
-- Invalid type/project in frontmatter -> INFO
+END-GOAL.md at the project root is optional. If present, it should describe the project's north star and stay stable across minor version bumps.
 
 ---
 
@@ -481,7 +465,7 @@ rm -r <project>/.prompts/                 # remove legacy root location
 ## DAL Doctor Assessment: <project-name>
 
 **Health:** GREEN / YELLOW / RED
-**Schema:** v<N> | **Verify:** N/7 PASS | **DB size:** N KB | **Vault:** OK / MISSING / ISSUES
+**Schema:** v<N> | **Verify:** N/7 PASS | **DB size:** N KB | **Root Storage:** OK / MISSING / VIOLATIONS
 
 ### Findings
 [Only list categories WITH issues. Skip clean categories.]
@@ -613,12 +597,12 @@ node .ava/dal.mjs migrate                         # Run pending migrations
 node .ava/dal.mjs template manifest               # List deployable files + checksums
 node .ava/dal.mjs template diff <path>            # Compare target vs template
 node .ava/dal.mjs template sync <path>            # Copy missing/stale (PE push model)
-node .ava/dal.mjs template sync <path> --dal      # Also sync DAL runtime
 node .ava/dal.mjs template pull                   # Pull from configured template.source
 node .ava/dal.mjs template pull --source <path>   # Pull from explicit source
 node .ava/dal.mjs template pull --dry-run         # Show what would change
-node .ava/dal.mjs template pull --dal             # Also pull DAL runtime
 ```
+
+Template distribution updates the deployable `.claude` and documentation surface. Project-local `.ava/` provisioning and repair happen through `/dal-doctor`.
 
 ### Ecosystem Health
 

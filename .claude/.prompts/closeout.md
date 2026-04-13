@@ -10,11 +10,11 @@ If the session must end quickly, execute these steps in priority order — stop 
 
 1. **Record actions to brain.db** — `node .ava/dal.mjs action record` for each significant action (2 min)
 2. **Record decisions** — `node .ava/dal.mjs decision add` for any decisions made (1 min)
-3. **Close the session** — `node .ava/dal.mjs session close --summary "what happened"` (30 sec)
-4. **Generate handoff** — `node .ava/dal.mjs handoff generate "summary"` (30 sec) — auto-detects session ID, files, decisions
+3. **Generate handoff** — `node .ava/dal.mjs handoff generate "summary"` (30 sec) — auto-detects the currently open session, files, decisions, and traces
+4. **Close the session** — `node .ava/dal.mjs session close --summary "what happened"` (30 sec)
 5. **Commit work** — stage specific files and commit (1 min)
 
-Steps 1-3 are critical (brain.db state). Steps 4-5 are important but recoverable. Everything in Parts A-G below is the full protocol — use it when you have time.
+Steps 1-4 are critical for continuity. Step 5 is important but recoverable. Everything in Parts A-G below is the full protocol — use it when you have time.
 
 ---
 
@@ -70,14 +70,14 @@ Step 1 captured what you *consciously* did. This step scans the full conversatio
 
 | Look For | Example | Where to Store |
 |----------|---------|----------------|
-| Conventions established | "We agreed to always use slugs for IDs" | `arch set` (scope: convention) |
-| Patterns discovered | "The API rejects requests without header X" | `arch set` (scope: convention) |
-| Gotchas / failure modes | "SQLite can't ALTER CHECK constraints — must rebuild table" | `arch set` (scope: project) |
-| Environment specifics | "Works on Linux but PowerShell needs different quoting" | `arch set` (scope: infrastructure) |
-| Tool/command discoveries | "Use `dal.mjs render` not manual doc edits" | `arch set` (scope: convention) |
-| Architecture clarified | "Component A talks to B via C, not directly" | `arch set` (scope: project) |
-| Performance insights | "FTS5 is fast enough — no need for sqlite-vss" | `arch set` (scope: project) |
-| Configuration learned | "SSH key id_ed25519_zoe works for both Frank and Zoe" | `arch set` (scope: infrastructure) |
+| Conventions established | "We agreed to always use slugs for IDs" | `CLAUDE.md`, `decision add`, or active plan |
+| Patterns discovered | "The API rejects requests without header X" | `decision add`, `note add`, or `OVERVIEW.md` if it changes design intent |
+| Gotchas / failure modes | "SQLite can't ALTER CHECK constraints — must rebuild table" | `CLAUDE.md`, `note add`, or compatibility `arch set` only if still needed |
+| Environment specifics | "Works on Linux but PowerShell needs different quoting" | `CLAUDE.md`, minimal identity, or compatibility `arch set` |
+| Tool/command discoveries | "Use `dal.mjs render` not manual doc edits" | `CLAUDE.md` |
+| Architecture clarified | "Component A talks to B via C, not directly" | `OVERVIEW.md`, decision, or active plan under `plans/` |
+| Performance insights | "FTS5 is fast enough — no need for sqlite-vss" | `decision add` or active plan |
+| Configuration learned | "SSH key id_ed25519_zoe works for both Frank and Zoe" | `CLAUDE.md`, minimal identity, or compatibility `arch set` |
 
 **Quality filter — only extract facts that:**
 - Would prevent a future agent from repeating work or making the same mistake
@@ -85,18 +85,13 @@ Step 1 captured what you *consciously* did. This step scans the full conversatio
 - Are durable enough to matter next session (don't store dead-end debugging attempts)
 - Aren't already captured in Step 1's explicit inventory
 
-**Portfolio identity maintenance:** If this session shipped a major feature, changed key metrics, or added significant capabilities:
-1. Update `product.*` identity entries (`product.summary`, `product.key-metrics`, `product.tech-highlights`)
-2. Update `portfolio.keyMetric` — one compelling line for the portfolio card (use `/portfolio-generation` prompt for quality output). Prefer quantified outcomes over version numbers.
-3. Update `portfolio.description` — 2-5 sentence technical summary for the portfolio card (use `/portfolio-generation` prompt). Only update if the project's story materially changed.
-These feed the portfolio sync endpoint (`POST /api/profile/portfolio/sync`) which propagates to vhtech.me and all export formats. Stale metrics undermine external presentation.
+**Project identity maintenance:** If this session materially changed the project's version, status, or durable description, update the relevant `project.*` identity rows. Do not invent or maintain marketing or portfolio keys unless the project already uses them intentionally.
 
 **For each extracted fact, produce:**
-```
-Key: <domain.descriptive_key>
-Value: <concise statement of the knowledge>
-Table: <identity | architecture>
-Scope: <project | ecosystem | infrastructure | convention>  (architecture only)
+```text
+Target: <CLAUDE.md | plan | decision | note | OVERVIEW.md | identity | architecture-compat>
+What: <concise statement of the durable knowledge>
+Why here: <why this location is canonical>
 ```
 
 List these alongside the explicit Step 1 inventory. They all get recorded in Part A-2 below.
@@ -107,15 +102,17 @@ List these alongside the explicit Step 1 inventory. They all get recorded in Par
 
 ### Step 3a: Review AutoMemory for Promotion
 
-Check `.claude/memory/MEMORY.md` (if it exists) for entries that should be promoted to brain.db:
+Check `.claude/memory/MEMORY.md` (if it exists) for entries that should be promoted into a canonical home:
 
-- **Architecture-quality entries** (coding conventions, infrastructure details, system patterns) → `arch set` with appropriate scope
-- **Identity-quality entries** (project facts, team context, product descriptions) → `identity set`
+- **Rules/command entries** → `CLAUDE.md`
 - **Decision-quality entries** (choices with rationale, rejected alternatives) → `decision add`
+- **Identity-quality entries** (project facts that truly affect continuity) → `identity set`
+- **Design-intent entries** → `OVERVIEW.md` or active plan under `plans/`
+- **Compatibility-only arch entries** → `arch set` only if the project still depends on that legacy surface
 
-Promotion criteria: Is this entry durable (will it matter in 10 sessions)? Is it structured enough for brain.db? Would it be lost if AutoDream pruned the MEMORY.md file?
+Promotion criteria: Is this entry durable (will it matter in 10 sessions)? Is it canonical somewhere stronger than memory? Would it be lost if AutoMemory pruned the file?
 
-If promoted, note the promotion in the memory file as a comment: `<!-- promoted to brain.db arch: key.name -->`
+If promoted, note the promotion in the memory file as a comment: `<!-- promoted to canonical surface: <target> -->`
 
 Do NOT delete the original from MEMORY.md — AutoDream handles pruning. Just promote and annotate.
 
@@ -154,78 +151,72 @@ This check applies to projects with server components. Skip for CLI tools, libra
 
 ---
 
-## PART A-2: RECORD SESSION KNOWLEDGE TO brain.db (Do This BEFORE Updating Docs)
+## PART A-2: RECORD MINIMAL CONTINUITY TO brain.db (Do This BEFORE Updating Docs)
 
 > **If `.ava/brain.db` does NOT exist, skip to Part B.** This section requires an active DAL.
 
-**This is the most important step for session continuity.** The facts and decisions you record here are what the next agent will see at session start. If you skip this, the next session starts blind.
+**This is the most important step for session continuity.** The notes, decisions, and session summary you record here are what the next agent will see at session start. If you skip this, the next session starts blind.
 
 ### Record knowledge from this session
 
-For each item in your Part A inventory, record durable knowledge to the appropriate table:
+For each item in your Part A inventory, record only the continuity data that materially helps the next session:
 
 ```bash
-# Core identity facts (5-7 rows max — project name, vision, mission, etc.)
+# Minimal identity facts (only when changed)
 node .ava/dal.mjs identity set "<key>" --value "<value>"
 
-# Scoped architecture knowledge (conventions, tech stack, infrastructure, etc.)
-node .ava/dal.mjs arch set "<key>" --value "<value>" --scope <scope>
+# Decisions and open follow-up
+node .ava/dal.mjs decision add --title "Title" --context "Why it came up" --chosen "What was chosen" --rationale "Short summary"
+node .ava/dal.mjs note add "follow-up or blocker" --category handoff
 ```
 
 **What to record as identity:**
-- Project name, vision, mission → `identity set`
+- Project name, version, vision, or status only when this session materially changed them
 
-**What to record as architecture:**
-- New tech stack choices or changes → `arch set` (scope: project)
-- New conventions or patterns established → `arch set` (scope: convention)
-- Version changes → `arch set` (scope: project, update `project.version`)
-- Infrastructure and environment details → `arch set` (scope: infrastructure)
-- Ecosystem-level knowledge → `arch set` (scope: ecosystem)
+**What to record as notes:**
+- Anything the next session must resume, confirm, or unblock
+- Unfinished work, scope cuts, follow-ups, and user-directed next steps
 
 **What to record as decisions:**
 - Any architectural or design choice made this session
 - Any judgment call that deviated from the plan
 - Any "we chose X over Y because Z"
 
+**What to record as architecture (compatibility only):**
+- Only non-derivable, cross-session facts that are not better expressed in `CLAUDE.md`, a decision, a plan, or `OVERVIEW.md`
+- Do **not** use `arch set` for code structure, file maps, route maps, or facts GitNexus can answer on demand
+
+### Verify existing continuity still accurate
+
+Spot-check the continuity surfaces that will matter next session:
+
 ```bash
-node .ava/dal.mjs decision add --title "Title" --context "Why it came up" --chosen "What was chosen" --rationale "Short summary" --rationale-long "Full narrative with context, alternatives considered, and why this was the right call"
-```
-
-### Verify existing knowledge still accurate
-
-Spot-check 3-5 existing architecture rows against current reality. If any are wrong, update them:
-
-```bash
-node .ava/dal.mjs arch list
 node .ava/dal.mjs identity list
+node .ava/dal.mjs decision list
+node .ava/dal.mjs note list
 ```
 
-**Path staleness check:** If any files or directories were renamed this session, grep architecture entries for the old path and update them:
-```bash
-node .ava/dal.mjs arch list | grep "old/path"  # find stale references
-node .ava/dal.mjs arch set "key" --value "updated value" --scope project  # fix each
-```
-Renames propagate to CLAUDE.md and README.md but NOT automatically to brain.db entries. This is a manual step.
+If the project still uses legacy architecture rows, prune or fix any entry that points at renamed paths or duplicates code structure that GitNexus can derive. Do not add fresh structural snapshots back into brain.db.
 
 ### Coverage check
 
-Verify brain.db has the required minimum rows (see `/cleanup` for the full schema):
-- `project.name`, `project.version`, `project.identity` — present in identity or architecture?
-- `tech.stack`, `tech.build` — present in architecture?
-- `project.vision` — present in identity?
-- At least 1 active decision — present?
+Verify brain.db has the required minimum continuity coverage:
+- `project.name` and `project.version` are present if the project uses identity rows
+- `project.vision` is present if it is still a load-bearing project fact
+- At least 1 active decision exists when this project has durable design constraints
+- Open blockers / next steps are captured in notes or the generated handoff
 
-If any are missing, extract from CLAUDE.md (or PROJECT_ROADMAP.md if it exists) now. **A brain.db without these rows provides zero continuity value.**
+If any are missing, extract them now. **A brain.db without these surfaces provides little continuity value.**
 
 ---
 
-## PART A-3: SELF-ASSESSMENT (Agent Learning Loop)
+## PART A-3: OPTIONAL LEGACY LOOP DATA
 
-> **If `.ava/brain.db` does NOT have agent_actions table, skip this.** Requires schema v4+.
+> **If `.ava/brain.db` does NOT have agent_actions table, skip this section.** These surfaces are compatibility-only and are no longer the default continuity model.
 
-Record what you did, measure outcomes, capture feedback. This data feeds the learning loop — future sessions can see what worked, what didn't, and adjust.
+Record only the legacy loop data that still materially helps this project. The default continuity path is notes + decisions + handoff.
 
-**Do not skip this part.** The loop only works if every session contributes data. Even routine sessions should record actions and metrics. The next agent reads this at init to adjust its approach.
+**Do not force this part.** If the project does not actively use these tables, skip them and capture unfinished work in notes + handoff instead.
 
 ### Verify Traces Were Recorded
 
@@ -236,7 +227,7 @@ node .ava/dal.mjs trace add "summary of key step 1"
 node .ava/dal.mjs trace add "summary of key step 2"
 ```
 
-Traces are auto-collected into the handoff YAML. Without them, the next agent only gets a summary — no step-by-step record of what happened.
+Traces are auto-collected into the handoff YAML. Without them, the next agent only gets a summary. Use traces when they materially improve the handoff.
 
 ### Record Actions
 
@@ -244,7 +235,7 @@ Traces are auto-collected into the handoff YAML. Without them, the next agent on
 
 > Did anything this session fail, get abandoned, change approach mid-attempt, or only partially land?
 > If yes, record those FIRST with `--outcome failure` or `--outcome partial`.
-> A learning loop with 0 failures is broken — it means nobody is recording them, not that nothing failed.
+> If you use these legacy tables, record failures and partial outcomes honestly. Otherwise keep unfinished work in notes + handoff and skip the table entirely.
 
 For each significant action this session — **including failures and abandoned attempts**:
 
@@ -256,32 +247,17 @@ Action types: `bugfix`, `feature`, `refactor`, `deployment`, `schema_evolution`,
 
 **Honesty gate:** If every action you are about to record is `success`, stop. Review the conversation for: changed approaches, retried commands, user corrections, abandoned paths, scope cuts. Each of these is a `failure` or `partial` outcome that should be recorded honestly. Only after this review should you proceed with `success` for actions that genuinely succeeded without issues.
 
-### Record Metrics
+### Record Metrics Only If They Are Objective And Still Used
 
-Capture measurable values that matter for this project:
+Do not create or maintain manual vanity metrics. If a metric is weakly grounded, stale, or only interesting for dashboard aesthetics, skip it.
 
-```bash
-node .ava/dal.mjs metric record <key> --value <number> --context "explanation"
-```
+### Friction Notes
 
-Common metrics: `brain.identity`, `brain.architecture`, `brain.prompts`, `schema.version`, `downstream.health`, `test.pass_rate`
+Do **not** record self-grading feedback into `agent_feedback`; self-feedback is deprecated as a signal. If you encountered recurring friction, a misleading workflow, or a system-level gotcha, record it as a decision, note, CLAUDE rule update, or compatibility `architecture` entry only if the project still depends on that table.
 
-### Self-Assess
+### Review Past Performance (if data exists and still matters)
 
-Answer briefly (record as architecture note if useful):
-- Did my actions improve the target metrics?
-- What would I do differently?
-- Did I encounter friction with PE's systems? (Record as `pe.friction.*` architecture entry)
-
-### Review Past Performance (if data exists)
-
-```bash
-node .ava/dal.mjs loop summary    # Overall performance
-node .ava/dal.mjs action rate <type>  # Per-type success rate
-node .ava/dal.mjs metric trend <key>  # Is this metric improving?
-```
-
-If success rate for an action type is declining, flag it. If a metric is trending wrong, investigate.
+If the project still relies on these legacy surfaces, review them. Otherwise skip and rely on notes, decisions, and handoff quality.
 
 ---
 
@@ -301,9 +277,9 @@ The handoff auto-collects: session traces, open notes, version, and any data you
 
 - [ ] `.ava/handoffs/handoff-{timestamp}.yaml` exists and contains session data
 
-### Vault Notes — Conditional Export
+### Session Note — Conditional Export
 
-Export a vault session note if ANY of these are true:
+Export a structured session note to `sessions/` at the project root if ANY of these are true:
 - Session recorded 1+ decisions
 - Session changed project version
 - Session involved cross-project coordination
@@ -311,21 +287,16 @@ Export a vault session note if ANY of these are true:
 
 If the session qualifies, run:
 ```bash
-node .ava/dal.mjs vault-export session "concise summary"
+node .ava/dal.mjs session-export session "concise summary"
 ```
 
-Skip vault export for trivial sessions (typo fixes, single-note closes, failed/abandoned sessions).
+This writes `sessions/session-{N}.md` with a structured schema (Summary, Decisions, Files Changed, Notes Opened/Closed, Continuity → Next Session, Cross-Refs). The schema is optimized for GitNexus indexing so future sessions can retrieve by session number, file path, or decision ID.
 
-**Vault folder schema:** The vault project folder should contain ONLY `sessions/`, `architecture/`, `archive/`, `VAULT_GUIDE.md`, and optionally `END-GOAL.md`. Plans live in `.claude/plans/` in the project, NOT the vault. Do NOT copy project files, schemas, or working documents into the vault. The vault is for curated narrative context only.
-
-After vault export, sync to ChromaDB if the embedding service is running:
-```bash
-node .ava/dal.mjs vault sync {ProjectSlug} 2>/dev/null || true
-```
+Skip session-export for trivial sessions (typo fixes, single-note closes, failed/abandoned sessions).
 
 ### Update Active Plans
 
-Review `.claude/plans/` — if this session's work touched any plan's domain, update that plan:
+Review `plans/` at the project root — if this session's work touched any plan's domain, update that plan:
 
 1. **Check each plan** — did this session advance, inform, or change any plan's known items?
 2. **Update "Sessions Contributing"** — add this session number and what it contributed
@@ -335,11 +306,11 @@ Review `.claude/plans/` — if this session's work touched any plan's domain, up
 
 Plans are living documents curated across sessions. Every session that touches a plan's domain should leave it more current than it found it. If a plan hasn't been updated in 5+ sessions, either it's complete (archive it) or it's being neglected (flag it).
 
-**Session summaries** (like `session-131-summary.md`) are closeout artifacts, not plans. They belong as brain.db session records + handoff YAML + vault export (if qualified). Don't accumulate session logs in `.claude/plans/`.
+**Session summaries** are closeout artifacts, not plans. They belong as brain.db session records + handoff YAML + `sessions/session-{N}.md` (if qualified). Don't accumulate session logs in `plans/`.
 
 ### Close the DAL Session
 
-All brain.db recording is complete (knowledge, actions, metrics, handoff). Formally close the session:
+All brain.db recording is complete (continuity, optional legacy data, handoff). Formally close the session:
 
 ```bash
 node .ava/dal.mjs session close --summary "1-2 sentence session summary"
@@ -371,52 +342,38 @@ Each piece of information belongs in exactly one file. Use this guide:
 | "What must I never do?" | `CLAUDE.md` |
 | "How do I run/build this?" | `CLAUDE.md` |
 | "Where are the important files?" | `CLAUDE.md` |
-| "Why was this decision made?" | `PROJECT_ROADMAP.md` (if exists) or brain.db decisions |
-| "How did we get to this version?" | `PROJECT_ROADMAP.md` (if exists) or brain.db decisions |
-| "Where is this project headed?" | `PROJECT_ROADMAP.md` (if exists) or brain.db identity |
-| "What should I do next?" | `IMPLEMENTATION_PLAN.md` (if exists) or brain.db notes |
-| "What's currently broken?" | `IMPLEMENTATION_PLAN.md` (if exists) or brain.db notes |
-| "What happened last session?" | `IMPLEMENTATION_PLAN.md` (if exists) or brain.db sessions |
+| "Why was this decision made?" | brain.db decisions |
+| "How did we get to this version?" | brain.db decisions |
+| "Where is this project headed?" | brain.db identity |
+| "What should I do next?" | brain.db notes |
+| "What's currently broken?" | brain.db notes |
+| "What happened last session?" | brain.db sessions |
 
 **Expanded reference:**
 
-| File | Contains | Does NOT Contain |
+| Destination | Contains | Does NOT Contain |
 |------|----------|------------------|
 | `CLAUDE.md` | Current version, quick start, schema/data reference, anti-patterns, commands | Version history, sprint tasks, architecture rationale |
-| `PROJECT_ROADMAP.md` | Version history, architecture decisions, tech stack, future roadmap | Sprint checklists, file modification lists, debugging notes |
-| `IMPLEMENTATION_PLAN.md` | Current tasks, files modified, blockers, debugging notes, handoff | Full schema docs, architectural philosophy |
+| brain.db decisions | Architecture decisions with rationale, tech stack choices | Sprint checklists, file lists |
+| brain.db notes | Current tasks, blockers, handoff items | Full schema docs, architectural philosophy |
+| brain.db identity | Project name, version, vision, status | Detailed history |
 
-**Rule:** Information lives in ONE file. Reference from others, never duplicate.
+**Rule:** Information lives in ONE place. Reference from others, never duplicate.
 
----
-
-### Step 3: Update IMPLEMENTATION_PLAN.md (if file exists)
-
-> **brain.db-mode projects skip this step.** State is in brain.db — use `node .ava/dal.mjs note add` for handoff notes and `node .ava/dal.mjs action record` for session actions.
-
-- [ ] Add new version section at top (copy structure from previous)
-- [ ] Mark completed tasks with [x]
-- [ ] Add "Files Modified (V{X.Y.Z})" section
-- [ ] Update header: "Updated" date and "Status" line
-- [ ] Add new issues to "Known Issues" or "Blockers"
-- [ ] Refresh "Handoff Notes" for next session (also write to brain.db: `node .ava/dal.mjs note add "note text" --category handoff`)
-- [ ] Include any "silent decisions" or deviations documented during the session
-- [ ] Update `.claude/plans/` if any active plans were completed or modified during this session
+`PROJECT_ROADMAP.md` and `IMPLEMENTATION_PLAN.md` are **retired**. Do not update them.
 
 ---
 
-### Step 4: Update PROJECT_ROADMAP.md (if file exists and milestone reached)
+### Step 3: Update brain.db State
 
-> **brain.db-mode projects skip this step.** Architecture decisions and version history are recorded via `node .ava/dal.mjs decision add` and `node .ava/dal.mjs arch set`.
-
-- [ ] Add row to VERSION HISTORY table
-- [ ] Add "V{X.Y.Z} COMPLETE" section with feature descriptions
-- [ ] Update header: version, "Last Updated" date
-- [ ] Document any architectural decisions made (with rationale)
+- [ ] Record handoff notes: `node .ava/dal.mjs note add "note text" --category handoff`
+- [ ] Record actions: `node .ava/dal.mjs action record "description" --type feature --outcome success`
+- [ ] Record decisions: `node .ava/dal.mjs decision add --title "..." --context "..." --chosen "..." --rationale "..."`
+- [ ] Update `plans/` at project root if any active plans were completed or modified during this session
 
 ---
 
-### Step 5: Update CLAUDE.md
+### Step 4: Update CLAUDE.md
 
 Remember: CLAUDE.md is auto-read by Claude Code — front-load the most critical information.
 
@@ -466,9 +423,9 @@ Sub-projects (directories with their own package.json, brain.db, or significant 
 
 ## PART C: VERIFY PROMPT SYSTEM
 
-### Step 7: Confirm Prompts Are Present
+### Step 7: Confirm Prompt Bundle Is Present
 
-The `.claude/.prompts/` directory should contain the 21 canonical prompts. Verify the core set exists:
+The `.claude/.prompts/` directory should contain the current template prompt bundle. Do not trust hard-coded counts; use the actual directory contents or `node .ava/dal.mjs template manifest` when exact inventory matters. Verify at least the core lifecycle and engineering prompts exist:
 
 - [ ] `init.md` — session initialization (orient, read docs, verify state)
 - [ ] `closeout.md` — this file (end-of-session documentation updates)
@@ -485,7 +442,6 @@ The `.claude/.prompts/` directory should contain the 21 canonical prompts. Verif
 - [ ] `migration.md` — data and system migrations
 - [ ] `together.md` — relationship mode, human-first dialogue
 - [ ] `cleanup.md` — DAL reconciliation and knowledge hygiene
-- [ ] `agent-qa.md` — agent quality assurance protocols
 - [ ] `METRICS.md` — metrics definitions and tracking
 - [ ] `plan-validator.md` — plan auditing and gap analysis
 - [ ] `triage.md` — ecosystem-wide status assessment and prioritization
@@ -524,9 +480,7 @@ For `.tab-notes.json`: set `"completed": true` on resolved notes. Do NOT delete 
    - Questions that were answered
    - Items that are no longer relevant (feature removed, approach changed)
 3. **Update remaining notes** with any new context from this session (e.g., "Investigated this — root cause is X, fix requires Y").
-4. **Add new notes** for issues discovered but not fixed this session (these also go in IMPLEMENTATION_PLAN handoff notes, if that file exists).
-
-**If no notes system exists**, skip this part. Session state is captured in IMPLEMENTATION_PLAN.md handoff notes (if that file exists) or brain.db handoff notes.
+4. **Add new notes** for issues discovered but not fixed this session.
 
 **Be aggressive about cleanup.** Stale notes are noise that slow down the next session. If it's done, remove it. If it's outdated, remove it. Only keep notes that represent real, actionable work.
 
@@ -540,12 +494,13 @@ Session knowledge was recorded in Part A-2. Now do the final review:
 
 ```bash
 node .ava/dal.mjs identity list    # Should be 5-7 core rows
-node .ava/dal.mjs arch list        # Scoped architecture knowledge
+node .ava/dal.mjs decision list
+node .ava/dal.mjs note list
 ```
 
 1. **Verify** identity rows are still accurate and complete (5-7 core rows).
-2. **Verify** architecture entries have correct scopes (project/ecosystem/infrastructure/convention).
-3. **Remove** any architecture entries that are no longer relevant.
+2. **Verify** active decisions and notes reflect the current state of the work.
+3. **If legacy architecture rows still exist,** remove or prune any that no longer justify themselves.
 
 If Part A-2 was skipped or incomplete, go back and do it now. **Closeout without knowledge recording is an incomplete closeout.**
 
@@ -556,10 +511,9 @@ If Part A-2 was skipped or incomplete, go back and do it now. **Closeout without
 After updating documentation, check if any core docs have exceeded advisory thresholds:
 
 - **CLAUDE.md > 300 lines or 16KB** → Flag for the user. Consider moving detailed reference to spoke docs or annexes.
-- **IMPLEMENTATION_PLAN.md > 400 lines** (if file exists) → Archive older sessions (keep last 3-5). Move detail to the Obsidian vault. Leave a one-line summary and reference in the live doc.
-- **PROJECT_ROADMAP.md > 400 lines** (if file exists) → Move deep-dive sections to brain.db via `decision add` or `.claude/archive/`.
+- **`plans/` total > 200KB** → Archive completed/superseded plans to `plans/archive/` with extraction receipts. Keep only active strategy docs in the top level.
 
-If archiving is needed, ensure the live document retains a reference (e.g., "See `.claude/archive/` for sessions 1-20"). **Archived content must remain discoverable.**
+If archiving is needed, move content to `plans/archive/` with a receipt file capturing `archive_reason`, `superseded_by`, and `extracted_to` targets. **Archived content must remain discoverable.**
 
 If no thresholds are exceeded, skip this step.
 
@@ -572,7 +526,7 @@ If no thresholds are exceeded, skip this step.
 
 ### Step 9: Cross-File Consistency Check
 
-- [ ] Version numbers match across all existing docs (CLAUDE.md and, if they exist, PROJECT_ROADMAP.md, IMPLEMENTATION_PLAN.md)
+- [ ] Version numbers match across CLAUDE.md and brain.db `project.version`
 - [ ] Dates are consistent (all show today for "Updated")
 - [ ] No contradictions between files
 - [ ] No orphaned references to removed/renamed features
@@ -621,9 +575,8 @@ git push origin {branch}
 ## EXECUTE NOW
 
 1. Complete Part A (inventory changes + determine version)
-2. Update IMPLEMENTATION_PLAN.md
-3. Update PROJECT_ROADMAP.md (if milestone reached)
-4. Update CLAUDE.md
+2. Update brain.db (notes, decisions, actions, identity)
+3. Update CLAUDE.md
 5. Create subfolder READMEs for new directories (use `/validate --readme` for guidance)
 6. Verify prompt system is present
 7. Clean up project notes (remove resolved, update remaining, add new)
