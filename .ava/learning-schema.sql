@@ -124,58 +124,8 @@ INSERT OR IGNORE INTO curriculum_lessons (id, curriculum_id, tier, tier_name, so
 ('cl-elegoo-33', 'cu-elegoo-mega-2560', 5, 'Segment Displays & Motors', 33, 'Stepper + Rotary Encoder', 'Integration project: rotary encoder for precise stepper positioning', 'Integration: rotary encoder-controlled stepper motor, position feedback', 'locked', 'archive/elegoo-mega-kit/code/Lesson 33 Controlling Stepper Motor With Rotary Encoder', 'archive/elegoo-mega-kit/tutorial.pdf', '218-223');
 
 -- ─── SPDRbot Quadruped Robotics Curriculum ─────────────────────
--- Follow-up to ELEGOO Mega 2560. Applies Arduino/electronics foundations
--- to a real 12-DOF quadruped robot project using MicroPython on Raspberry Pi Pico.
--- Prerequisite knowledge: ELEGOO Tiers 1-2 (servo PWM, digital I/O, basic circuits).
-
-INSERT OR IGNORE INTO curricula (id, title, description, domain, tier_count, lesson_count, source_ref)
-VALUES (
-    'cu-spdrbot-quadruped',
-    'SPDRbot Quadruped Robotics',
-    'Applied robotics course: 26 lessons building a 12-DOF quadruped spider robot. Covers MicroPython on Raspberry Pi Pico, servo calibration, inverse kinematics, gait development, sensor integration, and Jetson AI. Builds on ELEGOO Mega 2560 foundations (servo PWM, I2C, sensors). Hardware: SPDRbot kit with Pico Servo Driver Rev 3.1, 12x 25kg servos, 2S LiPo + Castle BEC Pro.',
-    'robotics',
-    5,
-    26,
-    '/home/ava/SPDRbot/SPDRBOT_AGENT2.md'
-);
-
--- Tier 1: Setup & Foundations (Lessons 0-4)
-INSERT OR IGNORE INTO curriculum_lessons (id, curriculum_id, tier, tier_name, sort_order, title, description, topic, status, code_ref, doc_ref, doc_pages) VALUES
-('cl-spdr-00', 'cu-spdrbot-quadruped', 1, 'Setup & Foundations', 0, 'MicroPython & Raspberry Pi Pico', 'Flash MicroPython firmware, Thonny IDE setup, REPL basics, Pin and PWM modules', 'MicroPython on RP2040: firmware flashing, REPL, Pin/PWM imports, machine module', 'available', NULL, '/home/ava/SPDRbot/README.md', NULL),
-('cl-spdr-01', 'cu-spdrbot-quadruped', 1, 'Setup & Foundations', 1, 'PWM Servo Control', 'Duty cycle math, degrees_to_duty conversion, single servo sweep test', 'Servo PWM control: 50Hz frequency, duty cycle calculation, angle-to-pulse mapping', 'available', '/home/ava/SPDRbot/scripts/safe_test.py', '/home/ava/SPDRbot/SPDRBOT_AGENT2.md', NULL),
-('cl-spdr-02', 'cu-spdrbot-quadruped', 1, 'Setup & Foundations', 2, 'Power Systems for Robotics', 'Current budgets, LiPo safety (2S chemistry), BEC voltage regulation, wiring gauge', 'Robotics power: LiPo batteries, BEC regulators, current budgeting for 12-servo systems', 'available', NULL, '/home/ava/SPDRbot/SPDRBOT_AGENT2.md', NULL),
-('cl-spdr-03', 'cu-spdrbot-quadruped', 1, 'Setup & Foundations', 3, 'Servo Calibration', 'Finding mechanical center, neutral offsets, direction mapping for mirrored servos', 'Servo calibration: center-finding, NEUTRAL_OFFSETS array, DIRECTION_MAP for mirrored mounts', 'available', '/home/ava/SPDRbot/scripts/servo_calibration.py', '/home/ava/SPDRbot/README.md', NULL),
-('cl-spdr-04', 'cu-spdrbot-quadruped', 1, 'Setup & Foundations', 4, 'Multi-Servo Coordination', 'Pico Servo Driver board, controlling 12 servos simultaneously, joint mapping', 'Multi-servo systems: Pico Servo Driver Rev 3.1, JOINT_MAP, by-joint-type wiring layout', 'available', '/home/ava/SPDRbot/scripts/joints.py', '/home/ava/SPDRbot/README.md', NULL);
-
--- Tier 2: Leg Mechanics (Lessons 5-9)
-INSERT OR IGNORE INTO curriculum_lessons (id, curriculum_id, tier, tier_name, sort_order, title, description, topic, status, code_ref, doc_ref, doc_pages) VALUES
-('cl-spdr-05', 'cu-spdrbot-quadruped', 2, 'Leg Mechanics', 5, '3-DOF Leg Anatomy', 'Hip/shoulder/knee joint roles, joint naming convention (_a/_b/_c), physical structure', 'Quadruped leg anatomy: 3 degrees of freedom, hip yaw + shoulder pitch + knee pitch', 'locked', NULL, '/home/ava/SPDRbot/SPDRBOT_AGENT2.md', NULL),
-('cl-spdr-06', 'cu-spdrbot-quadruped', 2, 'Leg Mechanics', 6, 'Forward Kinematics', 'Joint angles to foot position, coordinate frames, segment length measurement', 'Forward kinematics: computing foot position from joint angles using trig and segment lengths', 'locked', NULL, '/home/ava/SPDRbot/SPDRBOT_AGENT.md', NULL),
-('cl-spdr-07', 'cu-spdrbot-quadruped', 2, 'Leg Mechanics', 7, 'Inverse Kinematics', 'Foot position to joint angles, 2-link IK math, workspace boundaries', 'Inverse kinematics: 3-DOF IK solver (shoulder atan2 + 2-link planar), workspace limits', 'locked', NULL, '/home/ava/SPDRbot/SPDRBOT_AGENT.md', NULL),
-('cl-spdr-08', 'cu-spdrbot-quadruped', 2, 'Leg Mechanics', 8, 'Leg Class Abstraction', 'OOP for robot control, Leg class with set_angles and set_position methods', 'Robot OOP: Leg class encapsulating servo channels, calibration, IK, and position control', 'locked', '/home/ava/SPDRbot/spdrbot.py', '/home/ava/SPDRbot/SPDRBOT_AGENT2.md', NULL),
-('cl-spdr-09', 'cu-spdrbot-quadruped', 2, 'Leg Mechanics', 9, 'Interpolated Motion', 'Smooth movement via linear interpolation, step count tuning, easing functions', 'Motion smoothing: linear interpolation between poses, configurable step count and duration', 'locked', '/home/ava/SPDRbot/spdrbot.py', '/home/ava/SPDRbot/SPDRBOT_AGENT2.md', NULL);
-
--- Tier 3: Body Control (Lessons 10-14)
-INSERT OR IGNORE INTO curriculum_lessons (id, curriculum_id, tier, tier_name, sort_order, title, description, topic, status, code_ref, doc_ref, doc_pages) VALUES
-('cl-spdr-10', 'cu-spdrbot-quadruped', 3, 'Body Control', 10, 'Body Coordinate System', 'Body frame origin, leg mount offsets, 4-leg initialization, Robot class', 'Body kinematics: coordinate frame, leg mounting geometry, Robot class architecture', 'locked', '/home/ava/SPDRbot/spdrbot.py', '/home/ava/SPDRbot/SPDRBOT_AGENT2.md', NULL),
-('cl-spdr-11', 'cu-spdrbot-quadruped', 3, 'Body Control', 11, 'Standing & Balance', 'Center of gravity, support polygon, stable standing pose, standup sequence', 'Static stability: center of gravity over support polygon, multi-phase standup routine', 'locked', '/home/ava/SPDRbot/spdrbot.py', '/home/ava/SPDRbot/SPDRBOT_AGENT2.md', NULL),
-('cl-spdr-12', 'cu-spdrbot-quadruped', 3, 'Body Control', 12, 'Body Pose Control', 'Roll/pitch/yaw rotation, body translation, 6-DOF pose as IK input offsets', 'Body pose: 6-DOF control (x/y/z translation + roll/pitch/yaw) via IK foot adjustments', 'locked', NULL, '/home/ava/SPDRbot/SPDRBOT_AGENT2.md', NULL),
-('cl-spdr-13', 'cu-spdrbot-quadruped', 3, 'Body Control', 13, 'Weight Shifting', 'Moving center of gravity over support legs, pre-gait weight transfer', 'Weight shifting: translating body CoG to unload a leg before lifting, stability margins', 'locked', '/home/ava/SPDRbot/spdrbot.py', '/home/ava/SPDRbot/SPDRBOT_AGENT2.md', NULL),
-('cl-spdr-14', 'cu-spdrbot-quadruped', 3, 'Body Control', 14, 'RC Control Integration', 'ELRS receiver wiring, PWM input reading on Pico, stick-to-movement mapping', 'RC integration: RadioMaster TX16S + RP3 receiver, PWM channel reading, input normalization', 'locked', NULL, '/home/ava/SPDRbot/SPDRBOT_AGENT2.md', NULL);
-
--- Tier 4: Locomotion (Lessons 15-19)
-INSERT OR IGNORE INTO curriculum_lessons (id, curriculum_id, tier, tier_name, sort_order, title, description, topic, status, code_ref, doc_ref, doc_pages) VALUES
-('cl-spdr-15', 'cu-spdrbot-quadruped', 4, 'Locomotion', 15, 'Gait Theory', 'Crawl/walk/trot patterns, phase timing, duty factor, support triangles', 'Gait fundamentals: phase diagrams, duty factor, static vs dynamic stability, gait selection', 'locked', NULL, '/home/ava/SPDRbot/SPDRBOT_AGENT2.md', NULL),
-('cl-spdr-16', 'cu-spdrbot-quadruped', 4, 'Locomotion', 16, 'Foot Trajectory Planning', 'Bezier curve foot paths, lift-swing-plant cycle, ground clearance tuning', 'Foot trajectories: Bezier curves for smooth swing phase, parameterized step height and length', 'locked', NULL, '/home/ava/SPDRbot/SPDRBOT_AGENT2.md', NULL),
-('cl-spdr-17', 'cu-spdrbot-quadruped', 4, 'Locomotion', 17, 'Crawl Gait', 'One-leg-at-a-time locomotion, maximum stability, sequential leg lifting', 'Crawl gait: single-leg swing with 3-leg support, slowest but most stable walking pattern', 'locked', '/home/ava/SPDRbot/spdrbot.py', '/home/ava/SPDRbot/SPDRBOT_AGENT2.md', NULL),
-('cl-spdr-18', 'cu-spdrbot-quadruped', 4, 'Locomotion', 18, 'Trot Gait', 'Diagonal pair locomotion, dynamic balance, faster movement with reduced stability', 'Trot gait: diagonal leg pairs move simultaneously, dynamic stability, X-gait pattern', 'locked', '/home/ava/SPDRbot/spdrbot.py', '/home/ava/SPDRbot/SPDRBOT_AGENT2.md', NULL),
-('cl-spdr-19', 'cu-spdrbot-quadruped', 4, 'Locomotion', 19, 'Turning & Omnidirectional Movement', 'In-place rotation, strafing, combined translation and yaw, direction vectors', 'Omnidirectional control: rotation via asymmetric stepping, strafe, combined heading + direction', 'locked', '/home/ava/SPDRbot/spdrbot.py', '/home/ava/SPDRbot/SPDRBOT_AGENT2.md', NULL);
-
--- Tier 5: Sensing & Intelligence (Lessons 20-25)
-INSERT OR IGNORE INTO curriculum_lessons (id, curriculum_id, tier, tier_name, sort_order, title, description, topic, status, code_ref, doc_ref, doc_pages) VALUES
-('cl-spdr-20', 'cu-spdrbot-quadruped', 5, 'Sensing & Intelligence', 20, 'IMU Integration', 'MPU-6050 on Pico via I2C, accelerometer and gyroscope reading, orientation estimation', 'IMU integration: MPU-6050 I2C setup on Pico, raw accel/gyro reads, complementary filter', 'locked', NULL, '/home/ava/SPDRbot/SPDRBOT_AGENT2.md', NULL),
-('cl-spdr-21', 'cu-spdrbot-quadruped', 5, 'Sensing & Intelligence', 21, 'Body Leveling', 'IMU feedback loop, PID control for pitch/roll correction, terrain compensation', 'Closed-loop leveling: PID controller using IMU pitch/roll to adjust leg heights in real-time', 'locked', NULL, '/home/ava/SPDRbot/SPDRBOT_AGENT2.md', NULL),
-('cl-spdr-22', 'cu-spdrbot-quadruped', 5, 'Sensing & Intelligence', 22, 'Obstacle Detection', 'ToF or ultrasonic distance sensors, reactive avoidance behaviors, sensor placement', 'Obstacle avoidance: distance sensor integration, threshold-based reactive path adjustment', 'locked', NULL, '/home/ava/SPDRbot/SPDRBOT_AGENT2.md', NULL),
-('cl-spdr-23', 'cu-spdrbot-quadruped', 5, 'Sensing & Intelligence', 23, 'Central Pattern Generator', 'CPG neural oscillators for adaptive gait rhythms, coupling between legs', 'CPG gait engine: coupled oscillators replacing scripted gaits, frequency/amplitude modulation', 'locked', NULL, '/home/ava/SPDRbot/SPDRBOT_AGENT2.md', NULL),
-('cl-spdr-24', 'cu-spdrbot-quadruped', 5, 'Sensing & Intelligence', 24, 'Jetson-Pico Communication', 'UART protocol design, command/telemetry interface, high-level vs low-level split', 'Jetson-Pico UART: command protocol, telemetry streaming, dual-processor architecture', 'locked', NULL, '/home/ava/SPDRbot/SPDRBOT_AGENT2.md', NULL),
-('cl-spdr-25', 'cu-spdrbot-quadruped', 5, 'Sensing & Intelligence', 25, 'Camera-Based Navigation', 'Jetson CV pipeline, object tracking, autonomous waypoint following', 'Vision navigation: Jetson Orin Nano camera pipeline, object detection, autonomous behavior', 'locked', NULL, '/home/ava/SPDRbot/SPDRBOT_AGENT2.md', NULL);
+-- Removed from the public seed on 2026-04-22 (Option B from the
+-- /repo-release validation pass). The curriculum was aspirational —
+-- its lesson paths pointed at the private SPDRbot repo. Reintroduce
+-- here once SPDRbot is public or the reference material lives at a
+-- repo-relative path.
