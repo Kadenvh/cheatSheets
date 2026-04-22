@@ -19,11 +19,11 @@ metadata:
 
 ## Paths
 
-- Vault: `/home/ava/Ava_Main/repos/cheatSheets/openClaw_Vault/`
-- Knowledge: `/home/ava/Ava_Main/repos/cheatSheets/openClaw_Vault/Knowledge/`
+- Vault: `vault/`
+- Knowledge: `vault/Concepts/`
 - Categories: `Python/`, `DataScience/`, `Automation/`, `Tools/`
-- INDEX: `/home/ava/Ava_Main/repos/cheatSheets/openClaw_Vault/Knowledge/INDEX.md`
-- Archive: `/home/ava/Ava_Main/repos/cheatSheets/openClaw_Vault/Archive/`
+- INDEX: `vault/Concepts/INDEX.md`
+- Archive: `vault/Archive/`
 
 ## Critical Rule
 
@@ -172,7 +172,7 @@ obsidian-cli list "Archive"
 # If error/empty, it will be created automatically when obsidian-cli move targets it
 ```
 
-Archive location: `/home/ava/Ava_Main/repos/cheatSheets/openClaw_Vault/Archive/`
+Archive location: `vault/Archive/`
 
 Archived notes keep their full content for reference but are moved out of active Knowledge categories.
 

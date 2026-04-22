@@ -113,17 +113,20 @@ Open ava_hub > CheatSheets > **Health** tab:
 
 ## Agents
 
-7 OpenClaw agents in `knowledge-agents/`:
+10 OpenClaw agents in `knowledge-agents/` — see [`knowledge-agents/README.md`](knowledge-agents/README.md) for the full directory contract.
 
-| Agent | Name | Role |
-|-------|------|------|
-| curator | Archivist | Optional enrichment of stub notes |
-| qa | Oracle | RAG retrieval with citations |
-| verifier | Sentinel | ChromaDB audit and data quality |
-| learning | Compass | Coverage analysis, gap detection, learning paths |
-| demo | Spark | Exercise and lesson generation |
-| tutor | Tutor | Socratic teaching in sessions |
-| architect | Architect | Curriculum planning |
+| Agent | Role | Identity | Skill |
+|---|---|:---:|:---:|
+| `architect` | Curriculum planning | ✓ | |
+| `consolidator` | Vault deduplication + merging | | ✓ |
+| `curator` (Archivist) | Optional enrichment of stub notes | ✓ | ✓ |
+| `demo` (Spark) | Exercise and lesson generation | ✓ | |
+| `learning` (Compass) | Coverage analysis, gap detection, learning paths | ✓ | |
+| `qa` (Oracle) | RAG retrieval with citations | ✓ | |
+| `retrieval` | RAG Q&A + command router | | ✓ |
+| `tutor` | Socratic teaching | ✓ | |
+| `vault-health` | Vault health checks (broken links, frontmatter, categories) | | ✓ |
+| `verifier` (Sentinel) | ChromaDB audit and data quality | ✓ | |
 
 ## System Maintenance
 
@@ -156,21 +159,19 @@ cheatSheets/
 ├── CONTRIBUTING.md                  # How to contribute
 ├── CODE_OF_CONDUCT.md               # Contributor Covenant
 ├── CHANGELOG.md                     # Keep-a-changelog format
+├── DECISIONS.md                     # Curated architectural decisions (why things are the way they are)
 ├── Cheatsheet_Generation_Prompt.md  # Template spec for generating notes
 ├── plans/                           # Active strategy (learning-system, resilience)
 ├── vault/                           # Obsidian vault (content layer)
 │   ├── Concepts/                    # One .md per concept (flat layout)
 │   ├── Templates/Cheatsheet.md      # Note template
 │   └── .obsidian/                   # Shared Obsidian config
-├── knowledge-agents/                # 7 OpenClaw agent workspaces
-│   └── <agent>/AGENTS.md, IDENTITY.md, SOUL.md, TOOLS.md, USER.md
+├── knowledge-agents/                # 10 OpenClaw agent workspaces (see README there)
+│   ├── README.md                    # Directory contract: identity pack vs SKILL.md
+│   └── <agent>/                     # Per-agent: identity pack and/or SKILL.md
 ├── archive/                         # Scoped: ELEGOO Mega 2560 kit (load-bearing
 │                                    # reference for the curriculum schema)
-├── knowledge-consolidator/          # Product skill: vault dedup / merging
-├── knowledge-curator/               # Product skill: enrichment
-├── knowledge-retrieval/             # Product skill: RAG Q&A + command router
-├── vault-health/                    # Product skill: vault health checks
-└── .ava/                            # Curriculum engine (only product files here)
+└── .ava/                            # Curriculum engine (only product files tracked)
     ├── learning-schema.sql          # Curriculum DB schema + ELEGOO 34-lesson seed
     ├── learning-db.mjs              # Curriculum DB access module
     └── curriculum-export.mjs        # Export utility for external agents
@@ -185,6 +186,8 @@ for architecture details.
 
 - **Project repo:** https://github.com/Kadenvh/cheatSheets
 - **Learning plan:** `plans/learning-system.md`
+- **Architectural decisions:** `DECISIONS.md`
+- **Agent directory:** `knowledge-agents/README.md`
 - **Project rules:** `CLAUDE.md`
 - **Template spec:** `Cheatsheet_Generation_Prompt.md`
 

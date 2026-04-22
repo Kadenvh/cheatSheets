@@ -27,13 +27,13 @@ There are three ways knowledge enters the system. The curator agent is involved 
 - **Agent process** is the full-enrichment path: the curator reads files from `new/`, validates, enriches, extracts entities/relationships, updates GRAPH.md and INDEX.md, calls the embedding API for vector ingestion, files to vault, and archives.
 
 ## Paths
-- Source: `/home/ava/Ava_Main/repos/cheatSheets/new/`
-- Vault: `/home/ava/Ava_Main/repos/cheatSheets/openClaw_Vault/`
-- Knowledge: `/home/ava/Ava_Main/repos/cheatSheets/openClaw_Vault/Knowledge/`
+- Source: `vault/new/`
+- Vault: `vault/`
+- Knowledge: `vault/Concepts/`
 - Categories: `Python/`, `DataScience/`, `Automation/`, `Tools/`, `Linux/`, `General/`
-- INDEX: `/home/ava/Ava_Main/repos/cheatSheets/openClaw_Vault/Knowledge/INDEX.md`
-- GRAPH: `/home/ava/Ava_Main/repos/cheatSheets/openClaw_Vault/Knowledge/GRAPH.md`
-- Archive: `/home/ava/Ava_Main/repos/cheatSheets/processed/`
+- INDEX: `vault/Concepts/INDEX.md`
+- GRAPH: `vault/Concepts/GRAPH.md`
+- Archive: `vault/processed/`
 - Embedding API: `http://127.0.0.1:8001`
 
 ## Expected Input Format
@@ -62,7 +62,7 @@ status: new
 
 When user says "process cheat sheets" (via Agent tab or direct message):
 
-1. **Scan**: List files in source directory (`/home/ava/Ava_Main/repos/cheatSheets/new/`)
+1. **Scan**: List files in source directory (`vault/new/`)
 2. **Read**: Get full content of each file
 3. **Validate Frontmatter**: Check for required fields (`domain`, `category`, `tags`, `title`, `created`, `status`)
    - If `category` is missing: infer from content using Category Rules below
@@ -95,7 +95,7 @@ When user says "process cheat sheets" (via Agent tab or direct message):
     ```bash
     curl -X POST http://127.0.0.1:8001/ingest-file \
       -H "Content-Type: application/json" \
-      -d '{"file_path": "/home/ava/Ava_Main/repos/cheatSheets/new/FILENAME.md"}'
+      -d '{"file_path": "vault/new/FILENAME.md"}'
     ```
     Verify response has `"ok": true` before proceeding.
 12. **Copy to Vault**: To `Knowledge/{category}/` folder
@@ -123,7 +123,7 @@ When user says "process cheat sheets" (via Agent tab or direct message):
 ## Processing Commands
 ```bash
 # List new files
-ls "/home/ava/Ava_Main/repos/cheatSheets/new/"
+ls "vault/new/"
 
 # Vector ingest (call BEFORE moving the file)
 curl -s -X POST http://127.0.0.1:8001/ingest-file \
@@ -131,10 +131,10 @@ curl -s -X POST http://127.0.0.1:8001/ingest-file \
   -d "{\"file_path\": \"$source\"}"
 
 # Copy to vault
-cp "$source" "/home/ava/Ava_Main/repos/cheatSheets/openClaw_Vault/Knowledge/$category/$filename"
+cp "$source" "vault/Concepts/$category/$filename"
 
 # Archive original
-mv "$source" "/home/ava/Ava_Main/repos/cheatSheets/processed/"
+mv "$source" "vault/processed/"
 ```
 
 ## Report Format
