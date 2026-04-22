@@ -1,6 +1,6 @@
 # Learning System
 
-**Created:** 2026-03-20 | **Status:** Active | **Updated:** 2026-04-13 (Session 15)
+**Created:** 2026-03-20 | **Status:** Active | **Updated:** 2026-04-22 (Session 15)
 **Version:** 2.2 | **Phase:** 3 (content + review-exercises + resilience)
 **Depends on:** resilience.md (external-service fallback affects review UX)
 **Supersedes:** `knowledge-learning-plan.md`, `CHEATSHEETS_PLAN.md`, legacy split-plan docs
@@ -140,6 +140,7 @@ The system should make learning durable, reviewable, and searchable with minimal
 | 12 (2026-04-04) | v7.5.1 code viewer |
 | 13 (2026-04-05) | v7.6.0 PDF tutorial viewer |
 | 14 (2026-04-06) | Ava_Main data audit, e2e curriculum auto-plan verified |
+| 15 (2026-04-22) | Meta: repo flipped to PUBLIC via /repo-release audit. No phase-3 product work; topology + scaffolding exclusion + OSS docs + security hardening. Product surface unchanged. |
 
 ## Cross-References
 
