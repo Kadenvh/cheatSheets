@@ -1,9 +1,0 @@
-{
-  "name": "ava-dal",
-  "version": "1.0.0",
-  "type": "module",
-  "description": "Durable Agentic Layer — SQLite-backed state for Project Ava",
-  "dependencies": {
-    "better-sqlite3": "^11"
-  }
-}

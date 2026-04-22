@@ -1,18 +1,64 @@
-# Local Claude Code settings
-.claude/settings.local.json
+# ─── PE Scaffolding (excluded from public repo) ───────────────────
+# The .claude/ deployable surface and .ava/ DAL runtime are developer
+# infrastructure, not product. Product content inside .ava/ is whitelisted.
 
-# OpenClaw workspace state
-.openclaw/workspace-state.json
+.claude/
+
+.ava/*
+!.ava/learning-schema.sql
+!.ava/learning-db.mjs
+!.ava/curriculum-export.mjs
+
+# OpenClaw agent runtime state (dreaming cycles + event logs)
+knowledge-agents/*/memory/
 knowledge-agents/*/.openclaw/
+.openclaw/workspace-state.json
 
-# Learning database (project-local curriculum state)
+# Personal session chronicle — kept local, not for public consumption
+sessions/
+
+# ─── Runtime state ────────────────────────────────────────────────
+
+# Learning database (project-local curriculum runtime state)
+# Note: .ava/learning.db* is already covered by .ava/* above, kept here
+# for clarity if .ava/ whitelisting changes.
 .ava/learning.db
 .ava/learning.db-shm
 .ava/learning.db-wal
 
-# Obsidian workspace (user-specific, not config)
+# Obsidian workspace (user-specific UI state, not vault content)
+vault/.obsidian/workspace.json
 openClaw_Vault/.obsidian/workspace.json
 
-# Empty legacy directories
+# ─── Standard exclusions ──────────────────────────────────────────
+
+# Dependencies
+node_modules/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/settings.json
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Secrets (defense in depth)
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+credentials/
+
+# Legacy / retired directories
 docs_archived/
-vault/
