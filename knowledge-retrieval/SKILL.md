@@ -31,11 +31,10 @@ Check the user's message against these patterns **before** doing anything else:
 
 ## Paths
 
-- Vault: `/home/ava/Ava_Main/repos/cheatSheets/openClaw_Vault/`
-- Knowledge: `/home/ava/Ava_Main/repos/cheatSheets/openClaw_Vault/Knowledge/`
-- Categories: `Python/`, `DataScience/`, `Automation/`, `Tools/`
-- INDEX: `/home/ava/Ava_Main/repos/cheatSheets/openClaw_Vault/Knowledge/INDEX.md`
-- GRAPH: `/home/ava/Ava_Main/repos/cheatSheets/openClaw_Vault/Knowledge/GRAPH.md`
+- Vault: `vault/`
+- Concepts: `vault/Concepts/` (one `.md` per concept, flat layout)
+- Categories: frontmatter field (`Python`, `DataScience`, `Tools`, `Linux`, `General`) — not folders
+- Templates: `vault/Templates/Cheatsheet.md`
 
 ## Retrieval Workflow
 
@@ -91,20 +90,20 @@ obsidian-cli frontmatter "{note-name}" --print
 # Look at the tags array for keyword matches
 ```
 
-First, list all notes across categories:
+First, list all notes in the flat vault layout:
 ```bash
-obsidian-cli list "Knowledge/Python"
-obsidian-cli list "Knowledge/DataScience"
-obsidian-cli list "Knowledge/Automation"
-obsidian-cli list "Knowledge/Tools"
+ls vault/Concepts/
 ```
 
-Then check frontmatter tags of each note. Notes with 2+ tag matches to your keywords are strong candidates.
+Then check frontmatter tags of each note. Notes with 2+ tag matches to your keywords are strong candidates. Filter by category via frontmatter:
+```bash
+grep -l "^category: Python$" vault/Concepts/*.md
+```
 
 **Strategy B — Content search (thorough):**
-Search note content directly using PowerShell:
+Search note content directly:
 ```bash
-grep -r "/home/ava/Ava_Main/repos/cheatSheets/openClaw_Vault/Knowledge/*\*.md" "{keyword}"
+grep -rln "{keyword}" vault/Concepts/
 ```
 
 This returns matching files with line numbers and context. Run once per keyword, then rank notes by how many keywords they match.
@@ -173,7 +172,7 @@ Sources: [[Note1]], [[Note2]]
 
 1. **Very short questions** ("variance?") — Still attempt search with available keywords. Ask for clarification if results are ambiguous.
 2. **Multiple topics** ("compare variance and standard deviation") — Search for both terms, synthesize comparison from relevant notes.
-3. **Questions about the vault itself** ("how many Python notes do I have?") — Use `obsidian-cli list "Knowledge/Python"` to answer directly.
+3. **Questions about the vault itself** ("how many Python notes do I have?") — Use `grep -l "^category: Python$" vault/Concepts/*.md | wc -l` to answer directly.
 4. **Questions about the system** ("what can you do?") — Briefly explain available commands:
    - `/process` — Process new cheat sheets from the inbox
    - `/consolidate` — Scan vault for duplicates and merge similar notes

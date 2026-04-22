@@ -1,6 +1,6 @@
 ---
 name: vault-health
-description: Run vault health checks — broken links, frontmatter validation, INDEX.md sync, category consistency. Auto-fixes safe issues.
+description: Run vault health checks — broken wikilinks, frontmatter validation, category consistency, vault metrics. Reports issues; fixes require user judgment.
 metadata:
   {
     "openclaw":
@@ -19,17 +19,11 @@ metadata:
 
 ## Paths
 
-- Vault: `/home/ava/Ava_Main/repos/cheatSheets/openClaw_Vault/`
-- Knowledge: `/home/ava/Ava_Main/repos/cheatSheets/openClaw_Vault/Knowledge/`
-- Categories: `Python/`, `DataScience/`, `Automation/`, `Tools/`
-- INDEX: `/home/ava/Ava_Main/repos/cheatSheets/openClaw_Vault/Knowledge/INDEX.md`
-- GRAPH: `/home/ava/Ava_Main/repos/cheatSheets/openClaw_Vault/Knowledge/GRAPH.md`
-- Archive: `/home/ava/Ava_Main/repos/cheatSheets/openClaw_Vault/Archive/`
-- New (inbox): `/home/ava/Ava_Main/repos/cheatSheets/new/`
+- Vault: `vault/`
+- Concepts: `vault/Concepts/` (flat — one `.md` per concept)
+- Templates: `vault/Templates/Cheatsheet.md`
 
-## Critical Path Rule
-
-**ALWAYS use the full vault path `/home/ava/Ava_Main/repos/cheatSheets/openClaw_Vault/`.** Never abbreviate to `vault/` or any other shorthand. Every path in commands and output must reference `openClaw_Vault`, not `vault`.
+Categories are a frontmatter field (`Python`, `DataScience`, `Tools`, `Linux`, `General`), not folder names.
 
 ## Health Check Workflow
 
@@ -37,26 +31,14 @@ When triggered, run ALL of the following checks in order, then output a combined
 
 ### Check 1: Broken Wikilinks
 
-Scan every note in `Knowledge/` for `[[wikilinks]]`. For each link found, verify the target note exists in the vault.
+Scan every note for `[[wikilinks]]`. For each link found, verify the target note exists.
 
-**How to check:**
-
-1. List all notes:
+1. List notes and extract wikilink targets:
    ```bash
-   obsidian-cli list "Knowledge/Python"
-   obsidian-cli list "Knowledge/DataScience"
-   obsidian-cli list "Knowledge/Automation"
-   obsidian-cli list "Knowledge/Tools"
+   grep -rn -oE "\[\[[^]]+\]\]" vault/Concepts/ | sort -u
    ```
-
-2. For each note, read its content:
-   ```bash
-   obsidian-cli print "{note-name}"
-   ```
-
-3. Parse content for `[[anything]]` patterns (regex: `\[\[([^\]]+)\]\]`)
-
-4. For each link target, check if a note with that name exists anywhere in the vault. A link is broken if no matching note exists.
+2. For each distinct target `[[X]]`, verify a note exists at `vault/Concepts/<slug-of-X>.md`. Slug rule: lowercase with hyphens, matching the filename.
+3. A link is broken if no matching note exists.
 
 **Report format:**
 ```
@@ -67,29 +49,23 @@ or
 ```
 🔗 Wikilinks: {N} total links found
 ❌ {M} broken links:
-  - [[missing-note]] referenced in Knowledge/Python/variance.md
-  - [[old-reference]] referenced in Knowledge/DataScience/stats.md
+  - [[missing-note]] referenced in vault/Concepts/variance.md
 ```
 
 ### Check 2: Frontmatter Validation
 
-Every note in `Knowledge/` should have YAML frontmatter with these required fields:
+Every note should have YAML frontmatter with these required fields:
+- `category:` (one of: `Python`, `DataScience`, `Tools`, `Linux`, `General`)
 - `tags:` (array, non-empty)
-- `created:` (date)
-- `category:` (one of: Python, DataScience, Automation, Tools)
+- `title:` (string)
+- `created:` (ISO date YYYY-MM-DD)
+- `type:` (`cheatsheet` or `reference`)
 
-Optional but expected:
-- `processed:` (date)
-- `source:` (string)
+Recommended:
+- `difficulty:` (1-10)
+- `exercise_hints:` (object with recall/understanding/application keys)
 
-**How to check:**
-
-For each note:
-```bash
-obsidian-cli frontmatter "{note-name}" --print
-```
-
-Validate that required fields exist and have values.
+**How to check:** parse the frontmatter block of each `vault/Concepts/*.md` and validate each required field is present and well-formed.
 
 **Report format:**
 ```
@@ -100,125 +76,56 @@ or
 ```
 📋 Frontmatter: {N} notes checked
 ❌ {M} issues:
-  - Knowledge/Python/quick-note.md — missing tags
-  - Knowledge/Tools/git-setup.md — missing category field
+  - vault/Concepts/quick-note.md — missing tags
+  - vault/Concepts/git-setup.md — missing category field
 ```
-
-**Note:** Skip README.md files in category folders — they don't need frontmatter.
 
 ### Check 3: Category Consistency
 
-Verify that each note's `category:` frontmatter field matches the folder it's in.
+Verify each note's `category:` value matches one of the canonical categories.
 
-A note in `Knowledge/Python/` should have `category: Python`. A mismatch means the note is either miscategorized or in the wrong folder.
+```bash
+grep -h "^category:" vault/Concepts/*.md | sort -u
+```
+
+Any value not in `{Python, DataScience, Tools, Linux, General}` is a category drift.
 
 **Report format:**
 ```
 📁 Categories: {N} notes checked
-✅ All consistent
+✅ All canonical
 ```
 or
 ```
 📁 Categories: {N} notes checked
-❌ {M} mismatches:
-  - Knowledge/Python/ml-theory.md has category: DataScience (should be Python or move to DataScience/)
+❌ {M} drifts:
+  - vault/Concepts/ml-theory.md has category: MachineLearning (not canonical)
 ```
 
-### Check 4: INDEX.md Drift
+### Check 4: Concept Identity (filename ↔ title)
 
-Compare INDEX.md entries against actual vault contents:
+Filename slug = concept ID. For each note, verify the filename slug is consistent with the `title:` frontmatter field (slug = lowercase + hyphens, no extension).
 
-1. List actual notes in each category folder
-2. Read INDEX.md and parse wikilinks in each section
-3. Compare:
-   - Notes in vault but missing from INDEX.md = "Unlisted"
-   - Notes in INDEX.md but not in vault = "Orphaned entry"
+```bash
+# Example check for a single file
+title=$(grep "^title:" vault/Concepts/variance.md | sed 's/title: *//; s/"//g')
+slug=$(basename vault/Concepts/variance.md .md)
+# slug should equal lowercase-hyphenated title
+```
 
-**Report format:**
-```
-📑 INDEX.md: {N} entries, {M} actual notes
-✅ In sync
-```
-or
-```
-📑 INDEX.md: {N} entries, {M} actual notes
-❌ Drift detected:
-  - UNLISTED: Knowledge/Python/new-note.md (not in INDEX.md)
-  - ORPHANED: [[deleted-note]] (in INDEX.md but file doesn't exist)
-```
+Flag cases where the slug substantially diverges from the title.
 
 ### Check 5: Vault Metrics
 
-Provide a summary of the vault's current state:
+Summary of vault state:
 
 ```
 📊 Vault Overview:
   Total notes: {N}
-  Python: {n1} | DataScience: {n2} | Automation: {n3} | Tools: {n4}
-  Archived: {n5}
-  Inbox: {n6} files waiting in new/
-  Last processed: {date of newest processed: field}
+  By category:
+    Python: {n1} | DataScience: {n2} | Tools: {n3} | Linux: {n4} | General: {n5}
+  Templates: {t} template file(s) in vault/Templates/
 ```
-
-### Check 6: Auto-Fix Offer — APPROVAL REQUIRED
-
-**STOP.** Do NOT auto-fix anything without explicit user approval.
-
-If INDEX.md has drift (unlisted or orphaned entries), present the issue and ask:
-
-```
-🔧 Auto-fixable issues:
-  - INDEX.md has {N} unlisted notes — Add entries?
-  - INDEX.md has {M} orphaned references — Remove?
-
-React ✅ to approve this fix, or ❌ to skip.
-```
-
-**You MUST wait for the user's response before making any changes.** Do NOT fix INDEX.md, rename files, or modify any vault content without the user explicitly approving.
-
-**Only INDEX.md drift is auto-fixable.** Everything else (broken wikilinks, frontmatter issues, category mismatches) should be reported for the user to address manually, since fixing those requires judgment calls.
-
-**When user explicitly approves the INDEX.md fix:**
-1. Read current INDEX.md
-2. Add unlisted notes to the correct category section with a basic description
-3. Remove orphaned entries
-4. Update the "Last Updated" date
-5. Write updated INDEX.md using `obsidian-cli create "Knowledge/INDEX" --content "{updated}" --overwrite`
-
-### Check 7: GRAPH.md Validation
-
-Verify the knowledge graph is consistent:
-
-1. Check GRAPH.md exists:
-   ```bash
-   obsidian-cli print "GRAPH"
-   ```
-
-2. Count entities and relationships in the file
-
-3. Verify the header counts match actual counts (e.g., "Entities: 8" should match the number of entity lines)
-
-4. For every `Source: [[note]]` reference in an entity, verify the target note exists in the vault
-
-5. Report any orphaned graph entries (entities whose source notes have been deleted)
-
-**Report format:**
-```
-🕸️ Graph: {N} entities, {M} relationships, all sources valid
-```
-or
-```
-🕸️ Graph: ❌ {M} issues:
-  - Header says 8 entities but found 6
-  - Source [[deleted-note]] not found in vault
-```
-
-If GRAPH.md doesn't exist, report:
-```
-🕸️ Graph: ⚠️ GRAPH.md not found — run `/process` to generate it
-```
-
----
 
 ## Combined Health Report Format
 
@@ -228,10 +135,9 @@ If GRAPH.md doesn't exist, report:
 
 🔗 Wikilinks: ✅ {N} links, all valid
 📋 Frontmatter: ✅ {N} notes, all valid
-📁 Categories: ✅ {N} notes, all consistent
-📑 INDEX.md: ✅ In sync
-🕸️ Graph: ✅ {N} entities, {M} relationships, all sources valid
-📊 Total: {N} notes | Python: {n1} | DS: {n2} | Auto: {n3} | Tools: {n4}
+📁 Categories: ✅ {N} notes, all canonical
+🔖 Concept Identity: ✅ All slugs consistent
+📊 Total: {N} notes | Py:{n1} DS:{n2} Tools:{n3} Linux:{n4} Gen:{n5}
 
 **Overall: HEALTHY**
 ```
@@ -242,41 +148,32 @@ If GRAPH.md doesn't exist, report:
 
 🔗 Wikilinks: ❌ 2 broken links
 📋 Frontmatter: ❌ 1 note missing tags
-📁 Categories: ✅ All consistent
-📑 INDEX.md: ⚠️ 1 unlisted note (auto-fixable)
-🕸️ Graph: ✅ 8 entities, 10 relationships
-📊 Total: {N} notes | Python: {n1} | DS: {n2} | Auto: {n3} | Tools: {n4}
-📥 Inbox: {N} files waiting to be processed
+📁 Categories: ✅ All canonical
+🔖 Concept Identity: ⚠️ 1 slug-title mismatch
+📊 Total: {N} notes | Py:{n1} DS:{n2} Tools:{n3} Linux:{n4} Gen:{n5}
 
 **Overall: NEEDS ATTENTION** (3 issues)
 
 Issues to resolve:
-1. [[missing-note]] broken in Knowledge/Python/variance.md
-2. Knowledge/Tools/git-setup.md missing `tags` in frontmatter
-
-🔧 Auto-fix available: Add 1 unlisted note to INDEX.md — react ✅
+1. [[missing-note]] broken in vault/Concepts/variance.md
+2. vault/Concepts/git-setup.md missing `tags` in frontmatter
+3. vault/Concepts/ml-theory.md — title "Machine Learning" but slug "ml-theory"
 ```
 
-## Discord Formatting Rules
+## Fixes
 
-- No markdown tables — use bullet lists and emoji indicators
-- Use ✅ ❌ ⚠️ for quick visual scanning
-- Keep the report concise — details only for issues, not for passing checks
-- If the vault is large (100+ notes), warn: "Scanning {N} notes, this may take a moment..."
+This skill **reports** health issues. Fixes require user judgment:
+
+- Broken wikilinks: rename the target note, create the missing note, or remove the link
+- Frontmatter issues: author must fill in the missing field
+- Category drift: author must reassign to a canonical category
+- Slug/title mismatch: rename the file OR update the title
+
+Do NOT auto-fix without explicit approval.
 
 ## Edge Cases
 
-1. **Empty vault** — Report "Vault is empty. Add cheat sheets to `new/` and run `/process` to get started."
-2. **obsidian-cli not responding** — Report the error: "Couldn't access vault. Is obsidian-cli configured? Run `obsidian-cli print-default` to check."
-3. **Archive/ folder doesn't exist** — Skip archive metrics, report 0 archived. Don't error.
-4. **Notes with no frontmatter at all** — Flag as "missing frontmatter entirely" (not just missing individual fields).
-5. **README.md files in category folders** — Skip these during all checks. They are not knowledge notes.
-
-## What This Skill Does NOT Do (Yet)
-
-- No cron jobs configured (future enhancement)
-- No automatic repair of broken wikilinks (requires judgment)
-- No automatic re-categorization (requires content analysis)
-- No learning gap recommendations
-
-These are documented in PROJECT_ROADMAP.md as future enhancements.
+- **Empty vault** — Report "Vault is empty. Create a note in vault/Concepts/ using the Cheatsheet template to get started."
+- **Notes with no frontmatter at all** — Flag as "missing frontmatter entirely" (not per-field).
+- **Non-`.md` files in Concepts/** — Skip silently.
+- **Large vault (100+ notes)** — Warn: "Scanning {N} notes, this may take a moment..."
