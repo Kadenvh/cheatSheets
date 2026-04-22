@@ -147,23 +147,39 @@ curl http://localhost:4173/api/learning/stats
 ## File Structure
 
 ```
-/home/ava/cheatSheets/
-├── CLAUDE.md                        # Project rules (auto-loaded by Claude Code)
-├── plans/                           # Active strategy (learning-system, resilience)
-├── sessions/                        # Curated session notes (session-export)
+cheatSheets/
+├── CLAUDE.md                        # Project rules (architecture, critical DO/DON'T)
+├── END-GOAL.md                      # Long-term vision / north star
 ├── README.md                        # This file
+├── LICENSE                          # MIT
+├── SECURITY.md                      # Vulnerability reporting policy
+├── CONTRIBUTING.md                  # How to contribute
+├── CODE_OF_CONDUCT.md               # Contributor Covenant
+├── CHANGELOG.md                     # Keep-a-changelog format
 ├── Cheatsheet_Generation_Prompt.md  # Template spec for generating notes
+├── plans/                           # Active strategy (learning-system, resilience)
 ├── vault/                           # Obsidian vault (content layer)
 │   ├── Concepts/                    # One .md per concept (flat layout)
-│   ├── Templates/Cheatsheet.md     # Note template
-│   └── .obsidian/                   # Obsidian config
-├── .ava/                            # brain.db (scheduling layer)
-│   ├── brain.db                     # SQLite: concepts, mastery, reviews, prereqs
-│   ├── dal.mjs                      # DAL CLI runtime
-│   └── lib/                         # DAL libraries
+│   ├── Templates/Cheatsheet.md      # Note template
+│   └── .obsidian/                   # Shared Obsidian config
 ├── knowledge-agents/                # 7 OpenClaw agent workspaces
-└── archive/                         # Superseded plans and legacy content
+│   └── <agent>/AGENTS.md, IDENTITY.md, SOUL.md, TOOLS.md, USER.md
+├── archive/                         # Scoped: ELEGOO Mega 2560 kit (load-bearing
+│                                    # reference for the curriculum schema)
+├── knowledge-consolidator/          # Product skill: vault dedup / merging
+├── knowledge-curator/               # Product skill: enrichment
+├── knowledge-retrieval/             # Product skill: RAG Q&A + command router
+├── vault-health/                    # Product skill: vault health checks
+└── .ava/                            # Curriculum engine (only product files here)
+    ├── learning-schema.sql          # Curriculum DB schema + ELEGOO 34-lesson seed
+    ├── learning-db.mjs              # Curriculum DB access module
+    └── curriculum-export.mjs        # Export utility for external agents
 ```
+
+Development scaffolding (`.claude/` skill library, hooks, agents; `.ava/` DAL
+runtime with `brain.db`, handoffs, migrations) is **not** part of this repo —
+it lives in each developer's private PE template environment. See `CLAUDE.md`
+for architecture details.
 
 ## Links
 
