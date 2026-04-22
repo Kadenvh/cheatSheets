@@ -1,0 +1,29 @@
+{
+  "collapse-filter": false,
+  "search": "",
+  "showTags": false,
+  "showAttachments": false,
+  "hideUnresolved": false,
+  "showOrphans": true,
+  "collapse-color-groups": false,
+  "colorGroups": [
+    { "query": "path:Concepts", "color": { "a": 1, "rgb": 14701138 } },
+    { "query": "tag:#python", "color": { "a": 1, "rgb": 3066993 } },
+    { "query": "tag:#statistics", "color": { "a": 1, "rgb": 15844367 } },
+    { "query": "tag:#docker OR tag:#containers", "color": { "a": 1, "rgb": 2067276 } },
+    { "query": "tag:#javascript OR tag:#typescript", "color": { "a": 1, "rgb": 16312092 } },
+    { "query": "tag:#css OR tag:#html", "color": { "a": 1, "rgb": 15277667 } },
+    { "query": "tag:#linux OR tag:#bash", "color": { "a": 1, "rgb": 5763719 } },
+    { "query": "tag:#sql OR tag:#databases", "color": { "a": 1, "rgb": 3447003 } }
+  ],
+  "collapse-display": false,
+  "showArrow": true,
+  "textFadeMultiplier": -3,
+  "nodeSizeMultiplier": 1.1,
+  "lineSizeMultiplier": 1,
+  "collapse-forces": true,
+  "centerStrength": 0.5,
+  "repelStrength": 10,
+  "linkStrength": 1,
+  "linkDistance": 250
+}
