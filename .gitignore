@@ -35,6 +35,12 @@ openClaw_Vault/.obsidian/workspace.json
 # Dependencies
 node_modules/
 
+# Build output
+dist/
+build/
+.output/
+out/
+
 # Environment
 .env
 .env.*

@@ -1,5 +1,7 @@
 # CheatSheets Knowledge System
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 Personal learning system built on Obsidian vault authoring, FSRS spaced repetition (brain.db), and ChromaDB semantic search. Part of Project Ava.
 
 ## How It Works
@@ -152,7 +154,7 @@ curl http://localhost:4173/api/learning/stats
 ├── README.md                        # This file
 ├── Cheatsheet_Generation_Prompt.md  # Template spec for generating notes
 ├── vault/                           # Obsidian vault (content layer)
-│   ├── Concepts/                    # One .md per concept (73 notes)
+│   ├── Concepts/                    # One .md per concept (flat layout)
 │   ├── Templates/Cheatsheet.md     # Note template
 │   └── .obsidian/                   # Obsidian config
 ├── .ava/                            # brain.db (scheduling layer)
@@ -169,3 +171,7 @@ curl http://localhost:4173/api/learning/stats
 - **Learning plan:** `plans/learning-system.md`
 - **Project rules:** `CLAUDE.md`
 - **Template spec:** `Cheatsheet_Generation_Prompt.md`
+
+## License
+
+Released under the [MIT License](LICENSE).

@@ -18,17 +18,16 @@ Things like:
 ```markdown
 ### Cameras
 
-- living-room → Main area, 180° wide angle
-- front-door → Entrance, motion-triggered
+- camera-alias → Location, optics notes
 
 ### SSH
 
-- home-server → 192.168.1.100, user: admin
+- host-alias → <ip-or-hostname>, user: <username>
 
 ### TTS
 
-- Preferred voice: "Nova" (warm, slightly British)
-- Default speaker: Kitchen HomePod
+- Preferred voice: "<voice-name>"
+- Default speaker: <speaker-alias>
 ```
 
 ## Why Separate?
