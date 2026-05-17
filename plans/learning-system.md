@@ -141,11 +141,17 @@ The system should make learning durable, reviewable, and searchable with minimal
 | 13 (2026-04-05) | v7.6.0 PDF tutorial viewer |
 | 14 (2026-04-06) | Ava_Main data audit, e2e curriculum auto-plan verified |
 | 15 (2026-04-22) | Meta: repo flipped to PUBLIC via /repo-release audit. No phase-3 product work; topology + scaffolding exclusion + OSS docs + security hardening. Product surface unchanged. |
+| 16 (2026-05-17) | EdX subsystem stood up as Phase 1 of new `plans/edx-courses.md`. learning.db schema v2 (sections + lectures + tests + EdX cols), vault/Courses/ + templates, ColumbiaX CU.OC.AI002 scaffold, tutor wiring (TOOLS/USER/MEMORY). The "review-exercises" item from this plan's Phase 3 is now folded into edx-courses. v7.7.1 → v7.8.0. |
 
 ## Cross-References
 
+- `plans/edx-courses.md` — EdX course subsystem (active execution plan; depends on this substrate)
 - `plans/resilience.md` — external-service timeout/fallback
+- `DECISIONS.md` — curated decision ledger (this plan's substrate informed by #1, #2, #5)
+- `Learning_Memory_Architecture_v0.1.md` — full v0.1 spec; edx-courses.md is a strict subset
 - brain.db decision #5 — separate learning.db for curriculum layer
 - brain.db decision #6 — iframe PDF viewer over pdfjs-dist
+- brain.db decision #11 — EdX subset-of-v0.1 commitment
 - `CLAUDE.md` — architecture layers + critical rules
-- `.ava/learning-schema.sql` — curriculum seed (ELEGOO)
+- `.ava/learning-schema.sql` — curriculum seed (ELEGOO; SPDRbot removed v7.7.1)
+- `.ava/course-import.mjs` — seed learning.db from a course manifest

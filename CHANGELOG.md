@@ -6,6 +6,35 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [7.8.0] — 2026-05-17
+
+**Milestone: EdX-course capable.** First concrete dogfood target is **ColumbiaX CU.OC.AI002 — Programming & Data Structures**. Implements a strict subset of the v0.1 Learning Memory Architecture (Source / Source Segment / Note / Concept / Review Item / Learning Session) — full entity model deferred per `plans/edx-courses.md`.
+
+### Added
+- `plans/edx-courses.md` — canonical execution plan for the EdX subsystem (Phases 1–5)
+- `Learning_Memory_Architecture_v0.1.md` and `memory_system_expansion.md` — design context docs at project root
+- `DECISIONS.md` entry #11 — EdX subset-of-v0.1 commitment
+- **learning.db schema v2** (additive over v1): `curriculum_sections` table, `curriculum_tests` table, EdX columns on `curricula` (`kind`, `external_id`, `provider`, `course_url`, `vault_ref`), course/lecture linkage columns on `curriculum_lessons` (`section_id`, `lecture_kind`, `transcript_ref`, `vault_ref`). v1 "flat" curricula (ELEGOO) work unchanged
+- `.ava/course-import.mjs` — idempotent JSON-manifest seeder for `learning.db`
+- `vault/Templates/` — Course.md, Section.md, Lecture.md templater templates
+- `vault/Courses/columbia-programming-data-structures/` — course scaffold (manifest.json + README + `_assets/{slides,transcripts}/` directories)
+- `knowledge-agents/tutor/MEMORY.md` — durable tutor memory (active course pointer, architecture anchors, cross-reference hints)
+
+### Changed
+- `knowledge-agents/tutor/TOOLS.md` — replaced template placeholders with real tool contracts: `query_course`, `get_section`, `get_lecture`, `get_vault_note`, `semantic_search`, `list_concepts`, `get_concept`, `record_lecture_complete`, `record_test_score`, `record_question`, `list_due_reviews`, `suggest_next`, `get_recent_sessions`, `log_session_summary`. Plus a "tools you don't have yet" list pointing at deferred phases
+- `knowledge-agents/tutor/USER.md` — Kaden's profile (active projects, current course, working-style preferences, boundary rules, em-dash ban)
+- `CLAUDE.md` — five-layer architecture (Concept Content + Course Content + Scheduling + Search + Curriculum); rules updated for the course surface; file structure rewritten; agent table aligned with the 10 agents under `knowledge-agents/`; metadata schema expanded with Course/Section/Lecture frontmatter shapes
+- `README.md` — How It Works now shows two flows (concept notes + course content); Links section adds EdX plan, tutor, and resilience pointers
+- `plans/learning-system.md` — Session 16 contribution row + cross-ref to `plans/edx-courses.md`
+- `.gitignore` — whitelist `.ava/course-import.mjs` (joins existing whitelist alongside schema, db module, curriculum-export)
+- `.ava/learning-db.mjs` — migration logic extended: detects schema_info version, applies v1→v2 ALTERs and CREATEs idempotently
+
+### Identity / continuity
+- brain.db `identity.project.version` → 7.8.0
+- brain.db `identity.tech.stack` updated for course layer
+- brain.db `identity.active.course` set to ColumbiaX CU.OC.AI002
+- brain.db decision #11 recorded
+
 ## [7.7.1] — 2026-04-22
 
 **Milestone: repo flipped to PUBLIC.** Full 7-phase `/repo-release` audit executed against self. Issue [#2](https://github.com/Kadenvh/cheatSheets/issues/2) tracks remaining post-public housekeeping.

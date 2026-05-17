@@ -8,6 +8,7 @@
 !.ava/learning-schema.sql
 !.ava/learning-db.mjs
 !.ava/curriculum-export.mjs
+!.ava/course-import.mjs
 
 # OpenClaw agent runtime state (dreaming cycles + event logs)
 knowledge-agents/*/memory/
@@ -28,7 +29,25 @@ sessions/
 
 # Obsidian workspace (user-specific UI state, not vault content)
 vault/.obsidian/workspace.json
+vault/.obsidian/workspaces.json
 openClaw_Vault/.obsidian/workspace.json
+
+# Obsidian plugin source (re-installed from community-plugins.json on clone)
+# Keep: data.json (user settings), keep community-plugins.json, core-plugins.json
+vault/.obsidian/plugins/*/main.js
+vault/.obsidian/plugins/*/styles.css
+vault/.obsidian/plugins/*/manifest.json
+vault/.obsidian/plugins/*/versions.json
+vault/.obsidian/plugins/*/data-*.json
+vault/.obsidian/plugins/*/.hotreload
+vault/.obsidian/plugins/*/lib/
+vault/.obsidian/plugins/*/src/
+vault/.obsidian/plugins/*/node_modules/
+
+# Obsidian themes (re-install from community)
+vault/.obsidian/themes/*/theme.css
+vault/.obsidian/themes/*/manifest.json
+vault/.obsidian/themes/*/.git/
 
 # ─── Standard exclusions ──────────────────────────────────────────
 

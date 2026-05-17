@@ -1,0 +1,46 @@
+{
+  "_comment": "ColumbiaX CU.OC.AI002 — Programming & Data Structures. Section titles below are PLACEHOLDERS — replace with the actual section list from the EdX course outline, then re-run `node .ava/course-import.mjs vault/Courses/columbia-programming-data-structures/manifest.json` to upsert.",
+  "course": {
+    "id": "columbia-programming-data-structures",
+    "title": "Programming & Data Structures",
+    "kind": "edx-course",
+    "provider": "EdX",
+    "external_id": "CU.OC.AI002",
+    "course_url": "https://www.edx.org/learn/computer-programming/columbia-university-programming-data-structures",
+    "domain": "computer-science",
+    "description": "Columbia University course covering programming foundations and core data structures (arrays, linked lists, stacks, queues, trees, hash tables, graphs) with associated algorithms.",
+    "vault_ref": "vault/Courses/columbia-programming-data-structures/"
+  },
+  "sections": [
+    {
+      "id": "cu-pds-section-1",
+      "sort_order": 1,
+      "title": "Section 1 — placeholder (replace with real section title)",
+      "overview": "Replace with the real section overview from EdX.",
+      "has_pre_test": false,
+      "has_post_test": true,
+      "vault_ref": "section-1/",
+      "status": "in_progress"
+    },
+    {
+      "id": "cu-pds-section-2",
+      "sort_order": 2,
+      "title": "Section 2 — placeholder",
+      "has_pre_test": false,
+      "has_post_test": true,
+      "vault_ref": "section-2/",
+      "status": "locked"
+    }
+  ],
+  "tests": [
+    {
+      "id": "cu-pds-section-1-post",
+      "parent_type": "section",
+      "parent_id": "cu-pds-section-1",
+      "kind": "post",
+      "title": "Section 1 Post-Test",
+      "max_score": 100
+    }
+  ],
+  "lectures": []
+}

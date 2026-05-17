@@ -1,6 +1,6 @@
 # Knowledge System
 
-**Version:** 7.7.1 | **Status:** Obsidian-First (Pipeline Operational) — **Public** | **Updated:** 2026-04-22
+**Version:** 7.8.0 | **Status:** EdX-Course Capable (Phase 1) — **Public** | **Updated:** 2026-05-17
 
 ## Parent Documentation
 
@@ -9,7 +9,9 @@ Spoke component of Project Ava. Hub docs at `Ava_Main/CLAUDE.md`.
 | Document | Location |
 |----------|----------|
 | Learning System Plan | `plans/learning-system.md` |
+| EdX Course Subsystem | `plans/edx-courses.md` |
 | Resilience Plan | `plans/resilience.md` |
+| Architectural Decisions | `DECISIONS.md` |
 | Project-Wide Rules | `Ava_Main/CLAUDE.md` |
 | Hub Roadmap | `Ava_Main/documentation/PROJECT_ROADMAP.md` § Knowledge System |
 
@@ -17,14 +19,15 @@ Spoke component of Project Ava. Hub docs at `Ava_Main/CLAUDE.md`.
 
 ## Architecture
 
-Three layers, clear boundaries:
+Five layers, clear boundaries:
 
 | Layer | Tool | Owns |
 |-------|------|------|
-| **Content** | Obsidian vault (`vault/`) | Note text, organization, wiki-link graph, exercise hints |
-| **Scheduling** | brain.db (`.ava/brain.db`) | Concepts, mastery levels, FSRS state, reviews, streaks, prerequisites |
-| **Search** | ChromaDB (`:8001`) | Embeddings, vector search, chunked content |
-| **Curriculum** | learning.db (`.ava/learning.db`) | Course structure, lesson sequences, enrollment, progress |
+| **Concept Content** | Obsidian vault (`vault/Concepts/`) | Canonical concept notes, wiki-link graph, exercise hints |
+| **Course Content** | Obsidian vault (`vault/Courses/`) | Per-course / section / lecture notes, transcripts, slide refs |
+| **Scheduling** | brain.db (`.ava/brain.db`) | Concept mastery, FSRS state, reviews, streaks, prerequisites |
+| **Search** | ChromaDB (`:8001`) + Smart Connections (in-Obsidian) | Embeddings, vector search, chunked content |
+| **Curriculum** | learning.db (`.ava/learning.db`, schema v2) | Course / Section / Lecture / Test structure + progress |
 
 ### Data Flow
 
@@ -44,11 +47,14 @@ Wiki-links in notes (`[[Linux CLI]]`) are parsed as prerequisite edges during va
 
 ## Quick Reference
 
-**Author content:** Open `vault/` in Obsidian → create note in `Concepts/` using Cheatsheet template
-**Sync to system:** `POST /api/learning/vault-sync` (Health tab button)
+**Author concept:** Open `vault/` in Obsidian → create note in `Concepts/` using `Templates/Cheatsheet.md`
+**Author course content:** Templater → `Course.md` / `Section.md` / `Lecture.md` in `vault/Courses/<slug>/...`
+**Seed a course into learning.db:** edit `vault/Courses/<slug>/manifest.json`, then `node .ava/course-import.mjs <path>`
+**Sync vault → ChromaDB:** `POST /api/learning/vault-sync` (Health tab button)
 **Review:** CheatSheets > Learn tab > ReviewPanel
 **Search:** CheatSheets > Q&A tab (semantic search via ChromaDB)
-**Agents:** 7 OpenClaw agents in `knowledge-agents/` (curator, qa, verifier, compass, spark, tutor, architect)
+**Tutor:** Learn tab (primary) or Smart Chat in Obsidian (secondary); identity at `knowledge-agents/tutor/`
+**Agents:** 10 OpenClaw agents in `knowledge-agents/` — see `knowledge-agents/README.md`
 
 ---
 
@@ -59,12 +65,16 @@ Wiki-links in notes (`[[Linux CLI]]`) are parsed as prerequisite edges during va
 - Use two ChromaDB collections (one `knowledge` collection with `type` metadata)
 - Create concepts manually — vault-sync derives them from notes
 - Seed prerequisites manually — wiki-links generate the DAG
-- Put learning content outside `vault/Concepts/`
+- Put canonical concept notes outside `vault/Concepts/`
+- Put course content outside `vault/Courses/<slug>/`
+- Write to `learning.db` directly from the tutor agent — go through tool contracts in `knowledge-agents/tutor/TOOLS.md`
 
 ### ALWAYS
-- One note = one concept (filename slug = concept ID)
-- Use wiki-links (`[[Concept Name]]`) for prerequisite relationships
-- Use the Cheatsheet template in `vault/Templates/` for new notes
+- One concept note = one canonical concept (filename slug = concept ID)
+- One lecture note = one lecture page (`vault_ref` in `learning.db` points at it)
+- Use wiki-links (`[[Concept Name]]`) for prerequisite relationships and course-to-concept links
+- Use the templates in `vault/Templates/` for new notes (Cheatsheet for concepts; Course/Section/Lecture for courses)
+- Run `node .ava/course-import.mjs <manifest>` after editing a course manifest
 - Sync vault after editing (`POST /api/learning/vault-sync`)
 
 ## Session Export
@@ -84,53 +94,60 @@ This writes `sessions/session-{N}.md` at the project root. PE-framework vault ex
 /home/ava/cheatSheets/
 ├── CLAUDE.md                          ← This file
 ├── plans/
-│   ├── learning-system.md             ← Canonical learning system plan (Phase 3)
+│   ├── learning-system.md             ← Substrate (vault + FSRS + ChromaDB)
+│   ├── edx-courses.md                 ← EdX course subsystem (active execution plan)
 │   └── resilience.md                  ← External-service fallback plan
+├── DECISIONS.md                       ← Curated architectural decisions
 ├── Cheatsheet_Generation_Prompt.md    ← Reference template spec
 ├── README.md                          ← Project intro
 ├── vault/                             ← Obsidian vault (content layer)
-│   ├── Concepts/                      ← One .md per concept (4 notes)
-│   ├── Templates/                     ← Obsidian note templates
-│   │   └── Cheatsheet.md
-│   └── .obsidian/                     ← Obsidian config
-├── .ava/                              ← brain.db (scheduling) + learning.db (curriculum)
-│   ├── brain.db                       ← PE-managed scheduling layer
-│   ├── learning.db                    ← Project-local curriculum engine (gitignored)
-│   ├── learning-schema.sql            ← Curriculum schema + ELEGOO seed data
-│   ├── learning-db.mjs                ← learning.db access module
-│   ├── dal.mjs
-│   ├── lib/
-│   └── migrations/
-├── knowledge-agents/                  ← OpenClaw agent workspaces
-│   ├── curator/                       ← Archivist (optional enrichment)
-│   ├── qa/                            ← Oracle (RAG retrieval)
-│   ├── verifier/                      ← Sentinel (audit)
-│   ├── learning/                      ← Compass (coverage + gaps)
-│   ├── demo/                          ← Spark (exercise generation)
-│   ├── tutor/                         ← Socratic teaching
-│   └── architect/                     ← Curriculum planning
-└── archive/                           ← Superseded plans + ELEGOO reference kit
+│   ├── Concepts/                      ← Canonical concept notes (cross-course)
+│   ├── Courses/                       ← Per-course content
+│   │   └── <course-slug>/
+│   │       ├── manifest.json          ← Seed for learning.db (course + sections + tests)
+│   │       ├── README.md              ← Course folder shape + workflow
+│   │       ├── <section-slug>/
+│   │       │   ├── <section-slug>.md  ← Section note (from Section.md template)
+│   │       │   └── <lecture>.md       ← Lecture notes (from Lecture.md template)
+│   │       └── _assets/{slides,transcripts}/
+│   ├── Templates/                     ← Cheatsheet + Course + Section + Lecture
+│   └── .obsidian/                     ← Shared Obsidian config (28 plugins)
+├── .ava/                              ← Curriculum engine (only product files tracked)
+│   ├── learning-schema.sql            ← Curriculum schema (v2 = + sections + tests + EdX cols)
+│   ├── learning-db.mjs                ← learning.db access + migrations
+│   └── course-import.mjs              ← Seed learning.db from manifest.json
+├── knowledge-agents/                  ← 10 OpenClaw agent workspaces (see README there)
+│   ├── README.md                      ← Identity-pack vs SKILL.md contract
+│   ├── tutor/                         ← Explainer + Coach (active for EdX courses)
+│   ├── curator/  qa/  verifier/  learning/  demo/  architect/
+│   └── consolidator/  retrieval/  vault-health/    ← skill-only agents
+└── archive/                           ← Scoped: ELEGOO Mega 2560 kit
 ```
 
 ---
 
 ## Agents (Revised Roles)
 
+See `knowledge-agents/README.md` for the full directory contract (identity pack vs SKILL.md).
+
 | Agent | Name | Role |
 |-------|------|------|
-| `knowledge-curator` | Archivist | **Optional** enrichment — flesh out stub notes via MCP on request |
-| `knowledge-qa` | Oracle | RAG retrieval with citations (searches ChromaDB) |
-| `knowledge-verifier` | Sentinel | ChromaDB audit + data quality |
-| `knowledge-learning` | Compass | Coverage analysis, gap detection, learning path suggestions |
-| `knowledge-demo` | Spark | Exercise/lesson generation for ReviewPanel |
-| `learning-tutor` | Tutor | Socratic teaching in session tabs |
-| `learning-architect` | Architect | Curriculum planning for sessions |
+| `architect` | Architect | Curriculum planning |
+| `consolidator` | Consolidator | Vault deduplication + merging (skill-only) |
+| `curator` | Archivist | **Optional** enrichment of stub notes (identity + skill) |
+| `demo` | Spark | Exercise / lesson generation for ReviewPanel |
+| `learning` | Compass | Coverage analysis, gap detection, learning-path suggestions |
+| `qa` | Oracle | RAG retrieval with citations (ChromaDB) |
+| `retrieval` | RAG Q&A + command router (skill-only) | Default handler for non-command messages |
+| `tutor` | Tutor | **Explainer + Coach** for EdX courses (active surface) |
+| `vault-health` | Vault Health | Broken-link / frontmatter / category checks (skill-only) |
+| `verifier` | Sentinel | ChromaDB audit + data quality |
 
 ---
 
 ## Metadata Schema
 
-### Obsidian Note Frontmatter
+### Obsidian Note Frontmatter — Concepts (`vault/Concepts/*.md`)
 
 | Field | Required | Description |
 |-------|----------|-------------|
@@ -141,6 +158,16 @@ This writes `sessions/session-{N}.md` at the project root. PE-framework vault ex
 | `type` | Yes | `cheatsheet` (or `reference` future) |
 | `difficulty` | Recommended | 1-10 scale (default: 5) |
 | `exercise_hints` | Recommended | Object with recall/understanding/application keys |
+
+### Obsidian Note Frontmatter — Courses
+
+Three shapes, each with `type` discriminator:
+
+- **Course** (`type: course`): `course_id`, `external_id`, `provider`, `kind`, `course_url`, `domain[]`, `enrolled`, `status`, `section_count`, `lecture_count`
+- **Section** (`type: section`): `section_id`, `course_id`, `sort_order`, `slides_ref`, `doc_pages`, `has_pre_test`, `has_post_test`, `status`, `lecture_count`
+- **Lecture** (`type: lecture`): `lecture_id`, `section_id`, `course_id`, `sort_order`, `lecture_kind` (`video`/`reading`/`exercise`/`page`/`lesson`), `transcript_ref`, `slides_ref`, `status`
+
+The `*_id` fields are the join keys into `learning.db` (`curricula`, `curriculum_sections`, `curriculum_lessons`).
 
 ### ChromaDB Document Metadata
 

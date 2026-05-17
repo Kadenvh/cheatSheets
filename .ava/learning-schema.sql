@@ -129,3 +129,72 @@ INSERT OR IGNORE INTO curriculum_lessons (id, curriculum_id, tier, tier_name, so
 -- its lesson paths pointed at the private SPDRbot repo. Reintroduce
 -- here once SPDRbot is public or the reference material lives at a
 -- repo-relative path.
+
+-- ═══════════════════════════════════════════════════════════════════
+-- ─── Schema v2 — EdX course structure (additive over v1) ────────────
+-- ═══════════════════════════════════════════════════════════════════
+-- Adds Course → Section → Lecture three-level hierarchy for EdX-style
+-- courses. Existing v1 "flat" curricula (ELEGOO, etc.) continue to
+-- work unchanged — section_id stays NULL, lecture_kind defaults to
+-- 'lesson', new curricula columns have sensible defaults.
+-- See plans/edx-courses.md for the design rationale.
+
+-- v2 column additions to curricula
+ALTER TABLE curricula ADD COLUMN kind TEXT NOT NULL DEFAULT 'flat';
+ALTER TABLE curricula ADD COLUMN external_id TEXT;
+ALTER TABLE curricula ADD COLUMN provider TEXT;
+ALTER TABLE curricula ADD COLUMN course_url TEXT;
+ALTER TABLE curricula ADD COLUMN vault_ref TEXT;
+
+-- Sections: first-class grouping between curricula and lessons.
+-- Section has its own overview, optional slide-deck reference, and
+-- optional pre/post test flags. Status mirrors lesson status.
+CREATE TABLE IF NOT EXISTS curriculum_sections (
+    id              TEXT PRIMARY KEY,
+    curriculum_id   TEXT NOT NULL REFERENCES curricula(id) ON DELETE CASCADE,
+    sort_order      INTEGER NOT NULL DEFAULT 0,
+    title           TEXT NOT NULL,
+    overview        TEXT,
+    slides_ref      TEXT,
+    doc_pages       TEXT,
+    has_pre_test    INTEGER NOT NULL DEFAULT 0,
+    has_post_test   INTEGER NOT NULL DEFAULT 0,
+    status          TEXT NOT NULL DEFAULT 'locked'
+                    CHECK (status IN ('locked','available','in_progress','complete','skipped')),
+    vault_ref       TEXT,
+    completed_at    TEXT,
+    created_at      TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_cs_curriculum ON curriculum_sections(curriculum_id);
+CREATE INDEX IF NOT EXISTS idx_cs_sort ON curriculum_sections(curriculum_id, sort_order);
+
+-- v2 column additions to curriculum_lessons
+ALTER TABLE curriculum_lessons ADD COLUMN section_id TEXT REFERENCES curriculum_sections(id);
+ALTER TABLE curriculum_lessons ADD COLUMN lecture_kind TEXT NOT NULL DEFAULT 'lesson'
+                                  CHECK (lecture_kind IN ('lesson','page','video','reading','exercise'));
+ALTER TABLE curriculum_lessons ADD COLUMN transcript_ref TEXT;
+ALTER TABLE curriculum_lessons ADD COLUMN vault_ref TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_cl_section ON curriculum_lessons(section_id);
+
+-- Tests: course-level final OR section-level pre/post/checkpoint.
+-- Polymorphic on (parent_type, parent_id) — section or curriculum.
+CREATE TABLE IF NOT EXISTS curriculum_tests (
+    id              TEXT PRIMARY KEY,
+    parent_type     TEXT NOT NULL CHECK (parent_type IN ('curriculum','section')),
+    parent_id       TEXT NOT NULL,
+    kind            TEXT NOT NULL CHECK (kind IN ('pre','post','final','checkpoint')),
+    title           TEXT NOT NULL,
+    max_score       REAL,
+    score           REAL,
+    attempts        INTEGER NOT NULL DEFAULT 0,
+    last_attempt_at TEXT,
+    completed_at    TEXT,
+    notes           TEXT,
+    created_at      TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_ct_parent ON curriculum_tests(parent_type, parent_id);
+
+INSERT INTO schema_info (version) VALUES (2);

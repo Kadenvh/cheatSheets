@@ -2,20 +2,32 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Personal learning system built on Obsidian vault authoring, FSRS spaced repetition (brain.db), and ChromaDB semantic search. Part of Project Ava.
+Personal learning system built on Obsidian vault authoring, FSRS spaced repetition (brain.db), ChromaDB semantic search, and a curriculum engine (learning.db) shaped for guided courses (EdX-style + flat kits). Part of Project Ava.
 
 ## How It Works
 
 ```
-Obsidian note  -->  vault-sync  -->  brain.db (scheduling)
-                                 -->  ChromaDB (search)
-                                 -->  Learn tab (reviews)
+Two content flows:
+
+Concept notes:                                      Course content:
+  vault/Concepts/*.md → vault-sync → ChromaDB         vault/Courses/<course>/<section>/<lecture>.md
+                                  + brain.db (FSRS)       │
+                                  → Learn tab Review      │
+                                                          ▼
+                                              .ava/course-import.mjs
+                                                          │
+                                                          ▼
+                                              learning.db (Course/Section/Lecture/Test + progress)
+                                                          │
+                                                          ▼
+                                                tutor (Learn tab + Smart Chat)
 ```
 
-1. **Author** cheat sheet notes in Obsidian (`vault/Concepts/`)
-2. **Sync** vault to system (`POST /api/learning/vault-sync`)
-3. **Review** via FSRS scheduling in the Learn tab
-4. **Search** semantically via Q&A tab
+1. **Author cheat-sheet concepts** in Obsidian (`vault/Concepts/`) — for canonical cross-course concepts
+2. **Author course content** in Obsidian (`vault/Courses/<course>/<section>/<lecture>.md`) using the Course/Section/Lecture templates
+3. **Seed course structure** into `learning.db`: edit `manifest.json`, run `node .ava/course-import.mjs <path>`
+4. **Sync vault → ChromaDB** for semantic retrieval (`POST /api/learning/vault-sync`)
+5. **Review concepts** via FSRS in the Learn tab; **converse with the tutor** for explanation + coaching grounded in your course material
 
 ## User Workflow
 
@@ -185,11 +197,14 @@ for architecture details.
 ## Links
 
 - **Project repo:** https://github.com/Kadenvh/cheatSheets
-- **Learning plan:** `plans/learning-system.md`
+- **Learning substrate plan:** `plans/learning-system.md`
+- **EdX course subsystem plan:** `plans/edx-courses.md`
+- **Resilience plan:** `plans/resilience.md`
 - **Architectural decisions:** `DECISIONS.md`
 - **Agent directory:** `knowledge-agents/README.md`
+- **Tutor (Explainer + Coach):** `knowledge-agents/tutor/`
 - **Project rules:** `CLAUDE.md`
-- **Template spec:** `Cheatsheet_Generation_Prompt.md`
+- **Cheatsheet template spec:** `Cheatsheet_Generation_Prompt.md`
 
 ## License
 
