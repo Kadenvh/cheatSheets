@@ -6,6 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [7.8.1] — 2026-05-17
+
+**Meta release.** Establishes the operator-self contract (`OPERATOR.md`) as a first-class continuity surface and syncs the Obsidian plugin settings layer that drifted since v7.7.1.
+
+### Added
+- `OPERATOR.md` at project root — non-negotiables, posture rules, self-maintenance rituals, authority scope, inline Evolution Log. Read every session after CLAUDE.md.
+- 18 plugin `data.json` settings files under `vault/.obsidian/plugins/*/` — covers excalidraw, linter, pdf-plus, tasks, quickadd, style-settings, the full smart-* suite, and others. Plugin source code stays gitignored per the OSS convention set in v7.7.1.
+- `vault/.obsidian/{backlink,core-plugins,types,webviewer}.json` — Obsidian-level configuration files that were drifting locally.
+
+### Changed
+- `CLAUDE.md` Parent Documentation table gains a row for `OPERATOR.md`.
+
+### Identity / continuity
+- brain.db `identity.project.version` → 7.8.1
+- brain.db decision #12 — establish operator-self contract
+- brain.db decision #13 — defer (not reject) superpowers skill framework adoption
+
 ## [7.8.0] — 2026-05-17
 
 **Milestone: EdX-course capable.** First concrete dogfood target is **ColumbiaX CU.OC.AI002 — Programming & Data Structures**. Implements a strict subset of the v0.1 Learning Memory Architecture (Source / Source Segment / Note / Concept / Review Item / Learning Session) — full entity model deferred per `plans/edx-courses.md`.

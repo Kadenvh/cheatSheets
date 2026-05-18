@@ -1,1 +1,27 @@
-["dataview"]
+[
+  "table-editor-obsidian",
+  "dataview",
+  "obsidian-latex-suite",
+  "quickadd",
+  "obsidian-style-settings",
+  "templater-obsidian",
+  "smart-templates",
+  "llm-wiki",
+  "obsidian-tasks-plugin",
+  "obsidian-importer",
+  "advanced-canvas",
+  "editing-toolbar",
+  "pdf-plus",
+  "obsidian-linter",
+  "smart-connections",
+  "obsidian-advanced-uri",
+  "math-in-callout",
+  "smart-lookup",
+  "smart-chatgpt",
+  "smart-context",
+  "smart-chat",
+  "smart-connect-pro",
+  "smart-file-nav",
+  "smart-graph",
+  "smart-dedupe"
+]

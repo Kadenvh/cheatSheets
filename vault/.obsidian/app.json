@@ -1,7 +1,14 @@
 {
+  "showLineNumber": true,
+  "strictLineBreaks": false,
+  "tabSize": 3,
+  "showUnsupportedFiles": true,
+  "promptDelete": false,
+  "userIgnoreFilters": [
+    "deps/Scripts/",
+    "deps/Lib/",
+    "deps/Include/"
+  ],
   "alwaysUpdateLinks": true,
-  "newFileLocation": "folder",
-  "newFileFolderPath": "Concepts",
-  "attachmentFolderPath": "attachments",
-  "showLineNumber": true
+  "vimMode": false
 }

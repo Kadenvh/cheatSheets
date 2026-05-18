@@ -1,6 +1,6 @@
 # Knowledge System
 
-**Version:** 7.8.0 | **Status:** EdX-Course Capable (Phase 1) — **Public** | **Updated:** 2026-05-17
+**Version:** 7.8.1 | **Status:** EdX-Course Capable (Phase 1) — **Public** | **Updated:** 2026-05-17
 
 ## Parent Documentation
 
@@ -8,6 +8,7 @@ Spoke component of Project Ava. Hub docs at `Ava_Main/CLAUDE.md`.
 
 | Document | Location |
 |----------|----------|
+| Operator Contract | `OPERATOR.md` (read every session) |
 | Learning System Plan | `plans/learning-system.md` |
 | EdX Course Subsystem | `plans/edx-courses.md` |
 | Resilience Plan | `plans/resilience.md` |

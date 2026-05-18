@@ -1,4 +1,6 @@
 {
-  "baseFontSize": 16,
-  "theme": "obsidian"
+  "theme": "obsidian",
+  "cssTheme": "AnuPpuccin",
+  "accentColor": "",
+  "nativeMenus": false
 }
