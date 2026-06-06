@@ -94,3 +94,6 @@ SYSTEM-OVERVIEW.md
 
 # OpenClaw agent runtime workspace (consolidation pending, SPEC §11)
 tutor/
+
+# GitNexus auto-generated agent instructions (dev tooling)
+AGENTS.md

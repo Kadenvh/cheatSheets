@@ -157,9 +157,11 @@ Full verdicts with rationale and named triggers: `exploration/resource-landscape
 
 Artifacts: ingest-run record, MemoryOp log segment, one consolidation report with promoted content. **Until Loop 1 closes, this SPEC is an unvalidated hypothesis, and the next session's job is closing it, not writing more documents.**
 
-## 9. Naming
+## 9. Naming & homes
 
-**Cortex** is the project and the brain. Chosen for goal-accuracy over collision-avoidance; a public-facing name can be minted later if needed. **Hippocampus** is reserved for the consolidation layer. The repo remains `Kadenvh/cheatSheets` until rebrand surgery completes; `cheatSheets` survives as the learning-companion surface's name.
+**Cortex** is the project and the brain. Chosen for goal-accuracy over collision-avoidance; a public-facing name can be minted later if needed. **Hippocampus** is reserved for the consolidation layer. `cheatSheets` survives as the learning-companion surface's name.
+
+**Design/build split (decision #18):** this repo is the **design home**, renaming to `cortex-design` (`exploration/cortex-design-rename.md`, executed at a session boundary). `/home/ava/cortex` is the **build home**, intentionally empty until the design phase yields a buildable Loop 1 charter. The current phase is DESIGN: research, brainstorming, visualization (Graphviz DOT per landscape §2b), language/ontology definition. The repo's claim matches its contents: it is the design.
 
 ## 10. Supersessions
 
@@ -184,4 +186,5 @@ This SPEC retires the following (extraction receipts accompany each move):
 | Tutor consolidation: `knowledge-agents/tutor/` identity pack vs root `tutor/` OpenClaw workspace - merge into one | Repo surgery this session |
 | UI stack for the agent-first frontend (AG-UI + which renderer) | When UI work starts (after Loop 1) |
 | GPU purchase timing (2x 3090) | Kaden; unblocks worker parallelism but Loop 1 runs on the 3070 |
-| Public-facing name, repo rename timing | After Loop 1 validates the identity |
+| ~~Public-facing name, repo rename timing~~ | Resolved 2026-06-06: `cortex-design` design home + empty `/home/ava/cortex` build home (decision #18) |
+| Ingest-layer format contract details (frontmatter requirements per doc type, diagram doc-type, MemoryOp schema overlap) | Design phase, via `LANGUAGE.md` open questions |

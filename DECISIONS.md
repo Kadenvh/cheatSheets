@@ -2,7 +2,7 @@
 
 Curated record of the load-bearing decisions behind this project, exported from the continuity ledger. Each entry follows the ADR pattern: **context** (what problem) → **chosen** (what we did) → **rationale** (why this over alternatives).
 
-For the full ongoing strategy see [`plans/learning-system.md`](plans/learning-system.md) and [`plans/resilience.md`](plans/resilience.md). For release-level changes see [`CHANGELOG.md`](CHANGELOG.md).
+For the ontology see [`SPEC.md`](SPEC.md); for active strategy see [`PLAN.md`](PLAN.md). For release-level changes see [`CHANGELOG.md`](CHANGELOG.md).
 
 ---
 
@@ -162,4 +162,28 @@ For the full ongoing strategy see [`plans/learning-system.md`](plans/learning-sy
 
 ---
 
-*This document is curated from the project's continuity ledger (brain.db). Decisions #11-#13 live in the ledger (`node .ava/dal.mjs decision list`); they predate the Cortex re-founding and concern the retired EdX/operator era. For ongoing strategy see `PLAN.md`; for ontology see `SPEC.md`.*
+## 17. DAL frozen: continuity moves to repo-native surfaces (2026-06-06)
+
+**Context:** Kaden's call, operator-endorsed: Claude-native features (auto-loaded CLAUDE.md, auto-memory, task tracking, large context) plus the new doc lifecycle (SPEC/PLAN/DECISIONS/exploration->plans->architecture) answer every continuity question the PE DAL answers. Cortex's SPEC already commits to superseding PE at the policy layer; running two memory systems recreates the audit's "two data graphs that barely touch" pathology.
+
+**Chosen:** Freeze, don't delete. The DAL rituals stop now (last brain.db write is the forwarding-address decision). Decisions append here; open work lives in `PLAN.md` + plan checkboxes; operator memory uses auto-memory; brain.db is read-only history (its 16 decisions already curated here, sessions exported). The session-context hook gets disabled at the next session boundary. **Deletion trigger:** when Loop 1's MemoryOp log emits its first real events, the `.ava/` DAL runtime retires to `architecture/retired/` with a receipt. The three whitelisted product files in `.ava/` (learning-schema.sql, learning-db.mjs, course-import.mjs) are Tier 4 product, not DAL; they move when the learning surface revives.
+
+**Rationale:** Honors the supersede-PE direction without ripping out working continuity before its replacement exists (the exact premature pattern the audit buried). The replacement is product, not scaffolding.
+
+*Decided 2026-06-06.*
+
+---
+
+## 18. Design/build split: this repo becomes cortex-design; /home/ava/cortex is the empty build home (2026-06-06)
+
+**Context:** Kaden clarified the topology: design and plan the system first, using research/brainstorming/visualization tools, before building anything. The audit's deadliest pathology was a repo claiming to be a product whose implementation lived elsewhere.
+
+**Chosen:** Rename `/home/ava/cheatSheets` -> `/home/ava/cortex-design` and the GitHub repo `Kadenvh/cheatSheets` -> `Kadenvh/cortex-design` (executed at a session boundary per `exploration/cortex-design-rename.md`; GitHub auto-redirects). Create `/home/ava/cortex` as the build home, **intentionally empty** until the design phase yields a buildable Loop 1 charter. The repo's claim now matches its contents: it is the design. Current phase: DESIGN. Visualization language: Graphviz DOT (landscape §2b), with LANGUAGE.md defining the ingest-layer format contract. Refines #14: the Cortex name lives on the design repo now and moves to the build home when building starts; `cheatSheets` survives only as the learning-companion surface name.
+
+**Rationale:** Design-first discipline with an honest repo identity. The empty build home is a forcing function: nothing lands there without a designed reason.
+
+*Decided 2026-06-06.*
+
+---
+
+*Decisions #1-#17 originated in the brain.db continuity ledger, now frozen (see #17). From #17 onward, this file is the primary decision record: append directly. Decisions #11-#13 remain ledger-only (retired EdX/operator era). For ongoing strategy see `PLAN.md`; for ontology see `SPEC.md`.*
