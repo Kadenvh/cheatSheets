@@ -22,10 +22,12 @@ MemoryOp events -> dreaming machinery fed -> first non-empty Hippocampus report
 
 ## Work items
 
-- [ ] Choose Loop 1 source: Azure AI Foundry docs (serves the career thread simultaneously; AI-103 study fuel)
+- [ ] Ingest source A (smoke test): `https://graphviz.org/documentation/` - compact, static, well-structured; lowest-risk first E2E run; also feeds the §2b DOT-emitter trial (Kaden, 2026-06-06)
+- [ ] Ingest source B (career thread): Azure AI Foundry docs (learn.microsoft.com; bigger, JS-heavy - run after A proves the cycle; AI-103 study fuel)
 - [ ] Decide port-vs-wrap for the 4 portable libs (retrieval.mjs, chunker, embeddings client, MCP factory) — see reuse matrix, landscape §1
 - [ ] Run E2E: scrape -> triage (CLI, as-is) -> curate (UI) -> polish (CLI) -> embed; capture the ingest-run record
 - [ ] Add litellm as the model-routing front door (brain = Claude, workers = Ollama) — the one infra piece pre-approved by research
+- [ ] Stand up the minimal Azure touchpoint (landscape §6): Foundry project on pay-per-call + Foundry Local on the Linux box; first Responses API call from the gateway. Time-sensitive context: AI-103 cert path (AI-102 retires 2026-06-30)
 - [ ] Agentify triage: Claude Agent SDK brain dispatches local-model worker via MCP tool/subprocess; same for polish
 - [ ] Define the MemoryOp JSONL event schema (append-only; every agent memory operation)
 - [ ] Emit importance scores at write time (LLM-judged, slow-decay vs fast-decay routing)
