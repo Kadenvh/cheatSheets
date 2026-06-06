@@ -87,3 +87,10 @@ credentials/
 
 # Legacy / retired directories
 docs_archived/
+.gitnexus
+
+# PE framework scaffolding (local operating manual, not product)
+SYSTEM-OVERVIEW.md
+
+# OpenClaw agent runtime workspace (consolidation pending, SPEC §11)
+tutor/

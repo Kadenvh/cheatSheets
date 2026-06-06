@@ -6,6 +6,32 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [8.0.0-spec] — 2026-06-06
+
+**Re-founding release: cheatSheets becomes Cortex.** A 9-territory audit of the project's full 18-month history found elaborate, repeatedly re-architected infrastructure with zero closed loops (FSRS never performed a second review, the prerequisite DAG held 0 edges, the documented `vault-sync` flow existed in no live code, and the hub served no learning backend). The project is re-founded around its actual demonstrated goal: a multi-agent orchestration system curating an agent-controlled memory. The learning system survives as one consumer surface.
+
+### Added
+- `SPEC.md` — single source of truth for ontology + identity. Status vocabulary (`RUNS`/`STALLED`/`PLANNED`/`SPECULATIVE`; present tense only for RUNS), entity catalog ordered by instance count, layer model (Ingestion / Memory / Orchestration / Surfaces), resolved architecture decisions, and the binding Loop 1 commitment
+- `PLAN.md` — zoomed-out index of active plans
+- `exploration/` + `architecture/` — document lifecycle directories (capture -> working -> consolidated), deliberately mirroring the memory model Cortex builds
+- `exploration/resource-landscape.md` — 5-cluster researched verdict set (ontology representation, agent orchestration, local inference + GPU path, memory substrates, Azure bridge) with named triggers for every deferral
+- `plans/loop-1-ingestion.md` — the single active plan: close the first end-to-end loop of the brain
+
+### Changed
+- `CLAUDE.md` — rewritten as rules + session orchestration only; architecture content moved to `SPEC.md`; adds the sub-agent-driven development model
+- `README.md` — rewritten; removes false present-tense claims (ChromaDB-at-:8001 attribution, `vault-sync` API, "45 learning endpoints", working UI tabs) in favor of the status-tagged honest picture
+
+### Removed / Retired (with receipts)
+- `AGENTS.md`, `SOUL.md` — broken symlinks into a nonexistent sibling path, shipped public since v7.7.1
+- `SYSTEM-OVERVIEW.md` — untracked from the public repo (PE framework manual, stale at v7.0.0-rc1; kept locally)
+- `END-GOAL.md`, `Cheatsheet_Generation_Prompt.md` -> `architecture/retired/` with receipt
+- `Learning_Memory_Architecture_v0.1.md`, `memory_system_expansion.md` -> `exploration/idea-mines/` with receipt
+- `plans/{learning-system,edx-courses,resilience}.md` -> `plans/archive/cortex-rebrand/` with extraction receipt
+
+### Identity / continuity
+- brain.db decisions #14 (Cortex rebrand), #15 (doc lifecycle topology), #16 (SPEC adoption + Loop 1 binding)
+- Session 17 audit artifacts: 9 territory reports + ingestion-layer map recorded as DAL traces
+
 ## [7.8.1] — 2026-05-17
 
 **Meta release.** Establishes the operator-self contract (`OPERATOR.md`) as a first-class continuity surface and syncs the Obsidian plugin settings layer that drifted since v7.7.1.

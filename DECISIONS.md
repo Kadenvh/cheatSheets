@@ -126,4 +126,40 @@ For the full ongoing strategy see [`plans/learning-system.md`](plans/learning-sy
 
 ---
 
-*This document is generated from the project's continuity ledger. Future decisions will be appended here as they're made. For the ongoing architectural strategy (as opposed to recorded decisions), see the plans directory.*
+## 14. Project re-founded as Cortex (2026-06-06)
+
+**Context:** A 9-territory audit of 18 months of history found the named product (a learning-content system) had zero closed loops while every session's energy gravitated to agent/memory/orchestration infrastructure. The operator stated the true goal: an orchestration pipeline between agents creating an agent-controlled memory ("brain").
+
+**Chosen:** Rebrand in place to **Cortex**. The name targets goal-accuracy over collision-avoidance; **Hippocampus** is reserved for the consolidation layer; `cheatSheets` survives as the learning-companion surface's name.
+
+**Rationale:** The misdeclared product identity was the root cause of non-viability: nothing could ever count as done. Naming the real goal makes loops closable.
+
+*Decided 2026-06-06.*
+
+---
+
+## 15. Document lifecycle topology (2026-06-06)
+
+**Context:** 13 overlapping strategy docs; audit named "specification mistaken for construction" as the project's killer pattern.
+
+**Chosen:** `SPEC.md` owns ontology + identity; `CLAUDE.md` owns rules + session orchestration; `PLAN.md` indexes `plans/`. Lifecycle: `exploration/` -> `plans/` -> `architecture/` (capture -> working -> consolidated), explicitly mirroring the memory model Cortex builds. Provisional by design.
+
+**Rationale:** One place per question; the doc system dogfoods the product's memory architecture.
+
+*Decided 2026-06-06.*
+
+---
+
+## 16. SPEC adoption with status-tag discipline + Loop 1 binding commitment (2026-06-06)
+
+**Context:** Every prior strategy doc described aspiration in the present tense until nobody could tell what existed.
+
+**Chosen:** `SPEC.md` carries a status vocabulary (`RUNS`/`STALLED`/`PLANNED`/`SPECULATIVE`); present tense is permitted only for RUNS. The entity catalog is ordered by instance count. The SPEC declares itself an unvalidated hypothesis until **Loop 1** closes (E2E-verified ingestion + agentified triage/polish + first non-empty Hippocampus consolidation report). No new strategy documents while Loop 1 is open.
+
+**Rationale:** Structural guards make the failure pattern grammatically impossible rather than relying on discipline.
+
+*Decided 2026-06-06.*
+
+---
+
+*This document is curated from the project's continuity ledger (brain.db). Decisions #11-#13 live in the ledger (`node .ava/dal.mjs decision list`); they predate the Cortex re-founding and concern the retired EdX/operator era. For ongoing strategy see `PLAN.md`; for ontology see `SPEC.md`.*
