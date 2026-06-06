@@ -70,6 +70,8 @@ The second proposal (Graphviz/DOT, Langflow/Flowise, Neo4j Bloom/Linkurious) con
 
 **The render ladder, consolidated:** machine-readable source (YAML T-Box + SQLite A-Box) -> emitters: Mermaid (GFM-native, GitHub + Obsidian), DOT->SVG (data-dense views), Cytoscape.js JSON (interactive, in the future UI), Excalidraw (human sketching only, never source).
 
+**2026-06-06 update:** Graphviz TRIAL -> **validated**. Full expertise pack at `exploration/research/graphviz.md` (4 verified references + binding operating decisions); first artifact `exploration/design/cortex-layers.dot` compiled and rendered on local dot 2.43.0.
+
 ## 3. Agent orchestration frameworks + protocols
 
 **Headline: adopt zero new orchestration frameworks. Upgrade the existing pipeline in place.** Full report with sources: `exploration/research/orchestration.md`.

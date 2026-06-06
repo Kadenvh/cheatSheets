@@ -1,0 +1,59 @@
+// cortex-layers.dot — Cortex layer ontology, status-tagged (SPEC §3)
+// GENERATED-CLASS ARTIFACT (hand-authored v1; emitter from SPEC/ontology.yaml is the design goal)
+// Render: dot -Tsvg cortex-layers.dot -o cortex-layers.svg
+// Status palette: RUNS #2ECC71 | STALLED #FFBF00 | PLANNED #3498DB | SPECULATIVE #95A5A6
+digraph cortex_layers {
+  rankdir=BT;
+  bgcolor="white";
+  ranksep=0.9;
+  node [shape=none, margin=0, fontname="Helvetica"];
+  edge [fontname="Helvetica", fontsize=11, color="#555555"];
+
+  ingestion [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD COLSPAN="2" BGCOLOR="#2C3E50"><FONT COLOR="white"><B>INGESTION</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT" PORT="crawl">classify / preview / discover / scrape</TD><TD BGCOLOR="#2ECC71"><FONT COLOR="white">RUNS*</FONT></TD></TR>
+      <TR><TD ALIGN="LEFT" PORT="triage">triage + polish (Ollama CLI scripts)</TD><TD BGCOLOR="#2ECC71"><FONT COLOR="white">RUNS*</FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">triage + polish as agents</TD><TD BGCOLOR="#3498DB"><FONT COLOR="white">PLANNED</FONT></TD></TR>
+      <TR><TD ALIGN="LEFT" PORT="embed">chunk + embed + index</TD><TD BGCOLOR="#2ECC71"><FONT COLOR="white">RUNS*</FONT></TD></TR>
+      <TR><TD COLSPAN="2" ALIGN="LEFT"><FONT POINT-SIZE="9" COLOR="#777777">* runs in Ava_Main today; port is Loop 1 work</FONT></TD></TR>
+    </TABLE>>];
+
+  memory [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD COLSPAN="2" BGCOLOR="#2C3E50"><FONT COLOR="white"><B>MEMORY (the brain)</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT" PORT="corpus">markdown corpus mirror</TD><TD BGCOLOR="#2ECC71"><FONT COLOR="white">RUNS</FONT></TD></TR>
+      <TR><TD ALIGN="LEFT" PORT="sql">SQLite: sources/pages/sections/chunks/symbols + FTS5</TD><TD BGCOLOR="#2ECC71"><FONT COLOR="white">RUNS</FONT></TD></TR>
+      <TR><TD ALIGN="LEFT" PORT="vec">ChromaDB vectors (embedding service :8001)</TD><TD BGCOLOR="#2ECC71"><FONT COLOR="white">RUNS</FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">continuity DAL (frozen, decision #17)</TD><TD BGCOLOR="#FFBF00">STALLED</TD></TR>
+      <TR><TD ALIGN="LEFT" PORT="memop">MemoryOp event log (the spine)</TD><TD BGCOLOR="#3498DB"><FONT COLOR="white">PLANNED</FONT></TD></TR>
+      <TR><TD ALIGN="LEFT" PORT="hippo">Hippocampus: sleep-phase consolidation</TD><TD BGCOLOR="#FFBF00">STALLED</TD></TR>
+    </TABLE>>];
+
+  orchestration [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD COLSPAN="2" BGCOLOR="#2C3E50"><FONT COLOR="white"><B>ORCHESTRATION</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT" PORT="brain">Claude Agent SDK brain (judgment)</TD><TD BGCOLOR="#3498DB"><FONT COLOR="white">PLANNED</FONT></TD></TR>
+      <TR><TD ALIGN="LEFT" PORT="workers">local-model workers via MCP/queue (bulk)</TD><TD BGCOLOR="#3498DB"><FONT COLOR="white">PLANNED</FONT></TD></TR>
+      <TR><TD ALIGN="LEFT" PORT="oc">OpenClaw gateway: cron, workspaces, channels</TD><TD BGCOLOR="#2ECC71"><FONT COLOR="white">RUNS</FONT></TD></TR>
+    </TABLE>>];
+
+  surfaces [label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="6">
+      <TR><TD COLSPAN="2" BGCOLOR="#2C3E50"><FONT COLOR="white"><B>SURFACES</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT" PORT="ui">agent-first UI + backend (AG-UI when work starts)</TD><TD BGCOLOR="#3498DB"><FONT COLOR="white">PLANNED</FONT></TD></TR>
+      <TR><TD ALIGN="LEFT" PORT="lc">learning companion ("cheatSheets") + tutor</TD><TD BGCOLOR="#FFBF00">STALLED</TD></TR>
+      <TR><TD ALIGN="LEFT">FSRS / prerequisite DAG / course hierarchy</TD><TD BGCOLOR="#95A5A6"><FONT COLOR="white">SPECULATIVE</FONT></TD></TR>
+    </TABLE>>];
+
+  // Primary data flow (bottom-up)
+  ingestion -> memory       [label="  scored content", penwidth=1.6];
+  memory -> orchestration   [label="  retrieval (MCP tools)", dir=both, penwidth=1.6];
+  orchestration -> surfaces [label="  curated answers", penwidth=1.6];
+
+  // Write authority: agents write memory only via tool contracts emitting MemoryOp events
+  orchestration:brain -> memory:memop [label="  MemoryOp writes", style=dashed, color="#3498DB", fontcolor="#3498DB"];
+
+  // Feedback loop closing the system
+  surfaces -> ingestion [label="  results / usage / feedback", style=dashed, constraint=false, color="#999999"];
+}
