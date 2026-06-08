@@ -70,7 +70,9 @@ The second proposal (Graphviz/DOT, Langflow/Flowise, Neo4j Bloom/Linkurious) con
 
 **The render ladder, consolidated:** machine-readable source (YAML T-Box + SQLite A-Box) -> emitters: Mermaid (GFM-native, GitHub + Obsidian), DOT->SVG (data-dense views), Cytoscape.js JSON (interactive, in the future UI), Excalidraw (human sketching only, never source).
 
-**2026-06-06 update:** Graphviz TRIAL -> **validated**. Full expertise pack at `exploration/research/graphviz.md` (4 verified references + binding operating decisions); first artifact `exploration/design/cortex-layers.dot` compiled and rendered on local dot 2.43.0.
+**2026-06-06 update:** Graphviz TRIAL -> validated. Full expertise pack at `exploration/research/graphviz.md`; first artifact `exploration/design/cortex-layers.dot`.
+
+**2026-06-08 correction (decision #20):** Graphviz was *adopted* more than *chosen*, and the design medium had come to depend on a custom GUI (`:8484`) and declined tools. Revised verdict: **Mermaid is the design-phase default** (hand-authored ER/flowchart/architecture, native GitHub+Obsidian rendering, zero infra, lives in the `.md`). **Graphviz/DOT is DEFER** -> reserved for *generated, data-dense* views (HTML-table nodes, row ports, SQLite/ontology-emitted graphs). Named trigger: a diagram needs data inside nodes or is machine-generated. The Graphviz pack + `:8484` server remain as reference/tooling for that case, demoted from "the design medium."
 
 ## 3. Agent orchestration frameworks + protocols
 

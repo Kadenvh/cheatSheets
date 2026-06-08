@@ -1,6 +1,6 @@
 # Cortex
 
-**Version:** 8.1.0-design | **Status:** Unvalidated until Loop 1 closes (§8) | **Created:** 2026-06-06 (Session 17) | **Supersedes:** see §10
+**Version:** 8.2.0-design | **Status:** Unvalidated until Loop 1 closes (§8) | **Created:** 2026-06-06 (Session 17) | **Supersedes:** see §10
 
 A multi-agent orchestration system that takes content and results in, and responds by curating a totally agent-controlled memory: the brain. The learning companion ("cheatSheets", this repo's former identity) is the brain's first consumer surface, not the project.
 
@@ -36,6 +36,8 @@ Two instances of this model exist today:
 
 The store must always remain **human-auditable**: markdown mirrors and append-only logs beside the databases, readable in Obsidian and any editor.
 
+The PE DAL (`brain.db`, decision #19) is the **working reference instance** of this model today: a live agent-curated continuity store whose human-readable exports are the repo's `.md` continuity files. Cortex's memory layer generalizes what the DAL prototypes.
+
 ## 3. Layer ontology
 
 ```mermaid
@@ -53,8 +55,7 @@ flowchart TB
         CORPUS["Markdown corpus mirror (RUNS)"]
         SQL["SQLite: sources/pages/sections/chunks/symbols + FTS5 (RUNS)"]
         VEC["ChromaDB vectors via embedding service :8001 (RUNS)"]
-        DAL["Continuity DAL: brain.db (STALLED — frozen #17)"]
-        REPO["Repo-native continuity: DECISIONS/PLAN/git (RUNS)"]
+        DAL["Continuity DAL: brain.db — live + reference exemplar (RUNS, #19)"]
         LOG["Memory-op event log (PLANNED)"]
         HIPPO["Hippocampus: sleep-phase consolidation (STALLED — runs, starved)"]
     end
@@ -93,17 +94,16 @@ Instance counts are from the 2026-06-06 audit. The ordering is the honesty mecha
 | IngestRun | ~300 | `doc_ingest_runs` (status, counts, errors) |
 | TriageVerdict | per-source | `.triage/*.json` (keep/drop/unsure + confidence) |
 
-### Tier 2: continuity — repo-native `RUNS`, brain.db DAL `STALLED` (frozen #17)
+### Tier 2: continuity `RUNS` — the only loop that ever closed, and the working memory exemplar
 
-Continuity was the only loop that ever closed here. As of decision #17 it moved off the DAL onto repo-native surfaces.
+The DAL (`brain.db`) is live and canonical (decision #19, superseding the #17 freeze). It is also the **reference example** of agent-curated memory: the working instance of the model Cortex is designing. The repo `.md` files are curated exports of it.
 
 | Entity | State | Where |
 |---|---|---|
-| Decisions | `RUNS` | `DECISIONS.md` (append directly), 18 entries |
+| Session / Decision / Note / Trace / Handoff | `RUNS` | `brain.db` DAL (canonical), via `dal.mjs` |
+| Decisions (curated export) | `RUNS` | `DECISIONS.md` |
 | Active work / next steps | `RUNS` | `PLAN.md` + `plans/loop-1-ingestion.md` checkboxes |
 | Session narrative | `RUNS` | git history + `sessions/session-{N}.md` |
-| Operator memory | `RUNS` | Claude auto-memory |
-| Session / Decision / Note / Trace / Handoff | `STALLED` | `brain.db` DAL — read-only history (final counts 17 / 18 / 35+); deletion trigger = first MemoryOp events |
 
 ### Tier 3: planned spine `PLANNED` (0 instances)
 
@@ -128,7 +128,7 @@ Full verdicts with rationale and named triggers: `exploration/resource-landscape
 
 | Decision | Resolution |
 |---|---|
-| Ontology representation | Typed YAML T-Box + JSON Schema over the SQLite A-Box; Mermaid/DOT/Cytoscape as generated renderers |
+| Ontology representation | Typed YAML T-Box + JSON Schema over the SQLite A-Box. **Mermaid is the design-phase default** (hand-authored, native GitHub/Obsidian rendering, zero infra, #20); **Graphviz/DOT deferred** to generated/data-dense views; Cytoscape later for interactive |
 | Orchestration runtime | **Zero new frameworks.** OpenClaw (host) + Claude Agent SDK (brain) + local models as MCP-tool/subprocess workers + thin queue glue |
 | Local inference | Ollama now + litellm router today; vLLM trialed when GPUs land; **GPU path: 2x used RTX 3090**, not R9700 |
 | Memory substrate | Build the **policy**, keep the **substrate**: SQLite + ChromaDB + markdown mirror stay; event-sourced MemoryOp log added as the spine; idea-mines: A-MEM, SCM/FadeMem, Graphiti bitemporal |
@@ -168,7 +168,11 @@ Artifacts: ingest-run record, MemoryOp log segment, one consolidation report wit
 
 **Cortex** is the project and the brain. Chosen for goal-accuracy over collision-avoidance; a public-facing name can be minted later if needed. **Hippocampus** is reserved for the consolidation layer. `cheatSheets` survives as the learning-companion surface's name.
 
-**Design/build split (decision #18):** this repo is the **design home**, renaming to `cortex-design` (`exploration/cortex-design-rename.md`, executed at a session boundary). `/home/ava/cortex` is the **build home**, intentionally empty until the design phase yields a buildable Loop 1 charter. The current phase is DESIGN: research, brainstorming, visualization (Graphviz DOT per landscape §2b), language/ontology definition. The repo's claim matches its contents: it is the design.
+**Design/build split (decisions #18, #21):** this repo is the **design home**, renaming to `cortex-design` (`exploration/cortex-design-rename.md`, executed at a session boundary). It also **houses the stalled learning-system** content (`vault/`, `knowledge-agents/`, `archive/`, `.ava/learning*`) until that surface revives. `/home/ava/cortex` is the **build home / first deployable target**, intentionally empty until the design phase yields a buildable Loop 1 charter.
+
+**Topology: two folders now, three-target end-state documented.** `cortex-design` (design + stalled learning-system) + `cortex` (deployable target). The learning-system spins out to its own target only at its revival trigger (first real course content). Building an empty third folder now is the build-ahead-of-need pattern being avoided.
+
+The current phase is DESIGN: research, brainstorming, visualization (**Mermaid-first**, Graphviz deferred — #20), language/ontology definition. The repo's claim matches its contents: it is the design.
 
 ## 10. Supersessions
 

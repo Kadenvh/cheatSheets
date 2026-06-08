@@ -1,6 +1,6 @@
 # Cortex Design — Session Rules & Orchestration
 
-**Version:** 8.1.0-design | **Phase:** DESIGN (build home `/home/ava/cortex` intentionally empty) | **Updated:** 2026-06-06
+**Version:** 8.2.0-design | **Phase:** DESIGN (build home `/home/ava/cortex` intentionally empty) | **Updated:** 2026-06-08
 
 This repo is the **design home** for Cortex: a multi-agent orchestration system that takes content and results in and responds by curating a totally agent-controlled memory (the brain). Directory/repo rename to `cortex-design` pends at a session boundary (`exploration/cortex-design-rename.md`, decision #18). Nothing gets BUILT here or in `/home/ava/cortex` until the design phase yields a buildable Loop 1 charter.
 
@@ -16,35 +16,33 @@ This file owns **rules and session orchestration**. Ontology and identity live i
 | Why was each technology chosen/rejected? | `exploration/resource-landscape.md` |
 | Operator contract (posture, non-negotiables, authority) | `OPERATOR.md` (read every session) |
 | Decision record (primary, append directly) | `DECISIONS.md` |
-| Design-tool expertise (Graphviz etc.) | `exploration/research/` |
+| Design diagrams: Mermaid default, Graphviz deferred | `LANGUAGE.md` (conventions), `exploration/research/graphviz.md` (deferred-tool reference) |
 | Project-wide hub rules | `Ava_Main/CLAUDE.md` |
 
 ## Document lifecycle
 
 `exploration/` (ideas, resources, sketches, research) -> `plans/` (few, fully-defined, active) -> `architecture/` (consolidated, completed, with receipts). Mirrors the memory model Cortex builds (SPEC §2). Session outputs land in the stage matching their maturity.
 
-## Continuity model (post-DAL, decision #17)
+## Continuity model (DAL live, decision #19)
 
-The PE DAL is **frozen**: no more `dal.mjs` writes (brain.db is read-only history; final write was decision #17's forwarding address; the session-context hook gets disabled at the next session boundary).
+The PE DAL is **active and canonical** (#19 superseded the #17 freeze). brain.db is the live continuity store *and* the working reference example of agent-curated memory. The repo `.md` files are curated exports refreshed at milestones — brain.db is source, they are views.
 
-| Continuity question | Now lives in |
-|---|---|
-| Why did we choose X? | `DECISIONS.md` — append directly, ADR pattern |
-| What's open / next? | `PLAN.md` + active plan checkboxes |
-| What happened? | git history; optional `sessions/` note for milestone sessions |
-| Operator memory across sessions | Claude auto-memory |
-| Non-obvious findings mid-session | Straight into the doc they belong to (lifecycle stage), not a side ledger |
+| Continuity question | Canonical | Curated export |
+|---|---|---|
+| Why did we choose X? | `dal.mjs decision add` | `DECISIONS.md` |
+| What's open / next? | `dal.mjs note` + sessions | `PLAN.md` + active plan checkboxes |
+| What happened? | `dal.mjs session` + handoffs | git history + optional `sessions/` note |
+| Non-obvious findings mid-session | `dal.mjs trace add` | the doc they belong to (lifecycle stage) |
 
-`.ava/` deletion trigger: first real MemoryOp events (decision #17). The three whitelisted product files there are Tier 4 product, untouched.
+Use `dal.mjs` normally (`session start/close`, `trace add`, `decision add`, `note add`). Refresh the `.md` exports at milestones, not in lockstep. `.ava/` stays.
 
 ## Critical rules
 
 ### DO NOT
 
 - Describe non-`RUNS` components in the present tense, anywhere. Status tags (SPEC §1) are mandatory in architectural claims
-- Build anything in `/home/ava/cortex` or this repo during the DESIGN phase; design artifacts only (docs, .dot/.svg, ontology files, research)
+- Build anything in `/home/ava/cortex` or this repo during the DESIGN phase; design artifacts only (docs, diagrams, ontology files, research)
 - Create new strategy documents while Loop 1 is open (SPEC §7); design artifacts in `exploration/` are not strategy documents
-- Write to brain.db (frozen, decision #17)
 - `git add -A` at this repo root — runtime workspaces (`tutor/`) live here untracked; stage explicitly (Session 17 incident)
 - Adopt tools rejected in `exploration/resource-landscape.md` without a superseding decision in `DECISIONS.md`
 - Write to sibling projects (operator model); the rename checklist's cross-project steps are executed manually by Kaden or with explicit confirmation
@@ -52,9 +50,9 @@ The PE DAL is **frozen**: no more `dal.mjs` writes (brain.db is read-only histor
 
 ### ALWAYS
 
-- Record decisions in `DECISIONS.md` at fork points; verification artifact for every claim of done (command output, diff, commit hash visible in `git log`)
+- Record decisions via `dal.mjs decision add` at fork points; curate into `DECISIONS.md`. Verification artifact for every claim of done (command output, diff, commit hash visible in `git log`)
 - GFM per `LANGUAGE.md`; respect operator notation (`X // Y` = alternate framing, `X && Y` = jointly required, `ie` = clarification)
-- Generated diagrams are build artifacts: commit the source (`.dot`, `.yaml`) AND the rendered `.svg`; never hand-edit renders
+- Diagrams: **Mermaid by default** (fenced ```mermaid in the `.md`, native GitHub/Obsidian rendering, #20). Graphviz/DOT only for generated/data-dense views; there, commit source + rendered `.svg`, never hand-edit renders
 - Update `PLAN.md` and the active plan when work touches their domain; re-tag SPEC §4 entities only with artifacts
 - Surface judgment calls as you go; state understanding before acting
 
@@ -71,9 +69,9 @@ Sessions are long-running design/working sessions. The model:
 
 ## Current design-phase focus
 
-1. **Graphviz expertise** (`exploration/research/graphviz.md`): DOT is the design-phase visualization language; data-dense HTML-label nodes render schemas/status inside diagrams; all diagrams generated from machine-readable sources
-2. **LANGUAGE.md curation**: the ingest-layer format contract + doc-type registry
-3. **System design artifacts**: layer diagrams, entity graphs, orchestration flows as `.dot` -> `.svg` in `exploration/` graduating to `architecture/`
+1. **Design diagrams in Mermaid** (#20): hand-authored ER/flowchart/architecture views as fenced ```mermaid blocks inside `.md`, rendering natively in GitHub + Obsidian, zero infra. Graphviz expertise (`exploration/research/graphviz.md`) is reference, reserved for generated/data-dense views
+2. **LANGUAGE.md curation**: the ingest-layer format contract + doc-type registry + diagram conventions
+3. **System design artifacts**: layer diagrams, entity-relationship graphs, orchestration flows as Mermaid in `exploration/design/` graduating to `architecture/`
 4. **Azure touchpoint** (when its Loop 1 item fires): Entra done; next = subscription -> resource group -> Foundry project (pay-per-call) -> first Responses call. Azure Local is rejected (datacenter product); Foundry Local is the local leg. Cert: AI-103, not AI-102 (retires 2026-06-30)
 
 ## Learning-companion surface (STALLED — SPEC §4 Tier 4)
@@ -82,4 +80,4 @@ The former cheatSheets product. Engine code sound; data stalled 2026-04. Revival
 
 ## Runtime services (verify, don't assume)
 
-Hub UI `ava:4173` (Ava_Main; serves no learning backend). Embedding service `:8001` (Ava_Main-owned FastAPI, bge-base-en-v1.5 + embedded ChromaDB). OpenClaw gateway `:18789` (tutor workspace registration points at this repo's `tutor/`; consolidation deferred to Loop 2). **Design server `ava:8484`** (`exploration/design/design-server.py`, stdlib Python: live Graphviz viewer + playground over Tailscale; renders `.dot` via local `dot`; v0.0 of the Agent Orchestration Lab). Run: `python3 exploration/design/design-server.py`.
+Hub UI `ava:4173` (Ava_Main; serves no learning backend). Embedding service `:8001` (Ava_Main-owned FastAPI, bge-base-en-v1.5 + embedded ChromaDB). OpenClaw gateway `:18789` (tutor workspace registration points at this repo's `tutor/`; consolidation deferred to Loop 2). **Design server `ava:8484`** (`exploration/design/design-server.py`, stdlib Python: Graphviz viewer + playground over Tailscale; optional tooling for the deferred Graphviz case, not the primary design medium — #20). Run: `python3 exploration/design/design-server.py`.

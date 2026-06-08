@@ -186,4 +186,40 @@ For the ontology see [`SPEC.md`](SPEC.md); for active strategy see [`PLAN.md`](P
 
 ---
 
-*Decisions #1-#17 originated in the brain.db continuity ledger, now frozen (see #17). From #17 onward, this file is the primary decision record: append directly. Decisions #11-#13 remain ledger-only (retired EdX/operator era). For ongoing strategy see `PLAN.md`; for ontology see `SPEC.md`.*
+## 19. DAL unfrozen — brain.db is the live continuity substrate and reference exemplar (supersedes #17) (2026-06-08)
+
+**Context:** #17 froze the DAL on the theory that Cortex should supersede PE's continuity layer. On reflection (Kaden): the DAL is fully functional (`dal.mjs verify`: all layers PASS), and a *working* agent-curated memory store is the single best **reference example** of the exact thing Cortex is designing. Freezing it discarded a live exemplar to make a philosophical point and created an awkward dual-surface state.
+
+**Chosen:** Supersede #17. Resume normal DAL use (`session start/close`, `trace add`, `decision add`, `note add`). brain.db is the **live continuity substrate** AND the **working reference example** for the pending memory-system evolution. The repo `.md` continuity files are **curated exports/views** refreshed at milestones, not hand-maintained in lockstep (the emitter pattern: brain.db = source, `DECISIONS.md`/`PLAN.md` = curated human-readable export). The drift risk #17 worried about is handled by designating brain.db canonical and the `.md` files as exports, rather than by freezing. No deletion trigger; `.ava/` stays.
+
+**Rationale:** Keep the working example; dogfood the memory model instead of contradicting it. Low-friction CLI continuity is worth more than the purity of a freeze.
+
+*Decided 2026-06-08.*
+
+---
+
+## 20. Mermaid-first for design diagrams; Graphviz deferred to generated/data-dense views (refines landscape §2b) (2026-06-08)
+
+**Context:** Graphviz/DOT was *adopted* (Session 17) more than *chosen* — the operator noted it got accepted rather than evaluated, and that the design medium had come to depend on a custom GUI (`:8484`) and declined tools (Excalidraw). The design phase needs low-friction, hand-authored diagrams (ER, flowchart, architecture) that render everywhere.
+
+**Chosen:** **Mermaid is the design-phase default** for hand-authored diagrams: it renders natively in GitHub, Obsidian, and ordinary markdown tooling with **zero infrastructure** and no GUI dependency, and it embeds directly in `.md` (the LANGUAGE.md surface). **Graphviz/DOT is deferred** to its genuine edge: *generated*, data-dense views (HTML-table nodes, row-level ports, large graphs emitted from SQLite/ontology). Named trigger: a diagram needs data inside nodes or is machine-generated from a data source. The Graphviz expertise pack and the `:8484` design server remain as reference + the render surface for that deferred case; the server is demoted from "the design medium" to optional tooling.
+
+**Rationale:** Frictionlessness wins the design phase. Native rendering everywhere beats a better diagram that needs a server. Reserve the heavier tool for when its advantage is actually load-bearing.
+
+*Decided 2026-06-08.*
+
+---
+
+## 21. Two-folder topology now; three-target end-state documented (refines #18) (2026-06-08)
+
+**Context:** `/home/ava/cortex` is the deployable, templatized, project-scoped consumer-surface target. The learning-system is *also* a consumer surface (a second eventual target). Question: 2 folders or 3?
+
+**Chosen:** Build **2**. `cheatSheets/` → `cortex-design` is the design home and *also houses* the stalled learning-system content (`vault/`, `knowledge-agents/`, `archive/`, `.ava/learning*`). `/home/ava/cortex` is the first deployable target, empty until a buildable charter exists. The learning-system spins out to its own target **only when its revival trigger fires** (first real course content authored). The eventual 3-target end-state (cortex-design / cortex / learning-system) is documented but not built — an empty third folder now is the build-structure-ahead-of-need pattern being avoided.
+
+**Rationale:** Two folders match current reality; the third is created on a trigger, not on speculation.
+
+*Decided 2026-06-08.*
+
+---
+
+*Decisions #1-#21 are recorded both here and in the brain.db ledger (unfrozen, decision #19). brain.db is canonical; this file is the curated export. Decisions #11-#13 remain ledger-only (retired EdX/operator era). For ongoing strategy see `PLAN.md`; for ontology see `SPEC.md`.*

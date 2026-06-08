@@ -6,6 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [8.2.0-design] — 2026-06-08
+
+**Course correction on three Session-17 calls.**
+
+### Changed
+- **DAL unfrozen** (decision #19, supersedes #17): `brain.db` resumes as the live continuity substrate *and* the working reference example of agent-curated memory; `DECISIONS.md`/`PLAN.md` are curated exports of it. `verify` passes all layers.
+- **Mermaid-first** (decision #20): Mermaid is the design-phase default diagram medium (fenced blocks in `.md`, native GitHub/Obsidian rendering, zero infra). Graphviz/DOT deferred to generated/data-dense views; the `:8484` design server demoted to optional tooling.
+- `SPEC.md` §2/§3/§4/§5/§9, `CLAUDE.md`, `LANGUAGE.md` (diagram conventions), `exploration/resource-landscape.md` §2b updated to match.
+
+### Added
+- `exploration/project-topology.md` (decision #21): two-folder topology now (`cortex-design` housing the stalled learning-system + empty `cortex` build target), three-target end-state documented; pending-cleanup register; continuity + PM surfaces (Linear noted as DEFER).
+- `exploration/design/entity-catalog.md` — first Mermaid design artifact (SPEC §4 Tier 1 as an ER diagram).
+
+### Decisions
+- #19 DAL unfrozen; #20 Mermaid-first; #21 two-folder topology
+
 ## [8.1.0-design] — 2026-06-06
 
 **Design phase opens.** The re-founding (8.0.0-spec) is followed by the design/build split and the first design-phase tooling.

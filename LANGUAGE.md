@@ -21,6 +21,16 @@ Two jobs, one file:
 
 Repo-first docs do NOT use: wikilinks, embeds, Dataview blocks, Templater tokens, Tasks-emoji metadata, `==highlight==`, hidden Obsidian comments.
 
+## Diagram conventions (decision #20)
+
+| Need | Tool | Why |
+|---|---|---|
+| Design-phase diagrams (ER, flowchart, architecture, sequence) | **Mermaid**, fenced ```mermaid in the `.md` | Native rendering in GitHub + Obsidian + markdown tooling; zero infra; lives in the doc |
+| Generated / data-dense views (schemas inside nodes, row ports, large graphs from SQLite/ontology) | **Graphviz/DOT** -> committed `.svg` | DOT's genuine edge; deferred until a diagram needs data-in-nodes or is machine-generated. Reference: `exploration/research/graphviz.md` |
+| Free-form spatial brainstorming (capture stage) | Obsidian Canvas (open JSON Canvas) or hand sketch | Agent-parseable; never a source of truth |
+
+Diagrams follow the drift rule: a hand-authored Mermaid block is fine as authored truth; any diagram *generated from a data source* is a build artifact (commit source + render, never hand-edit the render).
+
 ## Core writing rules
 
 - One canonical home per durable fact; link to it, don't duplicate it (transclusion mindset)
