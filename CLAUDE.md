@@ -82,4 +82,4 @@ The former cheatSheets product. Engine code sound; data stalled 2026-04. Revival
 
 ## Runtime services (verify, don't assume)
 
-Hub UI `ava:4173` (Ava_Main; serves no learning backend). Embedding service `:8001` (Ava_Main-owned FastAPI, bge-base-en-v1.5 + embedded ChromaDB). OpenClaw gateway `:18789` (tutor workspace registration points at this repo's `tutor/`; consolidation deferred to Loop 2).
+Hub UI `ava:4173` (Ava_Main; serves no learning backend). Embedding service `:8001` (Ava_Main-owned FastAPI, bge-base-en-v1.5 + embedded ChromaDB). OpenClaw gateway `:18789` (tutor workspace registration points at this repo's `tutor/`; consolidation deferred to Loop 2). **Design server `ava:8484`** (`exploration/design/design-server.py`, stdlib Python: live Graphviz viewer + playground over Tailscale; renders `.dot` via local `dot`; v0.0 of the Agent Orchestration Lab). Run: `python3 exploration/design/design-server.py`.

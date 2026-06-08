@@ -6,6 +6,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [8.1.0-design] — 2026-06-06
+
+**Design phase opens.** The re-founding (8.0.0-spec) is followed by the design/build split and the first design-phase tooling.
+
+### Added
+- `LANGUAGE.md` — ingest-layer format contract (draft) + doc-type registry + operator notation
+- `exploration/cortex-design-rename.md` — blast-radius checklist for the `cheatSheets -> cortex-design` rename (executed at a session boundary)
+- `exploration/research/graphviz.md` + 4 cluster references — Graphviz adopted as the design-phase visualization language (verified against graphviz.org + local `dot` 2.43.0)
+- `exploration/design/cortex-layers.dot` (+ rendered svg/png) + `Makefile` — first design artifact: SPEC §3 layers as status-carded HTML-label nodes
+- `exploration/design/design-server.py` — self-hosted Graphviz viewer + playground (`ava:8484`) for headless/Tailscale use; v0.0 of the Agent Orchestration Lab
+
+### Changed
+- `CLAUDE.md` — design-home identity, post-DAL continuity model, design-phase focus, design-server runtime entry
+- DAL frozen (decision #17): continuity moved to repo-native surfaces
+
+### Decisions
+- #17 DAL frozen; #18 design/build split (`cortex-design` + empty `/home/ava/cortex` build home)
+
 ## [8.0.0-spec] — 2026-06-06
 
 **Re-founding release: cheatSheets becomes Cortex.** A 9-territory audit of the project's full 18-month history found elaborate, repeatedly re-architected infrastructure with zero closed loops (FSRS never performed a second review, the prerequisite DAG held 0 edges, the documented `vault-sync` flow existed in no live code, and the hub served no learning backend). The project is re-founded around its actual demonstrated goal: a multi-agent orchestration system curating an agent-controlled memory. The learning system survives as one consumer surface.

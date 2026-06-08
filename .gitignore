@@ -97,3 +97,7 @@ tutor/
 
 # GitNexus auto-generated agent instructions (dev tooling)
 AGENTS.md
+
+# Obsidian/smart-connections scratch at repo root (vault config lives in vault/.obsidian)
+/.obsidian/
+/.smart-env/

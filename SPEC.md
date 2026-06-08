@@ -1,6 +1,6 @@
 # Cortex
 
-**Version:** 8.0.0-spec | **Status:** Unvalidated until Loop 1 closes (§8) | **Created:** 2026-06-06 (Session 17) | **Supersedes:** see §10
+**Version:** 8.1.0-design | **Status:** Unvalidated until Loop 1 closes (§8) | **Created:** 2026-06-06 (Session 17) | **Supersedes:** see §10
 
 A multi-agent orchestration system that takes content and results in, and responds by curating a totally agent-controlled memory: the brain. The learning companion ("cheatSheets", this repo's former identity) is the brain's first consumer surface, not the project.
 
