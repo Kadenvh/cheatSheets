@@ -53,7 +53,8 @@ flowchart TB
         CORPUS["Markdown corpus mirror (RUNS)"]
         SQL["SQLite: sources/pages/sections/chunks/symbols + FTS5 (RUNS)"]
         VEC["ChromaDB vectors via embedding service :8001 (RUNS)"]
-        DAL["Continuity DAL: sessions/decisions/notes (RUNS)"]
+        DAL["Continuity DAL: brain.db (STALLED — frozen #17)"]
+        REPO["Repo-native continuity: DECISIONS/PLAN/git (RUNS)"]
         LOG["Memory-op event log (PLANNED)"]
         HIPPO["Hippocampus: sleep-phase consolidation (STALLED — runs, starved)"]
     end
@@ -92,11 +93,17 @@ Instance counts are from the 2026-06-06 audit. The ordering is the honesty mecha
 | IngestRun | ~300 | `doc_ingest_runs` (status, counts, errors) |
 | TriageVerdict | per-source | `.triage/*.json` (keep/drop/unsure + confidence) |
 
-### Tier 2: continuity `RUNS` (the only loop that ever closed)
+### Tier 2: continuity — repo-native `RUNS`, brain.db DAL `STALLED` (frozen #17)
 
-| Entity | Instances | Where |
+Continuity was the only loop that ever closed here. As of decision #17 it moved off the DAL onto repo-native surfaces.
+
+| Entity | State | Where |
 |---|---|---|
-| Session / Decision / Note / Trace / Handoff | 17 / 15 / 35+ / live / live | `brain.db` DAL |
+| Decisions | `RUNS` | `DECISIONS.md` (append directly), 18 entries |
+| Active work / next steps | `RUNS` | `PLAN.md` + `plans/loop-1-ingestion.md` checkboxes |
+| Session narrative | `RUNS` | git history + `sessions/session-{N}.md` |
+| Operator memory | `RUNS` | Claude auto-memory |
+| Session / Decision / Note / Trace / Handoff | `STALLED` | `brain.db` DAL — read-only history (final counts 17 / 18 / 35+); deletion trigger = first MemoryOp events |
 
 ### Tier 3: planned spine `PLANNED` (0 instances)
 
@@ -183,7 +190,7 @@ This SPEC retires the following (extraction receipts accompany each move):
 | Question | Decide by |
 |---|---|
 | Port the Ava_Main ingestion libs into this repo vs wrap as a service | Loop 1 planning (the reuse matrix in `exploration/resource-landscape.md` §1 favors porting the portable four) |
-| Tutor consolidation: `knowledge-agents/tutor/` identity pack vs root `tutor/` OpenClaw workspace - merge into one | Repo surgery this session |
+| Tutor consolidation: `knowledge-agents/tutor/` identity pack vs root `tutor/` OpenClaw workspace - merge into one | Deferred to Loop 2 (Session 17); both kept meanwhile |
 | UI stack for the agent-first frontend (AG-UI + which renderer) | When UI work starts (after Loop 1) |
 | GPU purchase timing (2x 3090) | Kaden; unblocks worker parallelism but Loop 1 runs on the 3070 |
 | ~~Public-facing name, repo rename timing~~ | Resolved 2026-06-06: `cortex-design` design home + empty `/home/ava/cortex` build home (decision #18) |
