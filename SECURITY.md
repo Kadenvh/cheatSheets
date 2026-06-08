@@ -22,14 +22,17 @@ We will acknowledge the report within 48 hours and work with you on a coordinate
 
 ## Scope
 
+This repo is in a design phase (see `SPEC.md`); most components are documents, not running code.
+
 In scope:
 
-- The Node.js curriculum engine (`.ava/learning-schema.sql`, `.ava/learning-db.mjs`, `.ava/curriculum-export.mjs`)
-- The vault sync pipeline and related content handling
+- The design server (`exploration/design/design-server.py`) — note it is intended for trusted LAN/Tailscale use only and ships no authentication; binding it to an untrusted network is a misconfiguration, not a vulnerability
+- The Node.js curriculum-engine product files (`.ava/learning-schema.sql`, `.ava/learning-db.mjs`, `.ava/course-import.mjs`) — stalled but present
 - The OpenClaw agent definitions in `knowledge-agents/`
 
 Out of scope:
 
 - Third-party dependencies (report upstream)
-- Local misconfiguration of Obsidian or ChromaDB
-- Issues that require local filesystem access that is not otherwise escalated
+- Local misconfiguration (e.g. exposing the design server to an untrusted network, Obsidian setup)
+- Anything requiring local filesystem access not otherwise escalated
+- `PLANNED`/`SPECULATIVE` components that do not yet exist as code

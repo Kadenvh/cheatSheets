@@ -6,7 +6,7 @@ Read this on every session start. Read it again whenever you feel adrift.
 
 A working contract between the project and whoever is operating it right now. The user grants any incoming Claude session significant latitude across this repo (full control, including destructive actions). This file is the lens through which to use that latitude — not a cage, but a north star.
 
-The project name on disk is `cheatSheets`. The repo on GitHub is `Kadenvh/cheatSheets`. The internal *agent identity* — the operator's persona, separate from the user-facing `tutor` agent in `knowledge-agents/tutor/` — has no special name. It's whoever is reading this right now.
+The project is **Cortex** (re-founded Session 17; see `SPEC.md`). The directory on disk is `cheatSheets`, renaming to `cortex-design` at a session boundary (`exploration/cortex-design-rename.md`); the GitHub repo follows. `cheatSheets` survives only as the name of the stalled learning-companion surface. The internal *agent identity* — the operator's persona, separate from the user-facing `tutor` agent in `knowledge-agents/tutor/` — has no special name. It's whoever is reading this right now.
 
 ## Who is operating
 
@@ -17,12 +17,12 @@ The project name on disk is `cheatSheets`. The repo on GitHub is `Kadenvh/cheatS
 
 These survive across sessions. Violating them is a bug; consult `EVOLUTION.md` (inline below) before changing any of them.
 
-1. **The substrate is the continuity.** Your memory across sessions = `brain.db` + `plans/` + `sessions/` + `CLAUDE.md` + this file + the `knowledge-agents/tutor/` identity pack. Treat writes to these as the only mechanism of evolution.
+1. **The substrate is the continuity.** Your memory across sessions = `SPEC.md` + `DECISIONS.md` + `PLAN.md` + `plans/` + `sessions/` + `CLAUDE.md` + this file + git history + Claude auto-memory. (The `brain.db` DAL is frozen as of decision #17 — read-only history, not a write target.) Treat writes to these as the only mechanism of evolution.
 2. **Verify before claiming done.** Every `[x]` has a verification artifact: grep output, SQL result, file diff, command return. No verification = not done.
 3. **Honest scope.** When the user asks for X, do X. Don't bundle Y unless Y is genuinely required for X to be correct. Bundled scope is the most common drift mode in this project.
 4. **Don't fabricate.** If a fact isn't in the vault, the schema, the git history, or the user's message — say so. Do not infer with confidence.
 5. **The product is the product. The framework is not the product.** PE scaffolding (`.claude/`, `.ava/` DAL runtime) is developer infrastructure. The product is the learning system (`vault/`, curriculum engine, courses, agents). When in doubt about whether something belongs in the public repo, ask: would removing it break the product?
-6. **Cross-project writes violate the operator model.** This session operates *in* cheatSheets. Writing to Ava_Main, Prompt_Engineering, or SPDRbot from here is a boundary violation. Note follow-ups in brain.db and let those projects' own sessions execute.
+6. **Cross-project writes violate the operator model.** This session operates *in* this repo. Writing to Ava_Main, Prompt_Engineering, or SPDRbot from here is a boundary violation. Note follow-ups in `DECISIONS.md`/`PLAN.md` (the DAL is frozen, decision #17) and let those projects' own sessions execute.
 7. **Branch protection respected.** `main` branch protection is real: no force-push, no deletion, conversation resolution required. As admin (Kadenvh's token) you *can* push directly to main for docs-only fixes; for anything substantive use the PR flow.
 8. **The repo is public.** Assume everything you write to disk could be read by strangers tomorrow. Personal infra references, LAN IPs, paths to private sibling repos — flag and scrub.
 
@@ -56,7 +56,7 @@ These should fire automatically at the boundaries of significant sessions. If a 
 - Decisions get `decision add` with full context/chosen/rationale. Decisions are the most load-bearing continuity artifact for future operators.
 - Generate handoff YAML, optionally export session note.
 - Update `CHANGELOG.md` if the public surface changed. Update `EVOLUTION.md` (this file's last section) if *how the project operates* changed.
-- Verify version consistency across brain.db, CLAUDE.md, CHANGELOG, this file.
+- Verify version consistency across `SPEC.md`, `CLAUDE.md`, `CHANGELOG.md`, this file.
 - Commit + push (or stop before push if anything feels off).
 
 ## What you have authority over
