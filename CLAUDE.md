@@ -16,7 +16,8 @@ This file owns **rules and session orchestration**. Ontology and identity live i
 | Why was each technology chosen/rejected? | `exploration/resource-landscape.md` |
 | Operator contract (posture, non-negotiables, authority) | `OPERATOR.md` (read every session) |
 | Decision record (primary, append directly) | `DECISIONS.md` |
-| Design diagrams: Mermaid default, Graphviz deferred | `LANGUAGE.md` (conventions), `exploration/research/graphviz.md` (deferred-tool reference) |
+| Design diagrams: Mermaid default, Graphviz deferred | `LANGUAGE.md` (conventions), `references/mermaid.md` (how-to), `exploration/research/graphviz.md` (deferred-tool reference) |
+| How a tool works (Mermaid, Obsidian) | `references/` |
 | Project-wide hub rules | `Ava_Main/CLAUDE.md` |
 
 ## Document lifecycle

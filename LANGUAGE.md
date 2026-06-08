@@ -61,6 +61,7 @@ Every root document declares what it is. This table is the seed of `ontology/doc
 | `LANGUAGE.md` | contract | This file: ingest format + authoring rules | DRAFT; design-phase work item |
 | `DECISIONS.md` | ledger | ADR record, append-only | Append at fork points |
 | `OPERATOR.md` | contract | Operator-self contract + Evolution Log | Append-only log; rules amended via decision |
+| `references/*.md` | reference | How an adopted tool works (Mermaid, Obsidian, …) | Re-verified against official sources when version-sensitive |
 | `*/RECEIPT.md` | receipt | What was extracted where, on every retirement | Written once at the move |
 
 ## Open design questions (work on these next)
