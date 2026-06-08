@@ -1,6 +1,6 @@
 # Cortex Design — Session Rules & Orchestration
 
-**Version:** 8.2.0-design | **Phase:** DESIGN (build home `/home/ava/cortex` intentionally empty) | **Updated:** 2026-06-08
+**Version:** 8.3.0-design | **Phase:** DESIGN (build home `/home/ava/cortex` intentionally empty) | **Updated:** 2026-06-08
 
 This repo is the **design home** for Cortex: a multi-agent orchestration system that takes content and results in and responds by curating a totally agent-controlled memory (the brain). Directory/repo rename to `cortex-design` pends at a session boundary (`exploration/cortex-design-rename.md`, decision #18). Nothing gets BUILT here or in `/home/ava/cortex` until the design phase yields a buildable Loop 1 charter.
 

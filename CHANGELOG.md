@@ -6,7 +6,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-## [8.2.0-design] — 2026-06-08
+## [8.3.0-design] — 2026-06-08
+
+**Design-phase tooling + Target Tree design.** (Session 18, post-rename to `cortex-design`.)
+
+### Added
+- `references/mermaid.md` — complete all-types Mermaid syntax reference (29 diagram types, render-validated examples)
+- `references/obsidian.md` — Obsidian as a surface (portable-vs-locked syntax, Canvas, Bases)
+- `exploration/target-tree.md` — the canonical Cortex-managed-project structure proposal (tree-as-gradient, irreducible local core, ingest mapping)
+- `exploration/ecosystem-correlation.md` — finding that Cortex's orchestration half lives outside this repo; **corrected** to record `agent-pipeline` is SEPARATE from Cortex (potential tool, not build seed)
+
+### Changed
+- Rename executed: dir + GitHub repo `cheatSheets` → `cortex-design`; git remote + brain.db identity updated
+- Linear MCP (`linear-server`) added to this project's config (loads next reload); decision: Project within `ava` team, defer GitHub link to build phase
+- CLAUDE.md + LANGUAGE.md reference `references/`; doc-type registry gains `references/`
+
+### Design (in-progress, not yet locked)
+- Target Tree being finalized at `/home/ava/cortex/Context Schema.md` (Kaden's workspace): 3-zone separation (root bootstrap / `.claude/` runtime+irreducible / `docs/` absorbable); sessions → `.claude/sessions/`; `.gitnexus` at root; `.obsidian/` in `docs/`; no README; Project-Architecture vs Documentation-Architecture framing. Critical structural gaps still to add: `.claude/settings.json`, the gitignore tracked-vs-ignored boundary, the `docs/*.md`-governance-vs-`docs/{folder}/`-content rule.
+
+## [8.2.0-design] — 2026-06-06
 
 **Course correction on three Session-17 calls.**
 

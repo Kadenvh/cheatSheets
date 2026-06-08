@@ -1,7 +1,9 @@
 # Ecosystem Correlation — Cortex's Scattered Scope
 
-**Created:** 2026-06-08 (Session 18) | **Status:** Exploration — FINDING PENDING RESOLUTION | **Blocks:** convergence decision, SPEC §6 reconciliation
+**Created:** 2026-06-08 (Session 18) | **Status:** Exploration — PARTIALLY RESOLVED (see correction) | **Blocks:** SPEC §6 reconciliation
 **Gate:** do not act on the convergence proposal until the Ava_Main orchestration track gives a definitive answer on where the agentic-pipeline lives.
+
+> **CORRECTION (2026-06-08, Kaden):** Cortex and `agent-pipeline` are **SEPARATE**, not two halves of one system. agent-pipeline is a *potential tool* Cortex may adopt later when orchestrating its own layers/steps — it is **not** Cortex and **not** the `cortex/` build seed (this doc earlier speculated it was — that speculation is withdrawn). `cortex/` = the external Cortex system itself (ingest + memory store + MCP + curation agents). `Ava_Main` = the **first test target** that adopts the Cortex Target Tree and gets ingested *externally*, with Cortex having zero direct effect on it. The "split brain" framing below overstated the coupling; treat the surfaces table as a map of *related* work, not *one* system.
 
 ## The finding
 
